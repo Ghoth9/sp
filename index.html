@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Spairdee — ระบบจัดการร้านบริการแอร์ครบวงจร ลูกค้า งานบริการ นัดหมาย สต็อกอะไหล่ - เอส พี แอร์ คอน แอนด์ เซอร์วิส">
+  <meta name="theme-color" content="#f1f5f9">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Spairdee">
+
+  <title>Spairdee — ระบบจัดการร้านแอร์</title>
+
+  <!-- PWA Manifest -->
+  <link rel="manifest" href="manifest.json">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- ================================================================
+     APP LAYOUT
+     ================================================================ -->
+<div class="app-layout" id="app">
+
+  <!-- ── Sidebar Overlay (mobile) ──────────────────────────── -->
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+  <!-- ── Sidebar ───────────────────────────────────────────── -->
+  <aside class="sidebar" id="sidebar">
+
+    <!-- Logo -->
+    <div class="sidebar-header">
+      <div class="sidebar-logo">
+        <i data-lucide="snowflake"></i>
+      </div>
+      <div class="sidebar-brand">
+        <h1>Spairdee</h1>
+        <span>เอส พี แอร์ คอน</span>
+      </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="sidebar-nav" id="sidebar-nav">
+      <div class="nav-section-label">เมนูการใช้งาน</div>
+
+      <div class="nav-item active" data-page="dashboard" id="nav-dashboard">
+        <i data-lucide="layout-dashboard"></i>
+        <span>หน้าหลัก</span>
+      </div>
+
+      <div class="nav-item" data-page="customers" id="nav-customers">
+        <i data-lucide="users"></i>
+        <span>รายชื่อลูกค้า</span>
+      </div>
+
+      <div class="nav-item" data-page="services" id="nav-services">
+        <i data-lucide="wrench"></i>
+        <span>ประวัติงานบริการ</span>
+      </div>
+
+      <div class="nav-item" data-page="appointments" id="nav-appointments">
+        <i data-lucide="calendar"></i>
+        <span>ตารางนัดหมาย</span>
+        <span class="nav-badge" id="nav-badge-appointments"></span>
+      </div>
+
+      <div class="nav-item" data-page="inventory" id="nav-inventory">
+        <i data-lucide="package"></i>
+        <span>คลังอะไหล่</span>
+        <span class="nav-badge" id="nav-badge-inventory"></span>
+      </div>
+
+      <div class="nav-section-label">จัดการระบบ</div>
+
+      <div class="nav-item" data-page="settings" id="nav-settings">
+        <i data-lucide="settings"></i>
+        <span>ตั้งค่าระบบ</span>
+      </div>
+    </nav>
+
+    <!-- Footer -->
+    <div class="sidebar-footer">
+      <button class="btn btn-primary btn-sm w-full mb-sm" id="btn-install-pwa" style="display: none; justify-content: center; width: 100%; margin-bottom: 8px;">
+        <i data-lucide="download" width="16" height="16"></i> ติดตั้งแอป Spairdee
+      </button>
+      <div class="text-xs text-muted text-center" id="sidebar-version">Spairdee v1.0.0</div>
+    </div>
+
+  </aside>
+
+  <!-- ── Main Content ──────────────────────────────────────── -->
+  <main class="main-content" id="main-content">
+
+    <!-- Top Header -->
+    <header class="top-header" id="top-bar">
+      <div class="top-header-left">
+        <button class="hamburger-btn btn-ghost btn-icon" id="hamburger-btn" aria-label="Toggle menu" style="display: none;">
+          <i data-lucide="menu" width="22" height="22"></i>
+        </button>
+        <h2 class="page-title" id="page-title">หน้าหลัก</h2>
+      </div>
+
+      <div class="top-header-right">
+        <div class="search-bar" id="global-search-bar">
+          <i data-lucide="search" class="search-icon"></i>
+          <input type="text" id="global-search-input" placeholder="ค้นหาลูกค้า, งานบริการ..." autocomplete="off">
+        </div>
+        <span class="text-sm text-secondary" id="topbar-date"></span>
+        <button class="btn btn-ghost btn-icon" id="btn-top-settings" data-navigate="settings" title="ตั้งค่าระบบ" style="display: none; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 50%;">
+          <i data-lucide="settings" width="20" height="20"></i>
+        </button>
+      </div>
+    </header>
+
+    <!-- Page Content Wrapper -->
+    <div class="page-content">
+
+      <!-- ============================================================
+           PAGE: DASHBOARD
+           ============================================================ -->
+      <!-- ============================================================
+           PAGE: DASHBOARD
+           ============================================================ -->
+      <section class="page-section active" id="page-dashboard" data-page="dashboard">
+
+        <!-- Alerts Row -->
+        <div id="dashboard-low-stock"></div>
+        <div id="dashboard-unpaid-summary"></div>
+
+        <!-- Stats Row -->
+        <div class="stats-grid stagger" id="dashboard-stats-grid">
+          <!-- Filled by DashboardModule -->
+        </div>
+
+        <!-- Charts Row -->
+        <div class="dashboard-grid" id="dashboard-charts">
+          <!-- Revenue Chart -->
+          <div class="card static" id="chart-revenue-card">
+            <div class="card-header">
+              <h3><i data-lucide="bar-chart-3" style="width:20px;height:20px;color:var(--accent-cyan)"></i> รายได้ 6 เดือนย้อนหลัง</h3>
+            </div>
+            <div class="card-body">
+              <div class="chart-container">
+                <canvas id="dashboard-revenue-chart"></canvas>
+              </div>
+            </div>
+          </div>
+
+          <!-- Service Type Chart -->
+          <div class="card static" id="chart-service-type-card">
+            <div class="card-header">
+              <h3><i data-lucide="pie-chart" style="width:20px;height:20px;color:var(--accent-cyan)"></i> ประเภทงานบริการ</h3>
+            </div>
+            <div class="card-body">
+              <div class="chart-container" style="display: flex; justify-content: center; align-items: center;">
+                <canvas id="dashboard-service-chart"></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Services + Upcoming Appointments -->
+        <div class="dashboard-grid mt-lg">
+          <!-- Recent Services -->
+          <div class="card static" id="recent-services-card">
+            <div class="card-header">
+              <h3><i data-lucide="clock" style="width:20px;height:20px;color:var(--accent-cyan)"></i> งานบริการล่าสุด</h3>
+              <button class="btn btn-ghost btn-sm" id="btn-view-all-services" data-navigate="services">ดูทั้งหมด →</button>
+            </div>
+            <div class="card-body" id="dashboard-recent-services">
+              <!-- Filled by JS -->
+            </div>
+          </div>
+
+          <!-- Upcoming Appointments -->
+          <div class="card static" id="upcoming-appointments-card">
+            <div class="card-header">
+              <h3><i data-lucide="calendar-check" style="width:20px;height:20px;color:var(--accent-cyan)"></i> นัดหมายที่กำลังจะมาถึง</h3>
+              <button class="btn btn-ghost btn-sm" id="btn-view-all-appointments" data-navigate="appointments">ดูทั้งหมด →</button>
+            </div>
+            <div class="card-body" id="dashboard-upcoming-appointments">
+              <!-- Filled by JS -->
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============================================================
+           PAGE: CUSTOMERS
+           ============================================================ -->
+      <section class="page-section" id="page-customers" data-page="customers">
+
+        <!-- Toolbar -->
+        <div class="toolbar" id="customers-toolbar">
+          <div class="toolbar-left">
+            <div class="search-bar">
+              <i data-lucide="search" class="search-icon"></i>
+              <input type="text" id="customers-search-input" placeholder="ค้นหาชื่อ, เบอร์โทร, LINE ID...">
+            </div>
+            <div class="tabs" style="margin-bottom: 0; border: none; display: flex; gap: 4px;">
+              <button class="btn btn-secondary btn-icon active" id="customers-view-card" title="การ์ด">
+                <i data-lucide="layout-grid" style="width: 18px; height: 18px;"></i>
+              </button>
+              <button class="btn btn-secondary btn-icon" id="customers-view-table" title="ตาราง">
+                <i data-lucide="list" style="width: 18px; height: 18px;"></i>
+              </button>
+            </div>
+          </div>
+          <div class="toolbar-right">
+            <span class="text-sm text-muted" id="customers-count"></span>
+            <button class="btn btn-primary" id="btn-add-customer">
+              <i data-lucide="plus"></i> เพิ่มลูกค้า
+            </button>
+          </div>
+        </div>
+
+        <!-- Customer List -->
+        <div id="customers-list-container"></div>
+
+        <!-- Customer Detail Modal -->
+        <div class="modal-overlay" id="customer-detail-modal"></div>
+      </section>
+
+      <!-- ============================================================
+           PAGE: SERVICES
+           ============================================================ -->
+      <section class="page-section" id="page-services" data-page="services">
+
+        <!-- Toolbar -->
+        <div class="toolbar" id="services-toolbar">
+          <div class="toolbar-left">
+            <div class="search-bar">
+              <i data-lucide="search" class="search-icon"></i>
+              <input type="text" id="services-search-input" placeholder="ค้นหางานบริการ...">
+            </div>
+            <select class="form-select" id="services-filter-type" style="width:auto;min-width:140px;">
+              <option value="">ทุกประเภท</option>
+              <option value="ล้างแอร์">ล้างแอร์</option>
+              <option value="ซ่อมแอร์">ซ่อมแอร์</option>
+              <option value="ติดตั้ง">ติดตั้ง</option>
+              <option value="ย้ายแอร์">ย้ายแอร์</option>
+              <option value="ถอดแอร์">ถอดแอร์</option>
+              <option value="เติมน้ำยา">เติมน้ำยา</option>
+            </select>
+            <select class="form-select" id="services-filter-payment" style="width:auto;min-width:140px;">
+              <option value="">ทุกสถานะ</option>
+              <option value="paid">ชำระแล้ว</option>
+              <option value="unpaid">ยังไม่ชำระ</option>
+              <option value="partial">ชำระบางส่วน</option>
+            </select>
+          </div>
+          <div class="toolbar-right">
+            <span class="text-sm text-muted" id="services-count"></span>
+            <button class="btn btn-primary" id="btn-add-service">
+              <i data-lucide="plus"></i> เพิ่มงานบริการ
+            </button>
+          </div>
+        </div>
+
+        <!-- Services Summary Cards -->
+        <div id="services-summary" class="mb-lg"></div>
+
+        <!-- Services Table -->
+        <div class="card static" id="services-table-container"></div>
+      </section>
+
+      <!-- ============================================================
+           PAGE: APPOINTMENTS
+           ============================================================ -->
+      <section class="page-section" id="page-appointments" data-page="appointments">
+
+        <!-- Overdue alert banner container -->
+        <div id="appointments-overdue-alert" class="mb-md"></div>
+
+        <!-- Toolbar -->
+        <div class="toolbar" id="appointments-toolbar">
+          <div class="toolbar-left">
+            <select class="form-select" id="appointments-filter-status" style="width:auto;min-width:140px;">
+              <option value="">ทุกสถานะ</option>
+              <option value="pending">รอดำเนินการ</option>
+              <option value="in-progress">กำลังดำเนินการ</option>
+              <option value="completed">เสร็จสิ้น</option>
+              <option value="cancelled">ยกเลิก</option>
+              <option value="no-one-home">ไม่มีคนอยู่/ติดต่อไม่ได้</option>
+            </select>
+          </div>
+          <div class="toolbar-right" style="display:flex; gap: 8px;">
+            <button class="btn btn-success" id="btn-share-line-today" style="background:#24c653; border-color:#24c653; color:#ffffff;">
+              <i data-lucide="send"></i> ส่งงานวันนี้เข้า LINE
+            </button>
+            <button class="btn btn-primary" id="btn-add-appointment">
+              <i data-lucide="plus"></i> เพิ่มนัดหมาย
+            </button>
+          </div>
+        </div>
+
+        <!-- Calendar View -->
+        <div class="card static mb-lg" id="appointments-calendar">
+          <div class="calendar-header">
+            <div class="calendar-nav">
+              <button class="btn btn-ghost btn-icon" id="btn-cal-prev"><i data-lucide="chevron-left"></i></button>
+            </div>
+            <h4 id="appointments-calendar-title"></h4>
+            <div class="calendar-nav">
+              <button class="btn btn-ghost btn-icon" id="btn-cal-next"><i data-lucide="chevron-right"></i></button>
+              <button class="btn btn-ghost btn-sm" id="btn-cal-today">วันนี้</button>
+            </div>
+          </div>
+          <div class="calendar-grid" id="calendar-grid"></div>
+        </div>
+
+        <!-- Appointments List -->
+        <div class="card static" id="appointments-list-card">
+          <div class="card-header">
+            <h3 id="appointments-list-title">รายการนัดหมาย</h3>
+          </div>
+          <div class="card-body">
+            <div id="appointments-list-container"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============================================================
+           PAGE: INVENTORY
+           ============================================================ -->
+      <section class="page-section" id="page-inventory" data-page="inventory">
+
+        <!-- Low Stock Alert -->
+        <div id="inventory-low-stock-alert"></div>
+
+        <!-- Toolbar -->
+        <div class="toolbar" id="inventory-toolbar">
+          <div class="toolbar-left">
+            <div class="search-bar">
+              <i data-lucide="search" class="search-icon"></i>
+              <input type="text" id="inventory-search-input" placeholder="ค้นหาอะไหล่...">
+            </div>
+            <select class="form-select" id="inventory-filter-category" style="width:auto;min-width:140px;">
+              <option value="">ทุกหมวด</option>
+              <option value="อะไหล่">อะไหล่</option>
+              <option value="น้ำยา">น้ำยา</option>
+              <option value="อุปกรณ์">อุปกรณ์</option>
+            </select>
+            <select class="form-select" id="inventory-filter-stock" style="width:auto;min-width:140px;">
+              <option value="">ทุกสถานะสต็อก</option>
+              <option value="low">ใกล้หมด/หมด</option>
+              <option value="ok">ปกติ</option>
+            </select>
+          </div>
+          <div class="toolbar-right">
+            <span class="text-sm text-muted" id="inventory-count"></span>
+            <button class="btn btn-primary" id="btn-add-inventory">
+              <i data-lucide="plus"></i> เพิ่มรายการ
+            </button>
+          </div>
+        </div>
+
+        <!-- Summary Cards -->
+        <div id="inventory-summary" class="mb-lg"></div>
+
+        <!-- Inventory Table Container -->
+        <div class="card static" id="inventory-table-container"></div>
+      </section>
+
+      <!-- ============================================================
+           PAGE: SETTINGS
+           ============================================================ -->
+      <section class="page-section" id="page-settings" data-page="settings">
+
+        <div style="max-width:640px;">
+          <!-- Data Management -->
+          <h3 class="mb-lg flex items-center gap-sm">
+            <i data-lucide="database" style="width:22px;height:22px;color:var(--accent-cyan)"></i>
+            จัดการข้อมูล
+          </h3>
+
+          <div class="card static mb-lg">
+            <div class="flex items-center justify-between mb-lg" style="padding-bottom:var(--space-md);border-bottom:1px solid var(--border-color);">
+              <div>
+                <h4 class="text-base font-semibold">สำรองข้อมูล (Export)</h4>
+                <p class="text-sm text-muted">ดาวน์โหลดข้อมูลทั้งหมดเป็นไฟล์ JSON</p>
+              </div>
+              <button class="btn btn-secondary" id="btn-export-data">
+                <i data-lucide="download"></i> Export
+              </button>
+            </div>
+
+            <div class="flex items-center justify-between mb-lg" style="padding-bottom:var(--space-md);border-bottom:1px solid var(--border-color);">
+              <div>
+                <h4 class="text-base font-semibold">นำเข้าข้อมูล (Import)</h4>
+                <p class="text-sm text-muted">นำเข้าข้อมูลจากไฟล์ JSON ที่สำรองไว้</p>
+              </div>
+              <div>
+                <input type="file" id="import-file-input" accept=".json" class="sr-only">
+                <button class="btn btn-secondary" id="btn-import-data">
+                  <i data-lucide="upload"></i> Import
+                </button>
+              </div>
+            </div>
+
+            <div class="flex items-center justify-between">
+              <div>
+                <h4 class="text-base font-semibold text-danger">ล้างข้อมูลทั้งหมด</h4>
+                <p class="text-sm text-muted">ลบข้อมูลทั้งหมดและรีเซ็ตระบบ (ไม่สามารถกู้คืนได้)</p>
+              </div>
+              <button class="btn btn-danger" id="btn-clear-data">
+                <i data-lucide="trash-2"></i> ล้างข้อมูล
+              </button>
+            </div>
+          </div>
+
+          <!-- App Info -->
+          <h3 class="mb-lg flex items-center gap-sm">
+            <i data-lucide="info" style="width:22px;height:22px;color:var(--accent-cyan)"></i>
+            เกี่ยวกับแอป
+          </h3>
+
+          <div class="card static">
+            <div class="detail-grid">
+              <div class="detail-item">
+                <div class="detail-label">เวอร์ชัน</div>
+                <div class="detail-value">1.0.0</div>
+              </div>
+              <div class="detail-item">
+                <div class="detail-label">พัฒนาโดย</div>
+                <div class="detail-value">AC Service Pro Team</div>
+              </div>
+              <div class="detail-item">
+                <div class="detail-label">เทคโนโลยี</div>
+                <div class="detail-value">HTML5, CSS3, JavaScript (ES6+)</div>
+              </div>
+              <div class="detail-item">
+                <div class="detail-label">ข้อมูลจัดเก็บ</div>
+                <div class="detail-value">localStorage (เบราว์เซอร์)</div>
+              </div>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="flex items-center justify-between">
+              <div>
+                <div class="text-sm text-muted">พื้นที่จัดเก็บที่ใช้</div>
+                <div class="text-base font-semibold" id="storage-usage">กำลังคำนวณ...</div>
+              </div>
+              <button class="btn btn-ghost btn-sm" id="btn-reload-demo">
+                <i data-lucide="refresh-cw"></i> โหลดข้อมูลตัวอย่าง
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </div><!-- /.page-content -->
+  </main>
+</div><!-- /.app-layout -->
+
+
+<!-- ================================================================
+     MODALS
+     ================================================================ -->
+
+<!-- ================================================================
+     MODALS
+     ================================================================ -->
+
+<!-- ── Modal: Customer Form ──────────────────────────────── -->
+<div class="modal-overlay" id="customer-modal">
+  <div class="modal modal-wide">
+    <div class="modal-header">
+      <div>
+        <h3 id="customer-modal-title">เพิ่มลูกค้าใหม่</h3>
+        <p class="modal-subtitle">กรอกข้อมูลติดต่อเพื่อลงทะเบียนลูกค้าในระบบ</p>
+      </div>
+      <button class="modal-close" data-modal-close="customer-modal"><i data-lucide="x" width="18" height="18"></i></button>
+    </div>
+    <div class="modal-body">
+      <form id="customer-form" autocomplete="off">
+        <input type="hidden" id="customer-form-id">
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">ชื่อ-นามสกุล <span class="text-danger">*</span></label>
+            <input type="text" class="form-input" id="customer-form-name" placeholder="ชื่อ นามสกุล" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">เบอร์โทรศัพท์ <span class="text-danger">*</span></label>
+            <input type="tel" class="form-input" id="customer-form-phone" placeholder="0xx-xxx-xxxx" required>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">ที่อยู่</label>
+          <textarea class="form-textarea" id="customer-form-address" placeholder="ที่อยู่เต็ม" rows="2"></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">ลิงก์แผนที่ Google Maps</label>
+          <input type="url" class="form-input" id="customer-form-maps" placeholder="เช่น https://maps.app.goo.gl/... หรือพิกัด GPS">
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">LINE ID</label>
+            <input type="text" class="form-input" id="customer-form-line" placeholder="line_id">
+          </div>
+          <div class="form-group">
+            <label class="form-label">หมายเหตุ</label>
+            <input type="text" class="form-input" id="customer-form-notes" placeholder="หมายเหตุเพิ่มเติม">
+          </div>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" data-modal-close="customer-modal">ยกเลิก</button>
+      <button class="btn btn-primary" id="btn-save-customer"><i data-lucide="check"></i> บันทึก</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Modal: Service Form ───────────────────────────────── -->
+<div class="modal-overlay" id="service-modal">
+  <div class="modal modal-wide">
+    <div class="modal-header">
+      <div>
+        <h3 id="service-modal-title">เพิ่มงานบริการใหม่</h3>
+        <p class="modal-subtitle">บันทึกข้อมูลและอาการแอร์เพื่อเปิดใบงานบริการ</p>
+      </div>
+      <button class="modal-close" data-modal-close="service-modal"><i data-lucide="x" width="18" height="18"></i></button>
+    </div>
+    <div class="modal-body">
+      <form id="service-form" autocomplete="off">
+        <input type="hidden" id="service-form-id">
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">ลูกค้า <span class="text-danger">*</span></label>
+            <select class="form-select" id="service-form-customer" required>
+              <option value="">-- เลือกลูกค้า --</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">ประเภทบริการ <span class="text-danger">*</span></label>
+            <select class="form-select" id="service-form-type" required>
+              <option value="">-- เลือกประเภท --</option>
+              <option value="ล้างแอร์">ล้างแอร์</option>
+              <option value="ซ่อมแอร์">ซ่อมแอร์</option>
+              <option value="ติดตั้ง">ติดตั้ง</option>
+              <option value="ย้ายแอร์">ย้ายแอร์</option>
+              <option value="ถอดแอร์">ถอดแอร์</option>
+              <option value="เติมน้ำยา">เติมน้ำยา</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">แบรนด์แอร์</label>
+            <input type="text" class="form-input" id="service-form-brand" placeholder="เช่น Daikin, Mitsubishi">
+          </div>
+          <div class="form-group">
+            <label class="form-label">รุ่น</label>
+            <input type="text" class="form-input" id="service-form-model" placeholder="เช่น FTKM09PV2S">
+          </div>
+          <div class="form-group">
+            <label class="form-label">BTU</label>
+            <input type="number" class="form-input" id="service-form-btu" placeholder="เช่น 12000">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">อาการ/ปัญหา</label>
+          <textarea class="form-textarea" id="service-form-symptoms" placeholder="อธิบายอาการ..." rows="2"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">การแก้ไข/งานที่ทำ</label>
+          <textarea class="form-textarea" id="service-form-solution" placeholder="อธิบายการแก้ไข..." rows="2"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">อะไหล่ที่ใช้</label>
+          <input type="text" class="form-input" id="service-form-parts" placeholder="คั่นด้วยเครื่องหมาย , เช่น Capacitor 35µF, สายไฟ">
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">ราคา (บาท) <span class="text-danger">*</span></label>
+            <input type="number" class="form-input" id="service-form-price" placeholder="0" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">สถานะการชำระ</label>
+            <select class="form-select" id="service-form-payment-status">
+              <option value="paid">ชำระแล้ว</option>
+              <option value="unpaid">ยังไม่ชำระ</option>
+              <option value="partial">ชำระบางส่วน</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">จำนวนที่ชำระ (บาท)</label>
+            <input type="number" class="form-input" id="service-form-paid" placeholder="0">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">ช่างผู้ดำเนินการ</label>
+            <input type="text" class="form-input" id="service-form-technician" placeholder="ชื่อช่าง">
+          </div>
+          <div class="form-group">
+            <label class="form-label">วันที่ให้บริการ <span class="text-danger">*</span></label>
+            <input type="date" class="form-input" id="service-form-date" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">หมายเหตุ</label>
+          <textarea class="form-textarea" id="service-form-notes" placeholder="หมายเหตุเพิ่มเติม..." rows="2"></textarea>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" data-modal-close="service-modal">ยกเลิก</button>
+      <button class="btn btn-primary" id="btn-save-service"><i data-lucide="check"></i> บันทึก</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Modal: Appointment Form ───────────────────────────── -->
+<div class="modal-overlay" id="appointment-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <div>
+        <h3 id="appointment-modal-title">เพิ่มนัดหมายใหม่</h3>
+        <p class="modal-subtitle">กำหนดวันและเวลาเพื่อจัดตารางนัดหมายทีมงาน</p>
+      </div>
+      <button class="modal-close" data-modal-close="appointment-modal"><i data-lucide="x" width="18" height="18"></i></button>
+    </div>
+    <div class="modal-body">
+      <form id="appointment-form" autocomplete="off">
+        <input type="hidden" id="appointment-form-id">
+
+        <div class="form-group">
+          <label class="form-label">ลูกค้า <span class="text-danger">*</span></label>
+          <select class="form-select" id="appointment-form-customer" required>
+            <option value="">-- เลือกลูกค้า --</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">ประเภทบริการ <span class="text-danger">*</span></label>
+          <select class="form-select" id="appointment-form-type" required>
+            <option value="">-- เลือกประเภท --</option>
+            <option value="ล้างแอร์">ล้างแอร์</option>
+            <option value="ซ่อมแอร์">ซ่อมแอร์</option>
+            <option value="ติดตั้ง">ติดตั้ง</option>
+            <option value="ย้ายแอร์">ย้ายแอร์</option>
+            <option value="ถอดแอร์">ถอดแอร์</option>
+            <option value="เติมน้ำยา">เติมน้ำยา</option>
+          </select>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">วันที่ <span class="text-danger">*</span></label>
+            <input type="date" class="form-input" id="appointment-form-date" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">เวลา <span class="text-danger">*</span></label>
+            <input type="time" class="form-input" id="appointment-form-time" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">สถานะ</label>
+          <select class="form-select" id="appointment-form-status">
+            <option value="pending">รอดำเนินการ</option>
+            <option value="in-progress">กำลังดำเนินการ</option>
+            <option value="completed">เสร็จสิ้น</option>
+            <option value="cancelled">ยกเลิก</option>
+            <option value="no-one-home">ไม่มีคนอยู่/ติดต่อไม่ได้</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">หมายเหตุ</label>
+          <textarea class="form-textarea" id="appointment-form-notes" placeholder="หมายเหตุเพิ่มเติม..." rows="2"></textarea>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" data-modal-close="appointment-modal">ยกเลิก</button>
+      <button class="btn btn-primary" id="btn-save-appointment"><i data-lucide="check"></i> บันทึก</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Modal: Inventory Form ─────────────────────────────── -->
+<div class="modal-overlay" id="inventory-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <div>
+        <h3 id="inventory-modal-title">เพิ่มรายการอะไหล่</h3>
+        <p class="modal-subtitle">บันทึกชื่ออะไหล่และอุปกรณ์เพื่อใช้ตัดยอดสต็อก</p>
+      </div>
+      <button class="modal-close" data-modal-close="inventory-modal"><i data-lucide="x" width="18" height="18"></i></button>
+    </div>
+    <div class="modal-body">
+      <form id="inventory-form" autocomplete="off">
+        <input type="hidden" id="inventory-form-id">
+
+        <div class="form-group">
+          <label class="form-label">ชื่อรายการ <span class="text-danger">*</span></label>
+          <input type="text" class="form-input" id="inventory-form-name" placeholder="เช่น Capacitor 25µF" required>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">หมวดหมู่ <span class="text-danger">*</span></label>
+            <select class="form-select" id="inventory-form-category" required>
+              <option value="">-- เลือกหมวด --</option>
+              <option value="อะไหล่">อะไหล่</option>
+              <option value="น้ำยา">น้ำยา</option>
+              <option value="อุปกรณ์">อุปกรณ์</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">หน่วยนับ</label>
+            <select class="form-select" id="inventory-form-unit">
+              <option value="ชิ้น">ชิ้น</option>
+              <option value="ถัง">ถัง</option>
+              <option value="กก.">กก.</option>
+              <option value="เมตร">เมตร</option>
+              <option value="ม้วน">ม้วน</option>
+              <option value="แกลลอน">แกลลอน</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">จำนวนคงเหลือ <span class="text-danger">*</span></label>
+            <input type="number" class="form-input" id="inventory-form-quantity" placeholder="0" min="0" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">จำนวนขั้นต่ำ</label>
+            <input type="number" class="form-input" id="inventory-form-min" placeholder="0" min="0">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">ราคาต่อหน่วย (บาท)</label>
+          <input type="number" class="form-input" id="inventory-form-price" placeholder="0" min="0">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">หมายเหตุ</label>
+          <textarea class="form-textarea" id="inventory-form-notes" placeholder="หมายเหตุเพิ่มเติม..." rows="2"></textarea>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" data-modal-close="inventory-modal">ยกเลิก</button>
+      <button class="btn btn-primary" id="btn-save-inventory"><i data-lucide="check"></i> บันทึก</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Modal: Service Detail ────────────────────────────── -->
+<div class="modal-overlay" id="service-detail-modal">
+  <div class="modal modal-wide">
+    <div class="modal-header">
+      <div>
+        <h3 id="service-detail-title">รายละเอียดบริการ</h3>
+        <p class="modal-subtitle">ข้อมูลการดำเนินการ ค่าใช้จ่าย และประวัติชำระเงิน</p>
+      </div>
+      <button class="modal-close" data-modal-close="service-detail-modal"><i data-lucide="x" width="18" height="18"></i></button>
+    </div>
+    <div class="modal-body" id="service-detail-content">
+      <!-- Filled by JS -->
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" data-modal-close="service-detail-modal">ปิด</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Modal: Confirmation (Standard Browser Alert Fallback, but kept for layouts) ── -->
+<div class="modal-overlay" id="modal-confirm">
+  <div class="modal" style="max-width:420px;">
+    <div class="modal-body">
+      <div class="confirm-dialog">
+        <div class="confirm-icon danger" id="confirm-icon">
+          <i data-lucide="alert-triangle" width="28" height="28"></i>
+        </div>
+        <h4 id="confirm-title">ยืนยันการดำเนินการ</h4>
+        <p id="confirm-message">คุณแน่ใจหรือไม่ว่าต้องการดำเนินการนี้?</p>
+      </div>
+    </div>
+    <div class="modal-footer" style="justify-content:center;">
+      <button class="btn btn-secondary" data-modal-close="modal-confirm" id="btn-confirm-cancel">ยกเลิก</button>
+      <button class="btn btn-danger" id="btn-confirm-ok">ยืนยัน</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ── Toast Container ───────────────────────────────────── -->
+<div class="toast-container" id="toast-container"></div>
+
+<!-- ── Bottom Navigation (Mobile Only) ───────────────────── -->
+<nav class="bottom-nav" id="bottom-nav">
+  <div class="bottom-nav-item" data-page="customers" id="bottom-nav-customers">
+    <i data-lucide="users"></i>
+    <span>ลูกค้า</span>
+  </div>
+  <div class="bottom-nav-item" data-page="services" id="bottom-nav-services">
+    <i data-lucide="wrench"></i>
+    <span>งานบริการ</span>
+  </div>
+  <div class="bottom-nav-item bottom-nav-home active" data-page="dashboard" id="bottom-nav-dashboard">
+    <div class="home-btn-inner">
+      <i data-lucide="layout-dashboard"></i>
+    </div>
+    <span>หน้าหลัก</span>
+  </div>
+  <div class="bottom-nav-item" data-page="appointments" id="bottom-nav-appointments">
+    <i data-lucide="calendar"></i>
+    <span>นัดหมาย</span>
+    <span class="nav-badge" id="bottom-badge-appointments" style="display: none;"></span>
+  </div>
+  <div class="bottom-nav-item" data-page="inventory" id="bottom-nav-inventory">
+    <i data-lucide="package"></i>
+    <span>คลังอะไหล่</span>
+    <span class="nav-badge" id="bottom-badge-inventory" style="display: none;"></span>
+  </div>
+</nav>
+
+
+<!-- ================================================================
+     SCRIPTS
+     ================================================================ -->
+<script src="js/db.js"></script>
+<script src="js/app.js"></script>
+<script src="js/dashboard.js"></script>
+<script src="js/customers.js"></script>
+<script src="js/services.js"></script>
+<script src="js/appointments.js"></script>
+<script src="js/inventory.js"></script>
+</body>
+</html>

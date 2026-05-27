@@ -1,0 +1,527 @@
+/* ============================================================
+   AC Service Pro — Main Application Logic (app.js)
+   SPA Navigation · Modal Helpers · Custom Toast Notifications
+   Format Helpers · Backup (Export/Import) Integration
+   ============================================================ */
+
+const App = (() => {
+    'use strict';
+
+    // ── Elements ──────────────────────────────────────────────
+    const $ = (id) => document.getElementById(id);
+
+    // ── App State ─────────────────────────────────────────────
+    let currentPage = 'dashboard';
+    let deferredPrompt = null;
+
+    // ── Navigation ────────────────────────────────────────────
+    function navigateTo(pageId) {
+        // Hide all page sections
+        const sections = document.querySelectorAll('.page-section');
+        sections.forEach(sec => sec.classList.remove('active'));
+
+        // Show target page section
+        const targetSection = $(`page-${pageId}`);
+        if (targetSection) {
+            targetSection.classList.add('active');
+        }
+
+        // Update active class on sidebar items
+        const navItems = document.querySelectorAll('.sidebar-nav .nav-item');
+        navItems.forEach(item => {
+            if (item.dataset.page === pageId) {
+                item.classList.add('active');
+            } else {
+                item.classList.remove('active');
+            }
+        });
+
+        // Update active class on bottom nav items
+        const bottomNavItems = document.querySelectorAll('.bottom-nav .bottom-nav-item');
+        bottomNavItems.forEach(item => {
+            if (item.dataset.page === pageId) {
+                item.classList.add('active');
+            } else {
+                item.classList.remove('active');
+            }
+        });
+
+        // Update header page title
+        const pageTitles = {
+            'dashboard': 'หน้าหลักและสรุปผล',
+            'customers': 'รายชื่อลูกค้า',
+            'services': 'ประวัติงานบริการ',
+            'appointments': 'ตารางนัดหมายบริการ',
+            'inventory': 'คลังอะไหล่และอุปกรณ์',
+            'settings': 'ตั้งค่าระบบ'
+        };
+        const titleEl = $('page-title');
+        if (titleEl) {
+            titleEl.textContent = pageTitles[pageId] || 'Spairdee';
+        }
+
+        currentPage = pageId;
+
+        // Refresh corresponding module if initialized
+        refreshModule(pageId);
+
+        // Auto-close sidebar on mobile
+        const sidebar = $('sidebar');
+        const overlay = $('sidebar-overlay');
+        if (sidebar && sidebar.classList.contains('open')) {
+            sidebar.classList.remove('open');
+        }
+        if (overlay && overlay.classList.contains('active')) {
+            overlay.classList.remove('active');
+        }
+    }
+
+    function refreshModule(pageId) {
+        try {
+            if (pageId === 'dashboard' && typeof DashboardModule !== 'undefined') DashboardModule.refresh();
+            if (pageId === 'customers' && typeof CustomersModule !== 'undefined') CustomersModule.refresh();
+            if (pageId === 'services' && typeof ServicesModule !== 'undefined') ServicesModule.refresh();
+            if (pageId === 'appointments' && typeof AppointmentsModule !== 'undefined') AppointmentsModule.refresh();
+            if (pageId === 'inventory' && typeof InventoryModule !== 'undefined') InventoryModule.refresh();
+            if (pageId === 'settings') updateStorageUsage();
+            
+            updateSidebarBadges();
+        } catch (e) {
+            console.error(`[App] Failed to refresh module for page: ${pageId}`, e);
+        }
+    }
+
+    function updateSidebarBadges() {
+        const allApts = DB.getAll('appointments');
+        const pendingCount = allApts.filter(a => a.status === 'pending' || a.status === 'in-progress').length;
+        const lowStockItems = DB.getLowStockItems();
+
+        // Appointments Badge (Sidebar)
+        const aptBadge = $('nav-badge-appointments');
+        if (aptBadge) {
+            if (pendingCount > 0) {
+                aptBadge.textContent = pendingCount;
+                aptBadge.style.display = 'flex';
+            } else {
+                aptBadge.style.display = 'none';
+            }
+        }
+
+        // Appointments Badge (Bottom Nav)
+        const bottomAptBadge = $('bottom-badge-appointments');
+        if (bottomAptBadge) {
+            if (pendingCount > 0) {
+                bottomAptBadge.textContent = pendingCount;
+                bottomAptBadge.style.display = 'flex';
+            } else {
+                bottomAptBadge.style.display = 'none';
+            }
+        }
+
+        // Inventory Badge (Sidebar)
+        const invBadge = $('nav-badge-inventory');
+        if (invBadge) {
+            if (lowStockItems.length > 0) {
+                invBadge.textContent = lowStockItems.length;
+                invBadge.style.display = 'flex';
+            } else {
+                invBadge.style.display = 'none';
+            }
+        }
+
+        // Inventory Badge (Bottom Nav)
+        const bottomInvBadge = $('bottom-badge-inventory');
+        if (bottomInvBadge) {
+            if (lowStockItems.length > 0) {
+                bottomInvBadge.textContent = lowStockItems.length;
+                bottomInvBadge.style.display = 'flex';
+            } else {
+                bottomInvBadge.style.display = 'none';
+            }
+        }
+    }
+
+    // ── Modal Helpers ─────────────────────────────────────────
+    function openModal(modalId) {
+        // Support both format: 'customer-modal' or 'modal-customer'
+        let modal = $(modalId);
+        if (!modal && modalId.endsWith('-modal')) {
+            modal = $('modal-' + modalId.replace('-modal', ''));
+        } else if (!modal && modalId.startsWith('modal-')) {
+            modal = $(modalId.replace('modal-', '') + '-modal');
+        }
+
+        if (modal) {
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+    }
+
+    function closeModal(modalId) {
+        let modal = $(modalId);
+        if (!modal && modalId.endsWith('-modal')) {
+            modal = $('modal-' + modalId.replace('-modal', ''));
+        } else if (!modal && modalId.startsWith('modal-')) {
+            modal = $(modalId.replace('modal-', '') + '-modal');
+        }
+
+        if (modal) {
+            modal.classList.remove('active');
+            // Check if any other modal is still active
+            const activeModals = document.querySelectorAll('.modal-overlay.active');
+            if (activeModals.length === 0) {
+                document.body.style.overflow = '';
+            }
+        }
+    }
+
+    // ── Toast Notifications ───────────────────────────────────
+    function showToast(message, type = 'success') {
+        const container = $('toast-container');
+        if (!container) return;
+
+        const toast = document.createElement('div');
+        toast.className = `toast toast-${type}`;
+
+        // Select Icon based on type
+        let iconName = 'check-circle';
+        if (type === 'error') iconName = 'alert-octagon';
+        if (type === 'warning') iconName = 'alert-triangle';
+        if (type === 'info') iconName = 'info';
+
+        toast.innerHTML = `
+            <i class="toast-icon" data-lucide="${iconName}"></i>
+            <div class="toast-message">${message}</div>
+            <button class="toast-close"><i data-lucide="x" width="14" height="14"></i></button>
+        `;
+
+        container.appendChild(toast);
+        if (window.lucide) lucide.createIcons();
+
+        // Close on button click
+        const closeBtn = toast.querySelector('.toast-close');
+        if (closeBtn) {
+            closeBtn.addEventListener('click', () => removeToast(toast));
+        }
+
+        // Auto remove
+        setTimeout(() => removeToast(toast), 4000);
+    }
+
+    function removeToast(toast) {
+        toast.classList.add('removing');
+        toast.addEventListener('animationend', () => {
+            toast.remove();
+        });
+    }
+
+    // ── Format Helpers ────────────────────────────────────────
+    function formatCurrency(num) {
+        return new Intl.NumberFormat('th-TH', {
+            style: 'currency',
+            currency: 'THB',
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0
+        }).format(Number(num) || 0);
+    }
+
+    function formatDate(dateStr) {
+        if (!dateStr) return '-';
+        try {
+            const date = new Date(dateStr);
+            if (isNaN(date.getTime())) return dateStr;
+
+            const d = date.getDate();
+            const m = date.getMonth();
+            const thaiMonthsShort = [
+                'ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.',
+                'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'
+            ];
+            const y = date.getFullYear() + 543; // Buddhist year
+
+            return `${d} ${thaiMonthsShort[m]} ${y}`;
+        } catch {
+            return dateStr;
+        }
+    }
+
+    function formatPhone(phoneStr) {
+        if (!phoneStr) return '-';
+        const cleaned = phoneStr.replace(/\D/g, '');
+        if (cleaned.length === 10) {
+            return `${cleaned.slice(0, 3)}-${cleaned.slice(3, 6)}-${cleaned.slice(6)}`;
+        }
+        if (cleaned.length === 9) {
+            return `${cleaned.slice(0, 2)}-${cleaned.slice(2, 5)}-${cleaned.slice(5)}`;
+        }
+        return phoneStr;
+    }
+
+    // ── Backup & Settings functions ───────────────────────────
+    function exportData() {
+        try {
+            const jsonString = DB.exportData();
+            const blob = new Blob([jsonString], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            
+            const dateStr = new Date().toISOString().slice(0, 10);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `spairdee_backup_${dateStr}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            showToast('สำรองข้อมูลสำเร็จ (ดาวน์โหลดแล้ว)', 'success');
+        } catch (e) {
+            showToast('สำรองข้อมูลล้มเหลว', 'error');
+            console.error(e);
+        }
+    }
+
+    function importData(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const result = DB.importData(e.target.result);
+            if (result.success) {
+                showToast(result.message, 'success');
+                setTimeout(() => {
+                    location.reload();
+                }, 1000);
+            } else {
+                showToast(result.message, 'error');
+            }
+        };
+        reader.readAsText(file);
+        // Clear input value to allow importing same file again
+        event.target.value = '';
+    }
+
+    function clearAllData() {
+        if (confirm('⚠️ คุณแน่ใจหรือไม่ว่าต้องการล้างข้อมูลทั้งหมด? ข้อมูลลูกค้า งานบริการ และปฏิทินนัดหมายจะหายไปอย่างถาวร!')) {
+            if (confirm('ยืนยันอีกครั้ง: ลบข้อมูลทั้งหมดจริงหรือไม่?')) {
+                DB.clearAllData();
+                showToast('ล้างข้อมูลระบบแล้ว กำลังรีสตาร์ท...', 'info');
+                setTimeout(() => {
+                    location.reload();
+                }, 1500);
+            }
+        }
+    }
+
+    function loadDemoData() {
+        if (confirm('ต้องการโหลดข้อมูลตัวอย่างสำหรับใช้ทดสอบแอปพลิเคชันหรือไม่? (ข้อมูลปัจจุบันจะถูกเขียนทับ)')) {
+            DB.clearAllData();
+            DB.init();
+            showToast('โหลดข้อมูลตัวอย่างสำเร็จ กำลังรีสตาร์ท...', 'success');
+            setTimeout(() => {
+                location.reload();
+            }, 1000);
+        }
+    }
+
+    function updateStorageUsage() {
+        const label = $('storage-usage');
+        if (!label) return;
+
+        try {
+            let total = 0;
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key.startsWith('acsp_')) {
+                    total += (localStorage.getItem(key).length * 2); // 2 bytes per char
+                }
+            }
+            const kb = (total / 1024).toFixed(2);
+            label.textContent = `${kb} KB / 5,120 KB ( localStorage )`;
+        } catch {
+            label.textContent = 'ไม่สามารถคำนวณได้';
+        }
+    }
+
+    // ── Setup Global Event Listeners ──────────────────────────
+    function setupGlobalEvents() {
+        // Navigation clicks
+        const nav = $('sidebar-nav');
+        if (nav) {
+            nav.addEventListener('click', (e) => {
+                const item = e.target.closest('.nav-item');
+                if (item && item.dataset.page) {
+                    navigateTo(item.dataset.page);
+                }
+            });
+        }
+
+        // Bottom Navigation clicks (mobile)
+        const bottomNav = $('bottom-nav');
+        if (bottomNav) {
+            bottomNav.addEventListener('click', (e) => {
+                const item = e.target.closest('.bottom-nav-item');
+                if (item && item.dataset.page) {
+                    navigateTo(item.dataset.page);
+                }
+            });
+        }
+
+        // Inline navigations (e.g. "ดูทั้งหมด →")
+        document.body.addEventListener('click', (e) => {
+            const target = e.target.closest('[data-navigate]');
+            if (target) {
+                navigateTo(target.dataset.navigate);
+            }
+        });
+
+        // Hamburger Menu (mobile)
+        const hamburgerBtn = $('hamburger-btn');
+        const sidebar = $('sidebar');
+        const sidebarOverlay = $('sidebar-overlay');
+
+        if (hamburgerBtn && sidebar && sidebarOverlay) {
+            hamburgerBtn.addEventListener('click', () => {
+                sidebar.classList.toggle('open');
+                sidebarOverlay.classList.toggle('active');
+            });
+
+            sidebarOverlay.addEventListener('click', () => {
+                sidebar.classList.remove('open');
+                sidebarOverlay.classList.remove('active');
+            });
+        }
+
+        // Modal Close Button handler
+        document.body.addEventListener('click', (e) => {
+            const closeBtn = e.target.closest('[data-modal-close]');
+            if (closeBtn) {
+                closeModal(closeBtn.dataset.modalClose);
+            }
+        });
+
+        // Close modal on escape key
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                const activeOverlay = document.querySelector('.modal-overlay.active');
+                if (activeOverlay) {
+                    closeModal(activeOverlay.id);
+                }
+            }
+        });
+
+        // Settings actions
+        const btnExport = $('btn-export-data');
+        if (btnExport) btnExport.addEventListener('click', exportData);
+
+        const btnImport = $('btn-import-data');
+        const importInput = $('import-file-input');
+        if (btnImport && importInput) {
+            btnImport.addEventListener('click', () => importInput.click());
+            importInput.addEventListener('change', importData);
+        }
+
+        const btnClear = $('btn-clear-data');
+        if (btnClear) btnClear.addEventListener('click', clearAllData);
+
+        const btnReloadDemo = $('btn-reload-demo');
+        if (btnReloadDemo) btnReloadDemo.addEventListener('click', loadDemoData);
+
+        // PWA Install Action
+        const installBtn = $('btn-install-pwa');
+        if (installBtn) {
+            installBtn.addEventListener('click', async () => {
+                if (!deferredPrompt) return;
+                installBtn.disabled = true;
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                console.log(`[PWA] Install choice: ${outcome}`);
+                deferredPrompt = null;
+                installBtn.style.display = 'none';
+                installBtn.disabled = false;
+            });
+        }
+
+        // Setup Date Display in topbar
+        const topbarDate = $('topbar-date');
+        if (topbarDate) {
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            const today = new Date();
+            topbarDate.textContent = today.toLocaleDateString('th-TH', options);
+        }
+    }
+
+    // ── App Initialization ────────────────────────────────────
+    function init() {
+        // 1. Initialize Database
+        DB.init();
+
+        // 2. Setup Events
+        setupGlobalEvents();
+
+        // 3. Initialize Feature Modules
+        try {
+            if (typeof DashboardModule !== 'undefined') DashboardModule.init();
+            if (typeof CustomersModule !== 'undefined') CustomersModule.init();
+            if (typeof ServicesModule !== 'undefined') ServicesModule.init();
+            if (typeof AppointmentsModule !== 'undefined') AppointmentsModule.init();
+            if (typeof InventoryModule !== 'undefined') InventoryModule.init();
+        } catch (e) {
+            console.error('[App] Failed to initialize modules', e);
+        }
+
+        // 4. Initial navigation
+        navigateTo('dashboard');
+
+        // 5. Icons Render
+        if (window.lucide) {
+            lucide.createIcons();
+        }
+
+        // 6. PWA Installation Event Listeners
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            const installBtn = $('btn-install-pwa');
+            if (installBtn) {
+                installBtn.style.display = 'inline-flex';
+                if (window.lucide) lucide.createIcons();
+            }
+        });
+
+        window.addEventListener('appinstalled', () => {
+            deferredPrompt = null;
+            const installBtn = $('btn-install-pwa');
+            if (installBtn) {
+                installBtn.style.display = 'none';
+            }
+            showToast('ติดตั้งแอปพลิเคชัน Spairdee เรียบร้อยแล้ว!', 'success');
+        });
+
+        // 7. Register Service Worker (PWA)
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                    .then(reg => console.log('[PWA] Service Worker registered ✓', reg.scope))
+                    .catch(err => console.error('[PWA] Service Worker failed', err));
+            });
+        }
+    }
+
+    // Public API
+    return {
+        init,
+        currentPage: () => currentPage,
+        openModal,
+        closeModal,
+        showToast,
+        formatCurrency,
+        formatDate,
+        formatPhone
+    };
+})();
+
+// Initialize on DOM ready
+document.addEventListener('DOMContentLoaded', () => {
+    App.init();
+});
