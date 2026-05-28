@@ -2597,3 +2597,12 @@ h6 { font-size: var(--text-base); }
     box-shadow: none;
   }
 }
+
+/* Form Switch (Cloud Mode Switch) */
+#settings-cloud-enabled:checked + .form-switch-label {
+  background: var(--accent-cyan) !important;
+}
+
+#settings-cloud-enabled:checked + .form-switch-label .form-switch-dot {
+  left: 27px !important;
+}

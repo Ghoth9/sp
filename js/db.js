@@ -70,6 +70,10 @@ const DB = (() => {
     const all = _getAll(key);
     all.push(record);
     _saveAll(key, all);
+    
+    // Background cloud sync
+    _pushToCloud('create', collection, id, record);
+    
     return record;
   }
 
@@ -80,6 +84,10 @@ const DB = (() => {
     if (idx === -1) return null;
     all[idx] = { ...all[idx], ...data, updatedAt: new Date().toISOString() };
     _saveAll(key, all);
+    
+    // Background cloud sync
+    _pushToCloud('update', collection, id, all[idx]);
+    
     return all[idx];
   }
 
@@ -89,6 +97,10 @@ const DB = (() => {
     const filtered = all.filter((item) => item.id !== id);
     if (filtered.length === all.length) return false;
     _saveAll(key, filtered);
+    
+    // Background cloud sync
+    _pushToCloud('delete', collection, id, null);
+    
     return true;
   }
 
@@ -785,6 +797,166 @@ const DB = (() => {
     console.log('[DB] Demo data seeded ✓');
   }
 
+  // ── Cloud Sync Configuration & Functions ──────────────────
+  let _cloudEnabled = localStorage.getItem('acsp_cloud_enabled') === 'true';
+  let _cloudUrl = localStorage.getItem('acsp_cloud_url') || '';
+
+  function isCloudEnabled() {
+    return _cloudEnabled;
+  }
+
+  function getCloudUrl() {
+    return _cloudUrl;
+  }
+
+  function setCloudConfig(enabled, url) {
+    _cloudEnabled = !!enabled;
+    _cloudUrl = url || '';
+    localStorage.setItem('acsp_cloud_enabled', String(_cloudEnabled));
+    localStorage.setItem('acsp_cloud_url', _cloudUrl);
+  }
+
+  function _pushToCloud(action, collection, id, data) {
+    if (!_cloudEnabled || !_cloudUrl) return;
+
+    const payload = {
+      action: action,
+      collection: collection,
+      id: id,
+      data: data
+    };
+
+    fetch(_cloudUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain' },
+      body: JSON.stringify(payload)
+    })
+    .then(res => res.json())
+    .then(res => {
+      if (res.success) {
+        console.log(`[Cloud] Background push success: ${action} ${collection}`);
+      } else {
+        console.warn(`[Cloud] Background push failed from API: ${res.error}`);
+        _addToSyncQueue(action, collection, id, data);
+      }
+    })
+    .catch(err => {
+      console.warn(`[Cloud] Background push failed: ${action} ${collection}, queuing for retry.`, err);
+      _addToSyncQueue(action, collection, id, data);
+    });
+  }
+
+  function _addToSyncQueue(action, collection, id, data) {
+    try {
+      const queue = JSON.parse(localStorage.getItem('acsp_sync_queue') || '[]');
+      const duplicateIdx = queue.findIndex(q => q.collection === collection && q.id === id && q.action === action);
+      if (duplicateIdx === -1) {
+        queue.push({ action, collection, id, data, timestamp: new Date().toISOString() });
+        localStorage.setItem('acsp_sync_queue', JSON.stringify(queue));
+      }
+    } catch (e) {
+      console.error("[Cloud] Failed to add to sync queue", e);
+    }
+  }
+
+  function triggerSyncQueue() {
+    if (!_cloudEnabled || !_cloudUrl) return Promise.resolve();
+    const queue = JSON.parse(localStorage.getItem('acsp_sync_queue') || '[]');
+    if (queue.length === 0) return Promise.resolve();
+
+    console.log(`[Cloud] Processing ${queue.length} queued operations...`);
+    
+    let promise = Promise.resolve();
+    const successfulIds = [];
+
+    queue.forEach((op, index) => {
+      promise = promise.then(() => {
+        return fetch(_cloudUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain' },
+          body: JSON.stringify(op)
+        })
+        .then(res => res.json())
+        .then(res => {
+          if (res.success) {
+            successfulIds.push(index);
+          }
+        })
+        .catch(err => {
+          console.warn("[Cloud] Queue item failed to sync", op, err);
+        });
+      });
+    });
+
+    return promise.then(() => {
+      const remaining = queue.filter((_, idx) => !successfulIds.includes(idx));
+      localStorage.setItem('acsp_sync_queue', JSON.stringify(remaining));
+      console.log(`[Cloud] Queue sync complete. Remaining: ${remaining.length}`);
+    });
+  }
+
+  function pullFromCloud() {
+    if (!_cloudEnabled || !_cloudUrl) return Promise.reject("Cloud not enabled or URL missing");
+
+    return fetch(_cloudUrl)
+      .then(res => {
+        if (!res.ok) throw new Error("Network response not ok");
+        return res.json();
+      })
+      .then(data => {
+        if (data.customers) _saveAll(COLLECTIONS.customers, data.customers);
+        if (data.services) _saveAll(COLLECTIONS.services, data.services);
+        if (data.appointments) _saveAll(COLLECTIONS.appointments, data.appointments);
+        if (data.inventory) _saveAll(COLLECTIONS.inventory, data.inventory);
+        
+        console.log("[Cloud] Pulled all data from Google Sheets successfully.");
+        return data;
+      });
+  }
+
+  function pushAllToCloud() {
+    if (!_cloudEnabled || !_cloudUrl) return Promise.reject("Cloud not enabled or URL missing");
+
+    const payload = {
+      action: 'sync_all',
+      data: {
+        customers: getAll('customers'),
+        services: getAll('services'),
+        appointments: getAll('appointments'),
+        inventory: getAll('inventory')
+      }
+    };
+
+    return fetch(_cloudUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain' },
+      body: JSON.stringify(payload)
+    })
+    .then(res => res.json())
+    .then(res => {
+      if (!res.success) throw new Error(res.error || "Sync failed");
+      console.log("[Cloud] Pushed all local data to Google Sheets successfully.");
+      return res;
+    });
+  }
+
+  function triggerCloudLineReport() {
+    if (!_cloudEnabled || !_cloudUrl) return Promise.reject("Cloud not enabled or URL missing");
+
+    const payload = { action: 'trigger_line' };
+
+    return fetch(_cloudUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain' },
+      body: JSON.stringify(payload)
+    })
+    .then(res => res.json())
+    .then(res => {
+      if (!res.success) throw new Error(res.error || "Failed to trigger LINE message");
+      return res;
+    });
+  }
+
   // ── Initialise ────────────────────────────────────────────
 
   function init() {
@@ -792,6 +964,17 @@ const DB = (() => {
       _seedDemoData();
     }
     console.log('[DB] Ready');
+    
+    // Auto sync queue and pull fresh data if online and cloud enabled
+    if (_cloudEnabled && _cloudUrl) {
+      triggerSyncQueue()
+        .then(() => pullFromCloud())
+        .then(() => {
+          // Trigger a custom event to notify components that DB was synced
+          document.dispatchEvent(new CustomEvent('db-synced'));
+        })
+        .catch(err => console.warn("[Cloud] Initial sync failed:", err));
+    }
   }
 
   // ── Public API ────────────────────────────────────────────
@@ -818,6 +1001,15 @@ const DB = (() => {
     exportData,
     importData,
     clearAllData,
+    
+    // Exposed Cloud API
+    isCloudEnabled,
+    getCloudUrl,
+    setCloudConfig,
+    pullFromCloud,
+    pushAllToCloud,
+    triggerSyncQueue,
+    triggerCloudLineReport
   };
 })();
 

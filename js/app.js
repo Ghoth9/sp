@@ -427,6 +427,94 @@ const App = (() => {
         const btnReloadDemo = $('btn-reload-demo');
         if (btnReloadDemo) btnReloadDemo.addEventListener('click', loadDemoData);
 
+        // Cloud Sync Actions
+        const cloudEnabledToggle = $('settings-cloud-enabled');
+        const cloudUrlInput = $('settings-cloud-url');
+        const btnCloudUpload = $('btn-cloud-upload-all');
+        const btnCloudTriggerLine = $('btn-cloud-trigger-line');
+
+        if (cloudEnabledToggle && cloudUrlInput && btnCloudUpload && btnCloudTriggerLine) {
+            // Load current configs
+            cloudEnabledToggle.checked = DB.isCloudEnabled();
+            cloudUrlInput.value = DB.getCloudUrl();
+
+            const updateButtonStates = () => {
+                const isEnabled = cloudEnabledToggle.checked;
+                const hasUrl = cloudUrlInput.value.trim().length > 0;
+                btnCloudUpload.disabled = !isEnabled || !hasUrl;
+                btnCloudTriggerLine.disabled = !isEnabled || !hasUrl;
+            };
+
+            updateButtonStates();
+
+            // Save configs on changes
+            cloudEnabledToggle.addEventListener('change', () => {
+                DB.setCloudConfig(cloudEnabledToggle.checked, cloudUrlInput.value.trim());
+                updateButtonStates();
+                showToast(cloudEnabledToggle.checked ? 'เปิดใช้งาน Cloud Mode แล้ว' : 'ปิดใช้งาน Cloud Mode แล้ว', 'info');
+                
+                // If enabled, trigger a sync to pull fresh data
+                if (cloudEnabledToggle.checked && cloudUrlInput.value.trim()) {
+                    showToast('กำลังซิงก์ข้อมูลจากคลาวด์...', 'info');
+                    DB.triggerSyncQueue()
+                        .then(() => DB.pullFromCloud())
+                        .then(() => {
+                            showToast('ซิงก์ข้อมูลสำเร็จ', 'success');
+                            location.reload();
+                        })
+                        .catch(err => {
+                            showToast('ซิงก์ข้อมูลล้มเหลว: ' + err, 'error');
+                        });
+                }
+            });
+
+            cloudUrlInput.addEventListener('change', () => {
+                DB.setCloudConfig(cloudEnabledToggle.checked, cloudUrlInput.value.trim());
+                updateButtonStates();
+                showToast('บันทึก Web App URL แล้ว', 'success');
+            });
+
+            btnCloudUpload.addEventListener('click', () => {
+                if (confirm('คุณต้องการอัปเดตข้อมูลบนคลาวด์ด้วยข้อมูลในเครื่องของคุณใช่หรือไม่? (ข้อมูลเดิมบน Google Sheet ในชีต ACSP จะถูกเขียนทับ)')) {
+                    btnCloudUpload.disabled = true;
+                    btnCloudUpload.textContent = 'กำลังซิงก์...';
+                    showToast('กำลังอัปโหลดข้อมูล...', 'info');
+                    DB.pushAllToCloud()
+                        .then(() => {
+                            showToast('อัปโหลดข้อมูลสำเร็จ', 'success');
+                        })
+                        .catch(err => {
+                            showToast('อัปโหลดข้อมูลล้มเหลว: ' + err, 'error');
+                        })
+                        .finally(() => {
+                            btnCloudUpload.disabled = false;
+                            btnCloudUpload.innerHTML = '<i data-lucide="cloud-lightning"></i> ซิงก์ขึ้นชีตทันที';
+                            if (window.lucide) lucide.createIcons();
+                            updateButtonStates();
+                        });
+                }
+            });
+
+            btnCloudTriggerLine.addEventListener('click', () => {
+                btnCloudTriggerLine.disabled = true;
+                btnCloudTriggerLine.textContent = 'กำลังส่ง...';
+                showToast('กำลังส่งคำสั่งส่ง LINE...', 'info');
+                DB.triggerCloudLineReport()
+                    .then(() => {
+                        showToast('ส่งสรุปคิวงานเข้า LINE สำเร็จ!', 'success');
+                    })
+                    .catch(err => {
+                        showToast('ส่งสรุป LINE ล้มเหลว: ' + err, 'error');
+                    })
+                    .finally(() => {
+                        btnCloudTriggerLine.disabled = false;
+                        btnCloudTriggerLine.innerHTML = '<i data-lucide="send"></i> รันคำสั่งส่ง LINE';
+                        if (window.lucide) lucide.createIcons();
+                        updateButtonStates();
+                    });
+            });
+        }
+
         // PWA Install Action
         const installBtn = $('btn-install-pwa');
         if (installBtn) {
@@ -496,6 +584,13 @@ const App = (() => {
                 installBtn.style.display = 'none';
             }
             showToast('ติดตั้งแอปพลิเคชัน Spairdee เรียบร้อยแล้ว!', 'success');
+        });
+
+        // Listen for cloud sync completion to refresh views
+        document.addEventListener('db-synced', () => {
+            console.log('[App] Database synced from cloud, refreshing views');
+            showToast('ซิงก์ข้อมูลล่าสุดจากคลาวด์แล้ว', 'success');
+            refreshModule(currentPage);
         });
 
         // 7. Register Service Worker (PWA)

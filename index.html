@@ -419,6 +419,55 @@
             </div>
           </div>
 
+          <!-- Cloud Sync Management -->
+          <h3 class="mb-lg flex items-center gap-sm">
+            <i data-lucide="cloud" style="width:22px;height:22px;color:var(--accent-cyan)"></i>
+            ระบบเชื่อมต่อคลาวด์ (Cloud Sync)
+          </h3>
+
+          <div class="card static mb-lg">
+            <div class="form-group mb-lg" style="padding-bottom:var(--space-md);border-bottom:1px solid var(--border-color);">
+              <div class="flex items-center justify-between">
+                <div>
+                  <h4 class="text-base font-semibold">เปิดใช้งานโหมดคลาวด์ (Cloud Mode)</h4>
+                  <p class="text-sm text-muted">อ่านและเขียนข้อมูลไปที่ Google Sheets ในคลาวด์แทนเครื่องท้องถิ่น</p>
+                </div>
+                <div class="form-switch-wrapper">
+                  <input type="checkbox" id="settings-cloud-enabled" class="sr-only">
+                  <label for="settings-cloud-enabled" class="form-switch-label" style="display:inline-block;width:50px;height:26px;background:#cbd5e1;border-radius:13px;position:relative;cursor:pointer;transition:0.3s;">
+                    <span class="form-switch-dot" style="display:block;width:20px;height:20px;background:white;border-radius:50%;position:absolute;top:3px;left:3px;transition:0.3s;"></span>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group mb-lg">
+              <label class="form-label" style="font-weight:600;">Google Apps Script Web App URL</label>
+              <input type="url" class="form-input" id="settings-cloud-url" placeholder="https://script.google.com/macros/s/.../exec" style="margin-top:8px;">
+              <p class="text-xs text-muted" style="margin-top:6px;">URL ลิงก์ระบบหลังบ้านสำหรับเชื่อมสเปรดชีตและส่ง LINE อัตโนมัติ</p>
+            </div>
+
+            <div class="flex items-center justify-between mt-lg">
+              <div>
+                <h4 class="text-sm font-semibold">อัปโหลดข้อมูลจากเครื่องขึ้นสเปรดชีต</h4>
+                <p class="text-xs text-muted">กดเมื่อต้องการซิงก์ข้อมูลจากเครื่องขึ้นคลาวด์ครั้งแรก</p>
+              </div>
+              <button class="btn btn-secondary btn-sm" id="btn-cloud-upload-all" disabled>
+                <i data-lucide="cloud-lightning"></i> ซิงก์ขึ้นชีตทันที
+              </button>
+            </div>
+
+            <div class="flex items-center justify-between mt-md" style="margin-top:16px;padding-top:16px;border-top:1px dashed var(--border-color);">
+              <div>
+                <h4 class="text-sm font-semibold">ทดสอบส่งคิวงานเข้า LINE ทันที</h4>
+                <p class="text-xs text-muted">ส่งรายการสรุปคิวงานของวันนี้เข้ากลุ่มช่างผ่านระบบหลังบ้าน</p>
+              </div>
+              <button class="btn btn-secondary btn-sm" id="btn-cloud-trigger-line" disabled style="border-color:#24c653;color:#24c653;">
+                <i data-lucide="send"></i> รันคำสั่งส่ง LINE
+              </button>
+            </div>
+          </div>
+
           <!-- App Info -->
           <h3 class="mb-lg flex items-center gap-sm">
             <i data-lucide="info" style="width:22px;height:22px;color:var(--accent-cyan)"></i>
