@@ -103,8 +103,12 @@ function sendDailyJobQueueToLine() {
     const appointments = readSheetAsJson('ACSP_Appointments');
     const customers = readSheetAsJson('ACSP_Customers');
     
-    // กรองนัดหมายเฉพาะของ "วันนี้" และไม่ยกเลิก
-    const todayJobs = appointments.filter(a => a.date === formattedToday && a.status !== 'cancelled');
+    // กรองนัดหมายเฉพาะของ "วันนี้" และไม่ยกเลิก (ตัดเทียบเฉพาะปี-เดือน-วัน 10 ตัวแรก)
+    const todayJobs = appointments.filter(a => {
+      if (!a.date) return false;
+      const jobDate = a.date.substring(0, 10);
+      return jobDate === formattedToday && a.status !== 'cancelled';
+    });
     if (todayJobs.length === 0) {
       Logger.log("ℹ️ วันนี้ไม่มีนัดหมายงานบริการแอร์");
       // ส่งบอกกลุ่มช่างสักนิดว่าวันนี้ไม่มีคิวงาน
