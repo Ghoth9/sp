@@ -5,7 +5,7 @@
 // โครงสร้างหัวตาราง (Headers) ของแต่ละชีต
 const SHEET_SCHEMAS = {
   'ACSP_Customers': ['id', 'name', 'phone', 'address', 'mapsLink', 'lineId', 'notes', 'createdAt', 'updatedAt'],
-  'ACSP_Services': ['id', 'customerId', 'type', 'acBrand', 'acModel', 'acBTU', 'symptoms', 'solution', 'partsUsed', 'price', 'paymentStatus', 'paidAmount', 'technician', 'serviceDate', 'notes', 'createdAt', 'updatedAt'],
+  'ACSP_Services': ['id', 'customerId', 'type', 'acBrand', 'acModel', 'acBTU', 'symptoms', 'solution', 'partsUsed', 'price', 'paymentStatus', 'paidAmount', 'technician', 'serviceDate', 'notes', 'images', 'createdAt', 'updatedAt'],
   'ACSP_Appointments': ['id', 'customerId', 'serviceType', 'date', 'time', 'status', 'notes', 'createdAt', 'updatedAt'],
   'ACSP_Inventory': ['id', 'name', 'category', 'quantity', 'minQuantity', 'unit', 'price', 'notes', 'createdAt', 'updatedAt']
 };

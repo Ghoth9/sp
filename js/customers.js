@@ -339,6 +339,25 @@ const CustomersModule = (() => {
                                     ${s.solution ? `<p><strong>การแก้ไข:</strong> ${s.solution}</p>` : ''}
                                     ${s.partsUsed ? `<p><strong>อะไหล่ที่ใช้:</strong> ${s.partsUsed}</p>` : ''}
                                     ${s.notes ? `<p><strong>หมายเหตุ:</strong> ${s.notes}</p>` : ''}
+                                    ${(() => {
+                                        const serviceImgs = [];
+                                        if (s.images) {
+                                            serviceImgs.push(...s.images.split(',').filter(Boolean));
+                                        }
+                                        if (s.tempImages && Array.isArray(s.tempImages)) {
+                                            serviceImgs.push(...s.tempImages.map(img => img.data));
+                                        }
+                                        if (serviceImgs.length === 0) return '';
+                                        return `
+                                            <div class="timeline-images-gallery" style="display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap;">
+                                                ${serviceImgs.map(imgUrl => `
+                                                    <div class="timeline-image-wrapper" style="width: 60px; height: 60px; border-radius: 6px; overflow: hidden; border: 1px solid var(--border-color); cursor: pointer; box-shadow: var(--shadow-sm); transition: transform 0.2s;" onclick="window.open('${imgUrl}', '_blank')" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                                                        <img src="${imgUrl}" style="width: 100%; height: 100%; object-fit: cover;">
+                                                    </div>
+                                                `).join('')}
+                                            </div>
+                                        `;
+                                    })()}
                                 </div>
                                 <div class="timeline-meta-row">
                                     <span class="timeline-meta-left"><i data-lucide="user" style="width:12px;height:12px;display:inline-block;margin-right:2px;"></i> ช่าง: ${s.technician || '-'}</span>

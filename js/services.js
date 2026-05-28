@@ -15,6 +15,10 @@ const ServicesModule = (() => {
         searchQuery: ''
     };
 
+    // Image Upload State
+    let selectedImages = []; // เก็บรูปภาพใหม่ที่ช่างเลือก { name: string, data: base64 }
+    let existingImages = []; // เก็บคอมมาแยกลิงก์รูปภาพที่มีอยู่เดิมในฐานข้อมูล (สำหรับกรณีแก้ไข)
+
     const SERVICE_TYPES = ['ล้างแอร์', 'ซ่อมแอร์', 'ติดตั้ง', 'ย้ายแอร์', 'ถอดแอร์', 'เติมน้ำยา'];
     const PAYMENT_STATUSES = [
         { value: 'paid', label: 'ชำระแล้ว', cls: 'badge-success' },
@@ -237,6 +241,120 @@ const ServicesModule = (() => {
         sel.innerHTML = opts;
     }
 
+    /* ── บีบอัดรูปภาพฝั่ง Client ด้วย Canvas ────────────────────────── */
+    function compressImage(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = (event) => {
+                const img = new Image();
+                img.src = event.target.result;
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    let width = img.width;
+                    let height = img.height;
+                    const max_size = 1200; // ขนาดสูงสุดของรูปภาพ
+
+                    if (width > height) {
+                        if (width > max_size) {
+                            height *= max_size / width;
+                            width = max_size;
+                        }
+                    } else {
+                        if (height > max_size) {
+                            width *= max_size / height;
+                            height = max_size;
+                        }
+                    }
+                    canvas.width = width;
+                    canvas.height = height;
+
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+
+                    // บีบอัดเป็น JPEG คุณภาพ 0.8
+                    const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
+                    resolve({ name: file.name, data: dataUrl });
+                };
+                img.onerror = (err) => reject(err);
+            };
+            reader.onerror = (err) => reject(err);
+        });
+    }
+
+    /* ── แสดงภาพตัวอย่างพรีวิวในหน้าฟอร์ม ───────────────────────────── */
+    function renderImagePreviews() {
+        const container = $('service-form-images-preview');
+        const statusText = $('service-form-images-status');
+        if (!container) return;
+
+        container.innerHTML = '';
+        const totalImages = existingImages.length + selectedImages.length;
+        
+        if (statusText) {
+            statusText.textContent = totalImages > 0 ? `แนบรูปภาพแล้ว ${totalImages} รูป` : 'ยังไม่มีรูปภาพแนบ';
+        }
+
+        // 1. แสดงรูปภาพเดิมที่มีอยู่แล้ว
+        existingImages.forEach((url, index) => {
+            const wrapper = document.createElement('div');
+            wrapper.style.position = 'relative';
+            wrapper.style.width = '80px';
+            wrapper.style.height = '80px';
+            wrapper.style.borderRadius = '6px';
+            wrapper.style.overflow = 'hidden';
+            wrapper.style.border = '1px solid var(--border-color)';
+            wrapper.style.boxShadow = 'var(--shadow-sm)';
+
+            wrapper.innerHTML = `
+                <img src="${url}" style="width:100%; height:100%; object-fit:cover;">
+                <button type="button" class="btn-delete-preview-existing" data-index="${index}" style="position:absolute; top:2px; right:2px; width:18px; height:18px; border-radius:50%; background:rgba(220,38,38,0.9); color:white; border:none; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:10px; line-height:1;">
+                  ✕
+                </button>
+            `;
+            container.appendChild(wrapper);
+        });
+
+        // 2. แสดงรูปภาพใหม่ที่ช่างเลือกเพิ่ม
+        selectedImages.forEach((img, index) => {
+            const wrapper = document.createElement('div');
+            wrapper.style.position = 'relative';
+            wrapper.style.width = '80px';
+            wrapper.style.height = '80px';
+            wrapper.style.borderRadius = '6px';
+            wrapper.style.overflow = 'hidden';
+            wrapper.style.border = '1px solid var(--accent-cyan)';
+            wrapper.style.boxShadow = 'var(--shadow-sm)';
+
+            wrapper.innerHTML = `
+                <img src="${img.data}" style="width:100%; height:100%; object-fit:cover;">
+                <button type="button" class="btn-delete-preview-selected" data-index="${index}" style="position:absolute; top:2px; right:2px; width:18px; height:18px; border-radius:50%; background:rgba(220,38,38,0.9); color:white; border:none; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:10px; line-height:1;">
+                  ✕
+                </button>
+            `;
+            container.appendChild(wrapper);
+        });
+
+        // ผูกปุ่มลบรูปภาพ
+        const delExisting = container.querySelectorAll('.btn-delete-preview-existing');
+        delExisting.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const idx = parseInt(e.target.dataset.index, 10);
+                existingImages.splice(idx, 1);
+                renderImagePreviews();
+            });
+        });
+
+        const delSelected = container.querySelectorAll('.btn-delete-preview-selected');
+        delSelected.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const idx = parseInt(e.target.dataset.index, 10);
+                selectedImages.splice(idx, 1);
+                renderImagePreviews();
+            });
+        });
+    }
+
     /* ── form helpers ───────────────────────────────────────── */
     function clearForm() {
         const form = $('service-form');
@@ -246,6 +364,11 @@ const ServicesModule = (() => {
         populateCustomerDropdown('service-form-customer', '');
         // Set default date to today
         $('service-form-date').value = new Date().toISOString().slice(0, 10);
+        
+        selectedImages = [];
+        existingImages = [];
+        renderImagePreviews();
+        
         updatePaidAmountField();
     }
 
@@ -266,6 +389,11 @@ const ServicesModule = (() => {
         $('service-form-date').value = service.serviceDate || '';
         $('service-form-notes').value = service.notes || '';
         $('service-modal-title').textContent = 'แก้ไขรายการบริการ';
+        
+        selectedImages = [];
+        existingImages = (service.images || '').split(',').filter(Boolean);
+        renderImagePreviews();
+        
         updatePaidAmountField();
     }
 
@@ -329,7 +457,9 @@ const ServicesModule = (() => {
             paidAmount,
             technician: $('service-form-technician').value.trim(),
             serviceDate,
-            notes: $('service-form-notes').value.trim()
+            notes: $('service-form-notes').value.trim(),
+            images: existingImages.join(','),
+            tempImages: selectedImages
         };
 
         if (id) {
@@ -428,6 +558,31 @@ const ServicesModule = (() => {
                         <span>${s.notes}</span>
                     </div>
                 ` : ''}
+                ${(() => {
+                    const allImgs = [];
+                    if (s.images) {
+                        allImgs.push(...s.images.split(',').filter(Boolean));
+                    }
+                    if (s.tempImages && Array.isArray(s.tempImages)) {
+                        allImgs.push(...s.tempImages.map(img => img.data));
+                    }
+                    if (allImgs.length === 0) return '';
+                    return `
+                        <div class="detail-field full-width">
+                            <label style="display:flex; align-items:center; gap:6px; margin-bottom:8px;">
+                                <i data-lucide="image" style="width:16px;height:16px;color:var(--text-muted);"></i>
+                                รูปภาพผลงานบริการ (${allImgs.length})
+                            </label>
+                            <div class="service-detail-images-grid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(120px, 1fr)); gap:12px; margin-top:8px;">
+                                ${allImgs.map(imgUrl => `
+                                    <div class="service-detail-image-wrapper" style="position:relative; aspect-ratio:1; border-radius:8px; overflow:hidden; border:1px solid var(--border-color); cursor:pointer; box-shadow:var(--shadow-sm); transition:transform 0.2s, border-color 0.2s;" onclick="window.open('${imgUrl}', '_blank')">
+                                        <img src="${imgUrl}" style="width:100%; height:100%; object-fit:cover; transition:transform 0.3s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `;
+                })()}
             </div>
         `;
 
@@ -510,6 +665,31 @@ const ServicesModule = (() => {
                 $('service-form-paid').value = priceField.value;
             }
         });
+
+        // Photo upload listener
+        const imgInput = $('service-form-images');
+        if (imgInput) {
+            imgInput.addEventListener('change', async (e) => {
+                const files = Array.from(e.target.files);
+                if (files.length === 0) return;
+
+                const statusText = $('service-form-images-status');
+                if (statusText) statusText.textContent = 'กำลังย่อขนาดรูปภาพ...';
+
+                for (const file of files) {
+                    try {
+                        const compressed = await compressImage(file);
+                        selectedImages.push(compressed);
+                    } catch (err) {
+                        console.error('Error compressing image:', err);
+                        App.showToast(`ไม่สามารถย่อรูปภาพ ${file.name} ได้`, 'error');
+                    }
+                }
+                
+                imgInput.value = '';
+                renderImagePreviews();
+            });
+        }
     }
 
     function clearFilters() {

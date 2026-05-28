@@ -662,6 +662,22 @@
             <input type="date" class="form-input" id="service-form-date" required>
           </div>
         </div>
+        
+        <div class="form-group">
+          <label class="form-label" style="display:flex; align-items:center; gap:6px;">
+            <i data-lucide="image" style="width:16px;height:16px;color:var(--text-muted);"></i>
+            แนบรูปภาพผลงานบริการ
+          </label>
+          <div style="display:flex; gap:12px; align-items:center; margin-top:8px; flex-wrap:wrap;">
+            <label for="service-form-images" class="btn btn-secondary btn-sm" style="margin-bottom:0; cursor:pointer;">
+              <i data-lucide="camera"></i> เลือกรูปภาพ / ถ่ายรูป
+            </label>
+            <input type="file" id="service-form-images" accept="image/*" multiple class="sr-only">
+            <span class="text-xs text-muted" id="service-form-images-status">ยังไม่มีรูปภาพแนบ</span>
+          </div>
+          <!-- ส่วนแสดงพรีวิวรูปภาพตัวอย่าง -->
+          <div id="service-form-images-preview" style="margin-top:12px; display:flex; gap:10px; flex-wrap:wrap;"></div>
+        </div>
 
         <div class="form-group">
           <label class="form-label">หมายเหตุ</label>

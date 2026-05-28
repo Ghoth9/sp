@@ -43,11 +43,42 @@ function doPost(e) {
     const sheetName = getSheetName(collection);
     
     if (action === 'create') {
+      // จัดการอัปโหลดรูปภาพเข้า Google Drive สำหรับใบงานบริการ
+      if (sheetName === 'ACSP_Services' && request.data.tempImages && Array.isArray(request.data.tempImages)) {
+        const urls = [];
+        request.data.tempImages.forEach((img, idx) => {
+          const filename = "SRV_" + Date.now() + "_" + idx + "_" + (img.name || "image.jpg");
+          const url = saveBase64Image(img.data, filename);
+          if (url) urls.push(url);
+        });
+        request.data.images = urls.join(",");
+        delete request.data.tempImages;
+      }
       const record = writeRecord(sheetName, request.data);
       return jsonResponse({ success: true, record: record });
     }
     
     if (action === 'update') {
+      // จัดการรูปภาพเพิ่มเติม/ลบรูปภาพ สำหรับใบงานบริการ
+      if (sheetName === 'ACSP_Services') {
+        let finalImages = request.data.images || "";
+        
+        if (request.data.tempImages && Array.isArray(request.data.tempImages)) {
+          const newUrls = [];
+          request.data.tempImages.forEach((img, idx) => {
+            const filename = "SRV_" + Date.now() + "_" + idx + "_" + (img.name || "image.jpg");
+            const url = saveBase64Image(img.data, filename);
+            if (url) newUrls.push(url);
+          });
+          
+          if (newUrls.length > 0) {
+            const currentUrls = finalImages.split(",").filter(Boolean);
+            finalImages = currentUrls.concat(newUrls).join(",");
+          }
+          delete request.data.tempImages;
+        }
+        request.data.images = finalImages;
+      }
       const record = updateRecord(sheetName, request.id, request.data);
       return jsonResponse({ success: true, record: record });
     }
@@ -390,4 +421,45 @@ function testDailyJobs() {
       Logger.log("⚠️ ไม่มีค่า date ในนัดหมายนี้!");
     }
   });
+}
+
+// ── ฟังก์ชันจัดการรูปภาพ Google Drive (Photo Storage Helpers) ──────
+
+// ค้นหาหรือสร้างโฟลเดอร์สำหรับเก็บภาพผลงานใน Google Drive
+function getOrCreatePhotosFolder() {
+  const folderName = "ACSP_Photos";
+  const folders = DriveApp.getFoldersByName(folderName);
+  if (folders.hasNext()) {
+    return folders.next();
+  } else {
+    const folder = DriveApp.createFolder(folderName);
+    // ตั้งสิทธิ์การแชร์ให้เข้าถึงแบบสาธารณะสำหรับแสดงผลรูปผ่านลิงก์ได้
+    folder.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+    return folder;
+  }
+}
+
+// อัปโหลดรูปภาพ Base64 ไปยัง Google Drive และคืนค่ากลับมาเป็น URL
+function saveBase64Image(base64Data, filename) {
+  try {
+    const folder = getOrCreatePhotosFolder();
+    
+    // แยก mime type และข้อมูลดิบ
+    const parts = base64Data.split(",");
+    if (parts.length < 2) return null;
+    const meta = parts[0];
+    const base64String = parts[1];
+    
+    const contentType = meta.substring(meta.indexOf(":") + 1, meta.indexOf(";"));
+    const bytes = Utilities.base64Decode(base64String);
+    const blob = Utilities.newBlob(bytes, contentType, filename);
+    const file = folder.createFile(blob);
+    file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+    
+    // คืนค่ารูปแบบลิงก์สำหรับใช้แสดงภาพขนาดย่อที่โหลดเร็วและประหยัดเน็ต (ความกว้าง 1000px)
+    return "https://drive.google.com/thumbnail?id=" + file.getId() + "&sz=w1000";
+  } catch (err) {
+    Logger.log("❌ เกิดข้อผิดพลาดในการบันทึกรูปภาพ: " + err.message);
+    return null;
+  }
 }

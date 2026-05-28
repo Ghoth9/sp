@@ -798,8 +798,12 @@ const DB = (() => {
   }
 
   // ── Cloud Sync Configuration & Functions ──────────────────
-  let _cloudEnabled = localStorage.getItem('acsp_cloud_enabled') === 'true';
-  let _cloudUrl = localStorage.getItem('acsp_cloud_url') || '';
+  const DEFAULT_CLOUD_URL = 'https://script.google.com/macros/s/AKfycbxurKONxQEqeF6NyLb_OuiQkCbToT6-gyWkIIwhdGmj7DJcEeHlxNheJ-F2YZdHdlla/exec';
+  
+  let _cloudUrl = localStorage.getItem('acsp_cloud_url') || DEFAULT_CLOUD_URL;
+  let _cloudEnabled = localStorage.getItem('acsp_cloud_enabled') !== null
+    ? localStorage.getItem('acsp_cloud_enabled') === 'true'
+    : true; // เปิดใช้งาน Cloud Mode เป็นค่าเริ่มต้นสำหรับเครื่องใหม่/ช่างทุกคน
 
   function isCloudEnabled() {
     return _cloudEnabled;
@@ -835,6 +839,17 @@ const DB = (() => {
     .then(res => {
       if (res.success) {
         console.log(`[Cloud] Background push success: ${action} ${collection}`);
+        if (res.record && (action === 'create' || action === 'update')) {
+          const key = COLLECTIONS[collection];
+          const all = _getAll(key);
+          const idx = all.findIndex(item => item.id === id);
+          if (idx !== -1) {
+            all[idx] = res.record;
+            _saveAll(key, all);
+            // Dispatch event to refresh UI
+            document.dispatchEvent(new CustomEvent('db-synced'));
+          }
+        }
       } else {
         console.warn(`[Cloud] Background push failed from API: ${res.error}`);
         _addToSyncQueue(action, collection, id, data);
@@ -867,7 +882,7 @@ const DB = (() => {
     console.log(`[Cloud] Processing ${queue.length} queued operations...`);
     
     let promise = Promise.resolve();
-    const successfulIds = [];
+    const successfulIndexes = [];
 
     queue.forEach((op, index) => {
       promise = promise.then(() => {
@@ -879,7 +894,16 @@ const DB = (() => {
         .then(res => res.json())
         .then(res => {
           if (res.success) {
-            successfulIds.push(index);
+            successfulIndexes.push(index);
+            if (res.record && (op.action === 'create' || op.action === 'update')) {
+              const key = COLLECTIONS[op.collection];
+              const all = _getAll(key);
+              const idx = all.findIndex(item => item.id === op.id);
+              if (idx !== -1) {
+                all[idx] = res.record;
+                _saveAll(key, all);
+              }
+            }
           }
         })
         .catch(err => {
@@ -889,7 +913,7 @@ const DB = (() => {
     });
 
     return promise.then(() => {
-      const remaining = queue.filter((_, idx) => !successfulIds.includes(idx));
+      const remaining = queue.filter((_, idx) => !successfulIndexes.includes(idx));
       localStorage.setItem('acsp_sync_queue', JSON.stringify(remaining));
       console.log(`[Cloud] Queue sync complete. Remaining: ${remaining.length}`);
     });
