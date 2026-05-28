@@ -283,6 +283,121 @@ const CustomersModule = (() => {
         const spent = services.reduce((sum, s) => sum + (Number(s.paidAmount) || 0), 0);
         const totalBilled = services.reduce((sum, s) => sum + (Number(s.price) || 0), 0);
 
+        // กรองและรวมข้อมูลสำหรับไทม์ไลน์
+        const timelineEvents = [];
+        services.forEach(s => {
+            timelineEvents.push({
+                type: 'service',
+                date: s.serviceDate || s.createdAt || '',
+                time: '',
+                original: s
+            });
+        });
+        appointments.forEach(a => {
+            timelineEvents.push({
+                type: 'appointment',
+                date: a.date || '',
+                time: a.time || '',
+                original: a
+            });
+        });
+
+        // เรียงลำดับตามวันที่จากใหม่ไปเก่า (descending)
+        timelineEvents.sort((a, b) => {
+            const dateA = (a.date || '').slice(0, 10) + (a.time ? 'T' + a.time : 'T00:00');
+            const dateB = (b.date || '').slice(0, 10) + (b.time ? 'T' + b.time : 'T00:00');
+            return dateB.localeCompare(dateA);
+        });
+
+        // สร้าง HTML ไทม์ไลน์
+        let timelineHtml = '';
+        if (timelineEvents.length > 0) {
+            timelineHtml = '<div class="customer-timeline">';
+            timelineEvents.forEach(evt => {
+                if (evt.type === 'service') {
+                    const s = evt.original;
+                    const payClass = s.paymentStatus === 'paid' ? 'badge-success'
+                        : s.paymentStatus === 'partial' ? 'badge-warning' : 'badge-danger';
+                    const payLabel = s.paymentStatus === 'paid' ? 'ชำระแล้ว'
+                        : s.paymentStatus === 'partial' ? 'บางส่วน' : 'ค้างชำระ';
+                    
+                    timelineHtml += `
+                        <div class="timeline-item service" id="timeline-service-${s.id}">
+                            <div class="timeline-badge" title="งานบริการเสร็จสิ้น"><i data-lucide="wrench"></i></div>
+                            <div class="timeline-content">
+                                <div class="timeline-header">
+                                    <span class="timeline-date-time">
+                                        <i data-lucide="calendar" style="width:12px;height:12px;display:inline-block;vertical-align:middle;margin-right:2px;"></i> 
+                                        ${App.formatDate(s.serviceDate)}
+                                    </span>
+                                    <span class="timeline-type-tag">ประวัติบริการ</span>
+                                </div>
+                                <h4 class="timeline-title">${s.type}</h4>
+                                <div class="timeline-details">
+                                    ${(s.acBrand || s.acModel || s.acBTU) ? `<p><strong>เครื่องแอร์:</strong> ${s.acBrand || '-'} ${s.acModel || ''} ${s.acBTU ? `(${s.acBTU} BTU)` : ''}</p>` : ''}
+                                    ${s.symptoms ? `<p><strong>อาการเสีย:</strong> ${s.symptoms}</p>` : ''}
+                                    ${s.solution ? `<p><strong>การแก้ไข:</strong> ${s.solution}</p>` : ''}
+                                    ${s.partsUsed ? `<p><strong>อะไหล่ที่ใช้:</strong> ${s.partsUsed}</p>` : ''}
+                                    ${s.notes ? `<p><strong>หมายเหตุ:</strong> ${s.notes}</p>` : ''}
+                                </div>
+                                <div class="timeline-meta-row">
+                                    <span class="timeline-meta-left"><i data-lucide="user" style="width:12px;height:12px;display:inline-block;margin-right:2px;"></i> ช่าง: ${s.technician || '-'}</span>
+                                    <span class="timeline-meta-right">
+                                        <strong style="color:var(--text-primary); margin-right:6px;">${App.formatCurrency(s.price)}</strong>
+                                        <span class="badge ${payClass}" style="font-size: 11px;">${payLabel}</span>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                } else if (evt.type === 'appointment') {
+                    const a = evt.original;
+                    const statusMap = {
+                        'pending': { cls: 'badge-warning', label: 'รอดำเนินการ', icon: 'clock' },
+                        'in-progress': { cls: 'badge-info', label: 'กำลังดำเนินการ', icon: 'loader' },
+                        'completed': { cls: 'badge-success', label: 'เสร็จสิ้น', icon: 'check-circle' },
+                        'cancelled': { cls: 'badge-danger', label: 'ยกเลิก', icon: 'x-circle' },
+                        'no-one-home': { cls: 'badge-no-one-home', label: 'ไม่มีคนอยู่/ติดต่อไม่ได้', icon: 'user-x' }
+                    };
+                    const st = statusMap[a.status] || statusMap['pending'];
+                    
+                    timelineHtml += `
+                        <div class="timeline-item appointment" id="timeline-appointment-${a.id}">
+                            <div class="timeline-badge" title="นัดหมายงานบริการ"><i data-lucide="${st.icon}"></i></div>
+                            <div class="timeline-content">
+                                <div class="timeline-header">
+                                    <span class="timeline-date-time">
+                                        <i data-lucide="calendar" style="width:12px;height:12px;display:inline-block;vertical-align:middle;margin-right:2px;"></i> 
+                                        ${App.formatDate(a.date)} ${a.time ? `| เวลา ${a.time} น.` : ''}
+                                    </span>
+                                    <span class="timeline-type-tag">นัดหมาย</span>
+                                </div>
+                                <h4 class="timeline-title">${a.serviceType || 'งานบริการ'}</h4>
+                                ${a.notes ? `
+                                <div class="timeline-details">
+                                    <p><strong>หมายเหตุ:</strong> ${a.notes}</p>
+                                </div>` : ''}
+                                <div class="timeline-meta-row">
+                                    <span class="timeline-meta-left"><i data-lucide="info" style="width:12px;height:12px;display:inline-block;margin-right:2px;"></i> รหัสงาน: ${a.id}</span>
+                                    <span class="timeline-meta-right">
+                                        <span class="badge ${st.cls}" style="font-size: 11px;">${st.label}</span>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+            });
+            timelineHtml += '</div>';
+        } else {
+            timelineHtml = `
+                <div class="empty-state" style="padding: 24px 0; background: transparent; border: 1px dashed var(--border-color); border-radius: var(--radius-md); text-align: center;">
+                    <i data-lucide="history" class="empty-icon" style="width: 32px; height: 32px; color: var(--text-muted); opacity: 0.5;"></i>
+                    <p style="font-size: 13px; color: var(--text-muted); margin-top: 8px;">ยังไม่มีประวัติกิจกรรม นัดหมาย หรือบริการสำหรับลูกค้ารายนี้</p>
+                </div>
+            `;
+        }
+
         let html = `
             <div class="modal modal-wide">
                 <div class="modal-header">
@@ -357,75 +472,10 @@ const CustomersModule = (() => {
                         </div>
                     </div>
 
-                    <!-- Service History Section -->
-                    <h3 class="detail-section-title" style="font-size: 15px; font-weight: 700; color: #0f172a; margin: 24px 0 12px 0; display: flex; align-items: center; gap: 8px;"><i data-lucide="history" style="width: 16px; height: 16px; color: var(--accent-cyan);"></i> ประวัติบริการ (${services.length})</h3>
-                    ${services.length > 0 ? `
-                        <div class="table-responsive" style="margin-bottom: 24px; border: 1px solid var(--border-color); border-radius: 8px; overflow: hidden;">
-                            <table class="data-table" id="customer-detail-services-table" style="margin: 0; width: 100%;">
-                                <thead>
-                                    <tr>
-                                        <th>วันที่</th>
-                                        <th>ประเภท</th>
-                                        <th>ราคา</th>
-                                        <th>สถานะ</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    ${services.map(s => {
-                                        const payClass = s.paymentStatus === 'paid' ? 'badge-success'
-                                            : s.paymentStatus === 'partial' ? 'badge-warning' : 'badge-danger';
-                                        const payLabel = s.paymentStatus === 'paid' ? 'ชำระแล้ว'
-                                            : s.paymentStatus === 'partial' ? 'บางส่วน' : 'ค้างชำระ';
-                                        return `
-                                            <tr>
-                                                <td style="font-size: 13px;">${App.formatDate(s.serviceDate)}</td>
-                                                <td><span class="service-type-badge" style="font-size: 11px; padding: 2px 6px; border-radius: 4px; background: rgba(2, 132, 199, 0.1); color: #0284c7; font-weight: 500;">${s.type}</span></td>
-                                                <td style="font-weight: 600; font-size: 13px;">${App.formatCurrency(s.price)}</td>
-                                                <td><span class="badge ${payClass}" style="font-size: 11px;">${payLabel}</span></td>
-                                            </tr>
-                                        `;
-                                    }).join('')}
-                                </tbody>
-                            </table>
-                        </div>
-                    ` : '<p class="empty-state-text" style="color: var(--text-muted); font-style: italic; margin-bottom: 24px; padding: 12px; background: #f8fafc; border-radius: 6px; border: 1px dashed var(--border-color); text-align: center; font-size: 13px;">ยังไม่มีประวัติบริการ</p>'}
-
-                    <!-- Appointments History Section -->
-                    ${appointments.length > 0 ? `
-                        <h3 class="detail-section-title" style="font-size: 15px; font-weight: 700; color: #0f172a; margin: 24px 0 12px 0; display: flex; align-items: center; gap: 8px;"><i data-lucide="calendar" style="width: 16px; height: 16px; color: var(--accent-cyan);"></i> รายการนัดหมาย (${appointments.length})</h3>
-                        <div class="table-responsive" style="border: 1px solid var(--border-color); border-radius: 8px; overflow: hidden;">
-                            <table class="data-table" id="customer-detail-appointments-table" style="margin: 0; width: 100%;">
-                                <thead>
-                                    <tr>
-                                        <th>วันที่</th>
-                                        <th>เวลา</th>
-                                        <th>ประเภท</th>
-                                        <th>สถานะ</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    ${appointments.map(a => {
-                                        const statusMap = {
-                                            'pending': { cls: 'badge-warning', label: 'รอดำเนินการ' },
-                                            'in-progress': { cls: 'badge-info', label: 'กำลังดำเนินการ' },
-                                            'completed': { cls: 'badge-success', label: 'เสร็จสิ้น' },
-                                            'cancelled': { cls: 'badge-danger', label: 'ยกเลิก' },
-                                            'no-one-home': { cls: 'badge-no-one-home', label: 'ไม่มีคนอยู่/ติดต่อไม่ได้' }
-                                        };
-                                        const st = statusMap[a.status] || statusMap['pending'];
-                                        return `
-                                            <tr>
-                                                <td style="font-size: 13px;">${App.formatDate(a.date)}</td>
-                                                <td style="font-size: 13px;">${a.time || '-'} น.</td>
-                                                <td><span style="font-size: 13px;">${a.serviceType || '-'}</span></td>
-                                                <td><span class="badge ${st.cls}" style="font-size: 11px;">${st.label}</span></td>
-                                            </tr>
-                                        `;
-                                    }).join('')}
-                                </tbody>
-                            </table>
-                        </div>
-                    ` : ''}
+                    <!-- Unified Timeline Section -->
+                    <h3 class="detail-section-title" style="font-size: 15px; font-weight: 700; color: #0f172a; margin: 28px 0 16px 0; display: flex; align-items: center; gap: 8px;"><i data-lucide="history" style="width: 16px; height: 16px; color: var(--accent-cyan);"></i> ไทม์ไลน์ประวัติกิจกรรมแอร์และบริการ</h3>
+                    
+                    ${timelineHtml}
                 </div>
                 <div class="modal-footer">
                     <button class="btn btn-danger btn-delete-customer" data-id="${customer.id}" id="btn-detail-delete-customer" style="margin-right: auto;">

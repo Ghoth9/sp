@@ -2606,3 +2606,177 @@ h6 { font-size: var(--text-base); }
 #settings-cloud-enabled:checked + .form-switch-label .form-switch-dot {
   left: 27px !important;
 }
+
+/* ================================================================
+   Customer Service Timeline Styles (ประวัติประวัติแบบไทม์ไลน์)
+   ================================================================ */
+.customer-timeline {
+  position: relative;
+  padding: 10px 0;
+  margin-top: 15px;
+}
+
+.customer-timeline::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 20px;
+  width: 2px;
+  background: var(--border-color);
+  border-radius: var(--radius-full);
+}
+
+.timeline-item {
+  position: relative;
+  padding-left: 50px;
+  margin-bottom: 25px;
+  animation: slideIn 0.3s ease;
+}
+
+.timeline-badge {
+  position: absolute;
+  left: 4px;
+  top: 4px;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--bg-secondary);
+  border: 2px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+  z-index: 2;
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-fast);
+}
+
+.timeline-badge i {
+  width: 14px;
+  height: 14px;
+}
+
+.timeline-item.service .timeline-badge {
+  background: rgba(2, 132, 199, 0.08); /* light cyan */
+  border-color: var(--accent-cyan);
+  color: var(--accent-cyan);
+}
+
+.timeline-item.appointment .timeline-badge {
+  background: rgba(217, 119, 6, 0.08); /* light warning */
+  border-color: var(--warning);
+  color: var(--warning);
+}
+
+.timeline-content {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: var(--space-md);
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-base);
+}
+
+.timeline-content:hover {
+  border-color: #cbd5e1;
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+}
+
+.timeline-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.timeline-date-time {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.timeline-type-tag {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+}
+
+.timeline-item.service .timeline-type-tag {
+  background: rgba(2, 132, 199, 0.1);
+  color: var(--accent-cyan);
+}
+
+.timeline-item.appointment .timeline-type-tag {
+  background: rgba(217, 119, 6, 0.1);
+  color: var(--warning);
+}
+
+.timeline-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+
+.timeline-details {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: var(--radius-sm);
+  padding: var(--space-sm) var(--space-md);
+  margin-bottom: 8px;
+  border-left: 3px solid var(--border-color);
+}
+
+.timeline-details p {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.timeline-details p strong {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.timeline-meta-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--text-muted);
+  border-top: 1px dashed var(--border-color);
+  padding-top: var(--space-sm);
+  margin-top: var(--space-sm);
+}
+
+.timeline-meta-left {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.timeline-meta-right {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto;
+}
+
+.badge-no-one-home {
+  background: #f1f5f9;
+  color: #475569;
+  border: 1px solid #cbd5e1;
+}
