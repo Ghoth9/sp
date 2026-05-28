@@ -543,7 +543,7 @@ const CustomersModule = (() => {
 
         // Delegated clicks
         page.addEventListener('click', (e) => {
-            const target = e.target.closest('button') || e.target.closest('.customer-card-body');
+            let target = e.target.closest('button') || e.target.closest('.customer-card');
 
             if (!target) return;
 
@@ -584,9 +584,9 @@ const CustomersModule = (() => {
                 return;
             }
 
-            // View detail (card body click or eye button)
-            if (target.classList.contains('btn-view-customer') || target.classList.contains('customer-card-body')) {
-                const id = target.dataset.id;
+            // View detail (card click or view button)
+            if (target.classList.contains('btn-view-customer') || target.classList.contains('customer-card')) {
+                const id = target.dataset.id || target.dataset.customerId;
                 if (id) showDetail(id);
                 return;
             }
