@@ -226,6 +226,7 @@ function readSheetAsJson(sheetName) {
   
   const headers = values[0];
   const rows = values.slice(1);
+  const tz = ss.getSpreadsheetTimeZone(); // ดึง timezone ของ Spreadsheet ป้องกันการคลาดเคลื่อนของเวลา
   
   return rows.map(row => {
     const obj = {};
@@ -233,7 +234,7 @@ function readSheetAsJson(sheetName) {
       let val = row[index];
       // แปลงฟอร์แมตวันที่ให้อยู่ใน ISO String สำหรับใช้งานบน JS
       if (val instanceof Date) {
-        val = Utilities.formatDate(val, "GMT+7", "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+        val = Utilities.formatDate(val, tz, "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
       }
       obj[h] = val;
     });
@@ -361,4 +362,32 @@ function jsonResponse(data) {
 function errorResponse(msg) {
   return ContentService.createTextOutput(JSON.stringify({ success: false, error: msg }))
     .setMimeType(ContentService.MimeType.JSON);
+}
+
+// ── ฟังก์ชันทดสอบระบบเพื่อหาสาเหตุ (Diagnostic Test) ──────────────────
+function testDailyJobs() {
+  const ssId = getSpreadsheetId();
+  Logger.log("📊 SPREADSHEET_ID: " + ssId);
+  
+  const now = new Date();
+  const formattedToday = Utilities.formatDate(now, "GMT+7", "yyyy-MM-dd");
+  Logger.log("📅 วันนี้ในระบบ (formattedToday): '" + formattedToday + "'");
+  
+  const appointments = readSheetAsJson('ACSP_Appointments');
+  Logger.log("🗂️ จำนวนนัดหมายทั้งหมดในชีต: " + appointments.length);
+  
+  appointments.forEach(a => {
+    Logger.log("----------------------------------------");
+    Logger.log("ID: " + a.id);
+    Logger.log("ค่า date ดิบจากชีต: '" + a.date + "' (ประเภท: " + typeof a.date + ")");
+    Logger.log("สถานะ: " + a.status);
+    
+    if (a.date) {
+      const jobDate = a.date.substring(0, 10);
+      Logger.log("ค่าที่ตัดเหลือ 10 ตัวอักษร (jobDate): '" + jobDate + "'");
+      Logger.log("เปรียบเทียบกับวันนี้ตรงกันมั้ย?: " + (jobDate === formattedToday));
+    } else {
+      Logger.log("⚠️ ไม่มีค่า date ในนัดหมายนี้!");
+    }
+  });
 }
