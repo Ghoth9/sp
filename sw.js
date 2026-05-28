@@ -4,7 +4,7 @@
 // Caching strategy: Cache-first for static, Network-first for dynamic
 // ============================================================
 
-const CACHE_NAME = 'spairdee-v14';
+const CACHE_NAME = 'spairdee-v15';
 
 // Static assets to pre-cache on install
 const STATIC_ASSETS = [
@@ -19,7 +19,10 @@ const STATIC_ASSETS = [
     './js/appointments.js',
     './js/inventory.js',
     './manifest.json',
-    './assets/icons/icon.svg'
+    './assets/icons/icon.svg',
+    './assets/icons/logo.png',
+    './assets/icons/icon-192.png',
+    './assets/icons/icon-512.png'
 ];
 
 // External CDN resources to cache
