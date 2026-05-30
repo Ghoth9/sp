@@ -15,8 +15,7 @@ function doGet(e) {
     const payload = {
       customers: readSheetAsJson('ACSP_Customers'),
       services: readSheetAsJson('ACSP_Services'),
-      appointments: readSheetAsJson('ACSP_Appointments'),
-      inventory: readSheetAsJson('ACSP_Inventory')
+      appointments: readSheetAsJson('ACSP_Appointments')
     };
     
     return jsonResponse(payload);
@@ -94,7 +93,6 @@ function doPost(e) {
       if (data.customers) overwriteSheet('ACSP_Customers', data.customers);
       if (data.services) overwriteSheet('ACSP_Services', data.services);
       if (data.appointments) overwriteSheet('ACSP_Appointments', data.appointments);
-      if (data.inventory) overwriteSheet('ACSP_Inventory', data.inventory);
       
       return jsonResponse({ success: true, message: "ซิงก์ข้อมูลทั้งหมดขึ้นคลาวด์เรียบร้อย!" });
     }
@@ -134,10 +132,10 @@ function sendDailyJobQueueToLine() {
     const appointments = readSheetAsJson('ACSP_Appointments');
     const customers = readSheetAsJson('ACSP_Customers');
     
-    // กรองนัดหมายเฉพาะของ "วันนี้" และไม่ยกเลิก (ตัดเทียบเฉพาะปี-เดือน-วัน 10 ตัวแรก)
+    // กรองนัดหมายเฉพาะของ "วันนี้" และไม่ยกเลิก
     const todayJobs = appointments.filter(a => {
       if (!a.date) return false;
-      const jobDate = a.date.substring(0, 10);
+      const jobDate = parseAndFormatDate(a.date, "GMT+7");
       return jobDate === formattedToday && a.status !== 'cancelled';
     });
     if (todayJobs.length === 0) {
@@ -156,6 +154,7 @@ function sendDailyJobQueueToLine() {
     todayJobs.forEach((job, index) => {
       // ค้นหารายละเอียดลูกค้า
       const customer = customers.find(c => c.id === job.customerId) || { name: 'ไม่พบข้อมูลลูกค้า', phone: '-' };
+      const mLink = customer.mapsLink || customer.maps || '';
       
       message += `📌 คิวที่ ${index + 1}: เวลา ${job.time || '-'} น. | ${job.serviceType}\n`;
       message += `• ลูกค้า: คุณ${customer.name}\n`;
@@ -163,8 +162,8 @@ function sendDailyJobQueueToLine() {
       if (customer.address) {
         message += `• ที่อยู่: ${customer.address}\n`;
       }
-      if (customer.mapsLink) {
-        message += `• แผนที่นำทาง: ${customer.mapsLink}\n`;
+      if (mLink) {
+        message += `• แผนที่นำทาง: ${mLink}\n`;
       }
       if (job.notes) {
         message += `• หมายเหตุงาน: ${job.notes}\n`;
@@ -241,10 +240,42 @@ function getSheetName(collection) {
   const maps = {
     'customers': 'ACSP_Customers',
     'services': 'ACSP_Services',
-    'appointments': 'ACSP_Appointments',
-    'inventory': 'ACSP_Inventory'
+    'appointments': 'ACSP_Appointments'
   };
   return maps[collection];
+}
+
+function parseAndFormatDate(val, tz) {
+  if (!val) return '';
+  if (val instanceof Date) {
+    return Utilities.formatDate(val, tz || "GMT+7", "yyyy-MM-dd");
+  }
+  const str = String(val).trim();
+  if (!str) return '';
+  
+  // 1. YYYY-MM-DD
+  if (/^\d{4}-\d{2}-\d{2}/.test(str)) {
+    return str.substring(0, 10);
+  }
+  
+  // 2. DD/MM/YYYY หรือ DD/MM/BBBB
+  const dmyMatch = str.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+  if (dmyMatch) {
+    let d = parseInt(dmyMatch[1], 10);
+    let m = parseInt(dmyMatch[2], 10);
+    let y = parseInt(dmyMatch[3], 10);
+    if (y >= 2500) y -= 543;
+    return y + "-" + String(m).padStart(2, '0') + "-" + String(d).padStart(2, '0');
+  }
+  
+  try {
+    const parsed = new Date(str);
+    if (!isNaN(parsed.getTime())) {
+      return Utilities.formatDate(parsed, tz || "GMT+7", "yyyy-MM-dd");
+    }
+  } catch (e) {}
+  
+  return str;
 }
 
 function readSheetAsJson(sheetName) {
@@ -263,9 +294,17 @@ function readSheetAsJson(sheetName) {
     const obj = {};
     headers.forEach((h, index) => {
       let val = row[index];
-      // แปลงฟอร์แมตวันที่ให้อยู่ใน ISO String สำหรับใช้งานบน JS
-      if (val instanceof Date) {
-        val = Utilities.formatDate(val, tz, "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+      // แปลงฟอร์แมตวันที่ให้อยู่ใน ISO String หรือรูปแบบ YYYY-MM-DD
+      if (h === 'createdAt' || h === 'updatedAt') {
+        if (val instanceof Date) {
+          val = Utilities.formatDate(val, tz, "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+        } else if (val) {
+          val = new Date(val).toISOString();
+        }
+      } else if (h === 'date' || h === 'serviceDate') {
+        val = parseAndFormatDate(val, tz);
+      } else if (val instanceof Date) {
+        val = Utilities.formatDate(val, tz, "yyyy-MM-dd");
       }
       obj[h] = val;
     });

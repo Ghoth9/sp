@@ -4,7 +4,7 @@
 // Caching strategy: Cache-first for static, Network-first for dynamic
 // ============================================================
 
-const CACHE_NAME = 'spairdee-v19';
+const CACHE_NAME = 'spairdee-v21';
 
 // Static assets to pre-cache on install
 const STATIC_ASSETS = [
@@ -17,7 +17,6 @@ const STATIC_ASSETS = [
     './js/customers.js',
     './js/services.js',
     './js/appointments.js',
-    './js/inventory.js',
     './manifest.json',
     './assets/icons/icon.svg',
     './assets/icons/logo.png',
@@ -255,7 +254,7 @@ function isGoogleFont(url) {
 
 // ── Message Handler ───────────────────────────────────────────
 self.addEventListener('message', (event) => {
-    if (event.data && event.data.type === 'SKIP_WAITING') {
+    if (event.data && (event.data.type === 'SKIP_WAITING' || event.data.action === 'skipWaiting')) {
         self.skipWaiting();
     }
 

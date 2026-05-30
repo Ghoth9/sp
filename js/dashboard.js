@@ -437,31 +437,6 @@ const DashboardModule = (() => {
         container.innerHTML = html;
     }
 
-    /* ── low stock alerts ───────────────────────────────────── */
-    function renderLowStockAlert() {
-        const container = $('dashboard-low-stock');
-        if (!container) return;
-
-        const inventory = DB.getAll('inventory');
-        const lowStock = inventory.filter(item => item.quantity <= item.minQuantity);
-
-        if (lowStock.length === 0) {
-            container.innerHTML = '';
-            return;
-        }
-
-        let html = `
-            <div class="alert-banner alert-warning" id="dashboard-low-stock-alert">
-                <i data-lucide="alert-triangle"></i>
-                <span>อะไหล่ใกล้หมด ${lowStock.length} รายการ: 
-                    ${lowStock.map(i => `<strong>${i.name}</strong> (${i.quantity} ${i.unit || 'ชิ้น'})`).join(', ')}
-                </span>
-            </div>
-        `;
-        container.innerHTML = html;
-        if (window.lucide) lucide.createIcons();
-    }
-
     /* ── unpaid summary ─────────────────────────────────────── */
     function renderUnpaidSummary(stats) {
         const container = $('dashboard-unpaid-summary');
@@ -488,7 +463,6 @@ const DashboardModule = (() => {
         const stats = computeStats();
 
         renderStatCards(stats);
-        renderLowStockAlert();
         renderUnpaidSummary(stats);
         drawRevenueChart(stats.services);
         drawServiceTypeChart(stats.services);

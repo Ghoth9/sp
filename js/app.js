@@ -52,7 +52,6 @@ const App = (() => {
             'customers': 'รายชื่อลูกค้า',
             'services': 'ประวัติงานบริการ',
             'appointments': 'ตารางนัดหมายบริการ',
-            'inventory': 'คลังอะไหล่และอุปกรณ์',
             'settings': 'ตั้งค่าระบบ'
         };
         const titleEl = $('page-title');
@@ -82,7 +81,6 @@ const App = (() => {
             if (pageId === 'customers' && typeof CustomersModule !== 'undefined') CustomersModule.refresh();
             if (pageId === 'services' && typeof ServicesModule !== 'undefined') ServicesModule.refresh();
             if (pageId === 'appointments' && typeof AppointmentsModule !== 'undefined') AppointmentsModule.refresh();
-            if (pageId === 'inventory' && typeof InventoryModule !== 'undefined') InventoryModule.refresh();
             if (pageId === 'settings') updateStorageUsage();
             
             updateSidebarBadges();
@@ -94,7 +92,6 @@ const App = (() => {
     function updateSidebarBadges() {
         const allApts = DB.getAll('appointments');
         const pendingCount = allApts.filter(a => a.status === 'pending' || a.status === 'in-progress').length;
-        const lowStockItems = DB.getLowStockItems();
 
         // Appointments Badge (Sidebar)
         const aptBadge = $('nav-badge-appointments');
@@ -115,28 +112,6 @@ const App = (() => {
                 bottomAptBadge.style.display = 'flex';
             } else {
                 bottomAptBadge.style.display = 'none';
-            }
-        }
-
-        // Inventory Badge (Sidebar)
-        const invBadge = $('nav-badge-inventory');
-        if (invBadge) {
-            if (lowStockItems.length > 0) {
-                invBadge.textContent = lowStockItems.length;
-                invBadge.style.display = 'flex';
-            } else {
-                invBadge.style.display = 'none';
-            }
-        }
-
-        // Inventory Badge (Bottom Nav)
-        const bottomInvBadge = $('bottom-badge-inventory');
-        if (bottomInvBadge) {
-            if (lowStockItems.length > 0) {
-                bottomInvBadge.textContent = lowStockItems.length;
-                bottomInvBadge.style.display = 'flex';
-            } else {
-                bottomInvBadge.style.display = 'none';
             }
         }
     }
@@ -517,18 +492,34 @@ const App = (() => {
 
         // PWA Install Action
         const installBtn = $('btn-install-pwa');
-        if (installBtn) {
-            installBtn.addEventListener('click', async () => {
-                if (!deferredPrompt) return;
-                installBtn.disabled = true;
-                deferredPrompt.prompt();
-                const { outcome } = await deferredPrompt.userChoice;
-                console.log(`[PWA] Install choice: ${outcome}`);
-                deferredPrompt = null;
-                installBtn.style.display = 'none';
-                installBtn.disabled = false;
-            });
-        }
+        const settingsInstallBtn = $('btn-settings-install-pwa');
+        const topInstallBtn = $('btn-top-install-pwa');
+
+        const triggerInstall = async (btnEl) => {
+            if (!deferredPrompt) {
+                const isIOS = navigator.userAgent.match(/iPhone|iPad|iPod/i);
+                if (isIOS) {
+                    openModal('ios-install-modal');
+                } else {
+                    showToast('อุปกรณ์หรือบราวเซอร์นี้ไม่รองรับการติดตั้งตรง หรือแอปได้รับการติดตั้งแล้ว', 'info');
+                }
+                return;
+            }
+            btnEl.disabled = true;
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+            console.log(`[PWA] Install choice: ${outcome}`);
+            deferredPrompt = null;
+            if (installBtn) installBtn.style.display = 'none';
+            if (topInstallBtn) topInstallBtn.style.display = 'none';
+            const installSection = $('settings-pwa-install-section');
+            if (installSection) installSection.style.display = 'none';
+            btnEl.disabled = false;
+        };
+
+        if (installBtn) installBtn.addEventListener('click', () => triggerInstall(installBtn));
+        if (settingsInstallBtn) settingsInstallBtn.addEventListener('click', () => triggerInstall(settingsInstallBtn));
+        if (topInstallBtn) topInstallBtn.addEventListener('click', () => triggerInstall(topInstallBtn));
 
         // Setup Date Display in topbar
         const topbarDate = $('topbar-date');
@@ -553,7 +544,6 @@ const App = (() => {
             if (typeof CustomersModule !== 'undefined') CustomersModule.init();
             if (typeof ServicesModule !== 'undefined') ServicesModule.init();
             if (typeof AppointmentsModule !== 'undefined') AppointmentsModule.init();
-            if (typeof InventoryModule !== 'undefined') InventoryModule.init();
         } catch (e) {
             console.error('[App] Failed to initialize modules', e);
         }
@@ -570,21 +560,58 @@ const App = (() => {
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
             deferredPrompt = e;
+            
+            // Show sidebar install button
             const installBtn = $('btn-install-pwa');
-            if (installBtn) {
-                installBtn.style.display = 'inline-flex';
-                if (window.lucide) lucide.createIcons();
+            if (installBtn) installBtn.style.display = 'inline-flex';
+
+            // Show top-bar install button
+            const topInstallBtn = $('btn-top-install-pwa');
+            if (topInstallBtn) topInstallBtn.style.display = 'inline-flex';
+
+            // Show settings page install section
+            const installSection = $('settings-pwa-install-section');
+            if (installSection) {
+                installSection.style.display = 'block';
+                const settingsInstallBtn = $('btn-settings-install-pwa');
+                if (settingsInstallBtn) settingsInstallBtn.style.display = 'inline-flex';
             }
+
+            if (window.lucide) lucide.createIcons();
         });
 
         window.addEventListener('appinstalled', () => {
             deferredPrompt = null;
             const installBtn = $('btn-install-pwa');
-            if (installBtn) {
-                installBtn.style.display = 'none';
-            }
+            if (installBtn) installBtn.style.display = 'none';
+            
+            const topInstallBtn = $('btn-top-install-pwa');
+            if (topInstallBtn) topInstallBtn.style.display = 'none';
+
+            const installSection = $('settings-pwa-install-section');
+            if (installSection) installSection.style.display = 'none';
+
             showToast('ติดตั้งแอปพลิเคชัน Spairdee เรียบร้อยแล้ว!', 'success');
         });
+
+        // 8. Detect iOS PWA Installation Guide
+        const isIOS = navigator.userAgent.match(/iPhone|iPad|iPod/i);
+        const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
+        if (isIOS && !isStandalone) {
+            // Show installation buttons on iOS
+            const installBtn = $('btn-install-pwa');
+            if (installBtn) installBtn.style.display = 'inline-flex';
+
+            const topInstallBtn = $('btn-top-install-pwa');
+            if (topInstallBtn) topInstallBtn.style.display = 'inline-flex';
+
+            const installSection = $('settings-pwa-install-section');
+            if (installSection) {
+                installSection.style.display = 'block';
+                const settingsInstallBtn = $('btn-settings-install-pwa');
+                if (settingsInstallBtn) settingsInstallBtn.style.display = 'inline-flex';
+            }
+        }
 
         // Listen for cloud sync completion to refresh views
         document.addEventListener('db-synced', () => {
@@ -593,14 +620,66 @@ const App = (() => {
             refreshModule(currentPage);
         });
 
-        // 7. Register Service Worker (PWA)
+        // 7. Register Service Worker (PWA) with Update Check
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('./sw.js')
-                    .then(reg => console.log('[PWA] Service Worker registered ✓', reg.scope))
+                    .then(reg => {
+                        console.log('[PWA] Service Worker registered ✓', reg.scope);
+                        
+                        // Check if there is already an update waiting
+                        if (reg.waiting) {
+                            showUpdateToast(reg.waiting);
+                        }
+
+                        // Listen for future updates
+                        reg.addEventListener('updatefound', () => {
+                            const newWorker = reg.installing;
+                            newWorker.addEventListener('statechange', () => {
+                                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                    showUpdateToast(newWorker);
+                                }
+                            });
+                        });
+                    })
                     .catch(err => console.error('[PWA] Service Worker failed', err));
+
+                // Ensure refresh only happens once when the new service worker takes over
+                let refreshing = false;
+                navigator.serviceWorker.addEventListener('controllerchange', () => {
+                    if (!refreshing) {
+                        refreshing = true;
+                        window.location.reload();
+                    }
+                });
             });
         }
+    }
+
+    function showUpdateToast(worker) {
+        const container = $('toast-container');
+        if (!container) return;
+
+        const toast = document.createElement('div');
+        toast.className = 'toast toast-info';
+        toast.style.cursor = 'pointer';
+        toast.style.padding = '12px 16px';
+        toast.style.background = 'var(--accent-gradient)';
+        toast.style.color = '#fff';
+        toast.style.boxShadow = 'var(--shadow-lg)';
+        toast.style.border = '1px solid var(--accent-cyan)';
+
+        toast.innerHTML = `
+            <i class="toast-icon" data-lucide="refresh-cw" style="color:#fff;"></i>
+            <div class="toast-message" style="margin-left: 8px; color:#fff;"><strong>มีระบบเวอร์ชันใหม่!</strong> กดที่นี่เพื่ออัปเดตแอปทันที</div>
+        `;
+        
+        toast.addEventListener('click', () => {
+            worker.postMessage({ action: 'skipWaiting' });
+        });
+
+        container.appendChild(toast);
+        if (window.lucide) lucide.createIcons();
     }
 
     // Public API

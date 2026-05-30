@@ -12,7 +12,6 @@ const DB = (() => {
     customers: 'acsp_customers',
     services: 'acsp_services',
     appointments: 'acsp_appointments',
-    inventory: 'acsp_inventory',
   };
 
   const INITIALIZED_KEY = 'acsp_initialized';
@@ -33,6 +32,48 @@ const DB = (() => {
   /** Persist a full collection */
   function _saveAll(collectionKey, data) {
     localStorage.setItem(collectionKey, JSON.stringify(data));
+  }
+
+  function normalizeDate(dateStr) {
+    if (!dateStr) return '';
+    const str = String(dateStr).trim();
+    if (!str) return '';
+    
+    // 1. ถ้าเป็น YYYY-MM-DD...
+    if (/^\d{4}-\d{2}-\d{2}/.test(str)) {
+      return str.substring(0, 10);
+    }
+    
+    // 2. ถ้าเป็น DD/MM/YYYY หรือ DD/MM/BBBB
+    const dmyMatch = str.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+    if (dmyMatch) {
+      let d = parseInt(dmyMatch[1], 10);
+      let m = parseInt(dmyMatch[2], 10);
+      let y = parseInt(dmyMatch[3], 10);
+      if (y >= 2500) y -= 543;
+      return `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+    }
+    
+    // 3. ลองใช้ Date.parse
+    try {
+      const parsed = new Date(str);
+      if (!isNaN(parsed.getTime())) {
+        return parsed.toISOString().substring(0, 10);
+      }
+    } catch (e) {}
+    
+    return str;
+  }
+
+  function _cleanRecordDates(collection, record) {
+    if (!record) return record;
+    if (collection === 'appointments' && record.date) {
+      record.date = normalizeDate(record.date);
+    }
+    if (collection === 'services' && record.serviceDate) {
+      record.serviceDate = normalizeDate(record.serviceDate);
+    }
+    return record;
   }
 
   /** Generate next sequential ID  e.g. CUS-009 → CUS-010 */
@@ -63,7 +104,6 @@ const DB = (() => {
       customers: 'CUS',
       services: 'SRV',
       appointments: 'APT',
-      inventory: 'INV',
     };
     const id = _nextId(prefixMap[collection], key);
     const record = { id, ...data, createdAt: new Date().toISOString() };
@@ -129,10 +169,6 @@ const DB = (() => {
     ]);
   }
 
-  function searchInventory(query) {
-    return search('inventory', query, ['name', 'category', 'id', 'notes']);
-  }
-
   function searchAppointments(query) {
     return search('appointments', query, ['id', 'customerId', 'serviceType', 'status', 'notes']);
   }
@@ -159,18 +195,12 @@ const DB = (() => {
     return getAll('appointments').filter((a) => a.date && a.date.startsWith(yearMonth));
   }
 
-  /** Inventory items below minimum stock */
-  function getLowStockItems() {
-    return getAll('inventory').filter((i) => i.quantity <= i.minQuantity);
-  }
-
   // ── Dashboard stats ───────────────────────────────────────
 
   function getStats() {
     const customers = getAll('customers');
     const services = getAll('services');
     const appointments = getAll('appointments');
-    const inventory = getAll('inventory');
 
     const totalRevenue = services.reduce((sum, s) => sum + (s.paidAmount || 0), 0);
     const unpaidAmount = services.reduce((sum, s) => {
@@ -215,7 +245,6 @@ const DB = (() => {
       revenueThisMonth,
       servicesThisMonth: servicesThisMonth.length,
       pendingAppointments: pendingAppointments.length,
-      lowStockItems: getLowStockItems().length,
       revenueByMonth,
       servicesByType,
     };
@@ -231,7 +260,6 @@ const DB = (() => {
         customers: getAll('customers'),
         services: getAll('services'),
         appointments: getAll('appointments'),
-        inventory: getAll('inventory'),
       },
     };
     return JSON.stringify(payload, null, 2);
@@ -241,11 +269,10 @@ const DB = (() => {
     try {
       const payload = JSON.parse(jsonString);
       if (!payload.data) throw new Error('Invalid backup format');
-      const { customers, services, appointments, inventory } = payload.data;
+      const { customers, services, appointments } = payload.data;
       if (customers) _saveAll(COLLECTIONS.customers, customers);
       if (services) _saveAll(COLLECTIONS.services, services);
       if (appointments) _saveAll(COLLECTIONS.appointments, appointments);
-      if (inventory) _saveAll(COLLECTIONS.inventory, inventory);
       return { success: true, message: 'นำเข้าข้อมูลสำเร็จ' };
     } catch (e) {
       return { success: false, message: `นำเข้าข้อมูลล้มเหลว: ${e.message}` };
@@ -662,136 +689,9 @@ const DB = (() => {
         notes: 'ร้านกาแฟ ล้างประจำ 3 เดือน',
         createdAt: '2025-05-27T10:00:00Z',
       },
-    ];
-
-    // ---------- Inventory (12 items) ----------
-    const inventory = [
-      {
-        id: 'INV-001',
-        name: 'Capacitor 25µF',
-        category: 'อะไหล่',
-        quantity: 12,
-        minQuantity: 5,
-        unit: 'ชิ้น',
-        price: 120,
-        notes: 'สำหรับแอร์ขนาด 9000-12000 BTU',
-      },
-      {
-        id: 'INV-002',
-        name: 'Capacitor 35µF',
-        category: 'อะไหล่',
-        quantity: 8,
-        minQuantity: 5,
-        unit: 'ชิ้น',
-        price: 150,
-        notes: 'สำหรับแอร์ขนาด 13000-18000 BTU',
-      },
-      {
-        id: 'INV-003',
-        name: 'Capacitor 45µF',
-        category: 'อะไหล่',
-        quantity: 3,
-        minQuantity: 3,
-        unit: 'ชิ้น',
-        price: 180,
-        notes: 'สำหรับแอร์ขนาด 24000+ BTU',
-      },
-      {
-        id: 'INV-004',
-        name: 'Fan Motor Indoor (แกน 8mm)',
-        category: 'อะไหล่',
-        quantity: 4,
-        minQuantity: 2,
-        unit: 'ชิ้น',
-        price: 850,
-        notes: 'มอเตอร์พัดลมคอยล์เย็น ใช้ได้หลายรุ่น',
-      },
-      {
-        id: 'INV-005',
-        name: 'Fan Motor Outdoor',
-        category: 'อะไหล่',
-        quantity: 2,
-        minQuantity: 2,
-        unit: 'ชิ้น',
-        price: 1200,
-        notes: 'มอเตอร์พัดลมคอยล์ร้อน',
-      },
-      {
-        id: 'INV-006',
-        name: 'Compressor (Rotary 12000 BTU)',
-        category: 'อะไหล่',
-        quantity: 1,
-        minQuantity: 1,
-        unit: 'ชิ้น',
-        price: 4500,
-        notes: 'คอมเพรสเซอร์สำรอง',
-      },
-      {
-        id: 'INV-007',
-        name: 'น้ำยาแอร์ R32',
-        category: 'น้ำยา',
-        quantity: 8,
-        minQuantity: 3,
-        unit: 'กก.',
-        price: 650,
-        notes: 'น้ำยาแอร์ R32 บรรจุกิโลกรัมละถัง',
-      },
-      {
-        id: 'INV-008',
-        name: 'น้ำยาแอร์ R410A',
-        category: 'น้ำยา',
-        quantity: 5,
-        minQuantity: 3,
-        unit: 'กก.',
-        price: 750,
-        notes: 'น้ำยาแอร์ R410A',
-      },
-      {
-        id: 'INV-009',
-        name: 'แผ่นกรองแอร์ (Universal)',
-        category: 'อะไหล่',
-        quantity: 20,
-        minQuantity: 10,
-        unit: 'ชิ้น',
-        price: 80,
-        notes: 'แผ่นกรองอากาศ ตัดได้ตามขนาด',
-      },
-      {
-        id: 'INV-010',
-        name: 'Drain Pump',
-        category: 'อะไหล่',
-        quantity: 3,
-        minQuantity: 2,
-        unit: 'ชิ้น',
-        price: 550,
-        notes: 'ปั๊มน้ำทิ้ง สำหรับแอร์ติดผนัง',
-      },
-      {
-        id: 'INV-011',
-        name: 'ท่อทองแดง 1/4" + 3/8"',
-        category: 'อุปกรณ์',
-        quantity: 30,
-        minQuantity: 10,
-        unit: 'เมตร',
-        price: 95,
-        notes: 'ท่อน้ำยาแอร์ คู่ พร้อมฉนวน',
-      },
-      {
-        id: 'INV-012',
-        name: 'สายไฟ THW 2.5 sq.mm.',
-        category: 'อุปกรณ์',
-        quantity: 50,
-        minQuantity: 20,
-        unit: 'เมตร',
-        price: 18,
-        notes: 'สายไฟเดินแอร์',
-      },
-    ];
-
     _saveAll(COLLECTIONS.customers, customers);
     _saveAll(COLLECTIONS.services, services);
     _saveAll(COLLECTIONS.appointments, appointments);
-    _saveAll(COLLECTIONS.inventory, inventory);
     localStorage.setItem(INITIALIZED_KEY, 'true');
 
     console.log('[DB] Demo data seeded ✓');
@@ -844,7 +744,7 @@ const DB = (() => {
           const all = _getAll(key);
           const idx = all.findIndex(item => item.id === id);
           if (idx !== -1) {
-            all[idx] = res.record;
+            all[idx] = _cleanRecordDates(collection, res.record);
             _saveAll(key, all);
             // Dispatch event to refresh UI
             document.dispatchEvent(new CustomEvent('db-synced'));
@@ -900,7 +800,7 @@ const DB = (() => {
               const all = _getAll(key);
               const idx = all.findIndex(item => item.id === op.id);
               if (idx !== -1) {
-                all[idx] = res.record;
+                all[idx] = _cleanRecordDates(op.collection, res.record);
                 _saveAll(key, all);
               }
             }
@@ -929,9 +829,14 @@ const DB = (() => {
       })
       .then(data => {
         if (data.customers) _saveAll(COLLECTIONS.customers, data.customers);
-        if (data.services) _saveAll(COLLECTIONS.services, data.services);
-        if (data.appointments) _saveAll(COLLECTIONS.appointments, data.appointments);
-        if (data.inventory) _saveAll(COLLECTIONS.inventory, data.inventory);
+        if (data.services) {
+          const cleaned = data.services.map(s => _cleanRecordDates('services', s));
+          _saveAll(COLLECTIONS.services, cleaned);
+        }
+        if (data.appointments) {
+          const cleaned = data.appointments.map(a => _cleanRecordDates('appointments', a));
+          _saveAll(COLLECTIONS.appointments, cleaned);
+        }
         
         console.log("[Cloud] Pulled all data from Google Sheets successfully.");
         return data;
@@ -946,8 +851,7 @@ const DB = (() => {
       data: {
         customers: getAll('customers'),
         services: getAll('services'),
-        appointments: getAll('appointments'),
-        inventory: getAll('inventory')
+        appointments: getAll('appointments')
       }
     };
 
@@ -1014,13 +918,11 @@ const DB = (() => {
     delete: remove,
     searchCustomers,
     searchServices,
-    searchInventory,
     searchAppointments,
     getServicesByCustomer,
     getAppointmentsByCustomer,
     getAppointmentsByDate,
     getAppointmentsByMonth,
-    getLowStockItems,
     getStats,
     exportData,
     importData,
