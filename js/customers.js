@@ -78,7 +78,17 @@ const CustomersModule = (() => {
                             <span><i data-lucide="phone"></i> ${c.phone || '-'}</span>
                             ${c.lineId ? `<span><i data-lucide="message-circle"></i> ${c.lineId}</span>` : ''}
                         </div>
-                        ${c.address ? `<p class="customer-address"><i data-lucide="map-pin"></i> ${c.address}</p>` : ''}
+                        ${(() => {
+                            if (!c.address) return '';
+                            const mapsUrl = c.mapsLink || 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(c.address);
+                            return `
+                                <p class="customer-address">
+                                    <i data-lucide="map-pin"></i> 
+                                    ${c.address}
+                                    <a href="${mapsUrl}" target="_blank" class="maps-shortcut-btn" title="เปิดแผนที่นำทาง" style="margin-left: 6px; display: inline-flex; align-items: center; color: var(--accent-cyan);"><i data-lucide="external-link" style="width:12px;height:12px;vertical-align:middle;"></i></a>
+                                </p>
+                            `;
+                        })()}
                         <div class="customer-stats-row">
                             <span class="customer-stat"><strong>${svcCount}</strong> บริการ</span>
                             <span class="customer-stat"><strong>${App.formatCurrency(spent)}</strong></span>
@@ -456,7 +466,11 @@ const CustomersModule = (() => {
                             <span class="detail-label" style="display: flex; align-items: center; gap: 6px;"><i data-lucide="map-pin" style="width: 14px; height: 14px; color: var(--text-muted);"></i> ที่อยู่</span>
                             <span class="detail-value" style="line-height: 1.5;">
                                 ${customer.address || '-'}
-                                ${customer.mapsLink ? `<br><a href="${customer.mapsLink}" target="_blank" style="display:inline-flex; align-items:center; gap:4px; margin-top:6px; font-size:13px; color:var(--accent-cyan); font-weight:600;"><i data-lucide="external-link" style="width:13px;height:13px;"></i> เปิดแผนที่ Google Maps</a>` : ''}
+                                ${(() => {
+                                    if (!customer.address) return '';
+                                    const mapsUrl = customer.mapsLink || 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(customer.address);
+                                    return `<br><a href="${mapsUrl}" target="_blank" style="display:inline-flex; align-items:center; gap:4px; margin-top:6px; font-size:13px; color:var(--accent-cyan); font-weight:600;"><i data-lucide="external-link" style="width:13px;height:13px;"></i> เปิดแผนที่ Google Maps</a>`;
+                                })()}
                             </span>
                         </div>
                         ${customer.notes ? `

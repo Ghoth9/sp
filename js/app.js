@@ -572,6 +572,34 @@ const App = (() => {
             const yearNum = today.getFullYear() + 543;
             topbarDate.textContent = `${dayName} ${dateNum} ${monthName} ${yearNum}`;
         }
+
+        // Setup Online/Offline Status Indicator
+        const updateOnlineStatus = () => {
+            const statusBadge = $('topbar-status-badge');
+            if (statusBadge) {
+                const isOnline = navigator.onLine;
+                statusBadge.classList.toggle('online', isOnline);
+                statusBadge.classList.toggle('offline', !isOnline);
+                
+                const text = statusBadge.querySelector('.status-text');
+                if (text) {
+                    text.textContent = isOnline ? 'ออนไลน์' : 'ออฟไลน์';
+                }
+                
+                // Show a toast message to notify status change
+                if (window.__app_initialized) {
+                    showToast(
+                        isOnline ? 'กลับมาออนไลน์เชื่อมต่อแล้ว' : 'คุณกำลังใช้งานแบบออฟไลน์',
+                        isOnline ? 'success' : 'warning'
+                    );
+                }
+            }
+        };
+
+        window.addEventListener('online', updateOnlineStatus);
+        window.addEventListener('offline', updateOnlineStatus);
+        updateOnlineStatus();
+        window.__app_initialized = true;
     }
 
     // ── App Initialization ────────────────────────────────────
@@ -729,6 +757,27 @@ const App = (() => {
         if (window.lucide) lucide.createIcons();
     }
 
+    function copyToClipboard(text) {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            return navigator.clipboard.writeText(text);
+        } else {
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            textarea.style.position = 'fixed';
+            textarea.style.opacity = '0';
+            document.body.appendChild(textarea);
+            textarea.select();
+            try {
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                return Promise.resolve();
+            } catch (err) {
+                document.body.removeChild(textarea);
+                return Promise.reject(err);
+            }
+        }
+    }
+
     // Public API
     return {
         init,
@@ -738,7 +787,8 @@ const App = (() => {
         showToast,
         formatCurrency,
         formatDate,
-        formatPhone
+        formatPhone,
+        copyToClipboard
     };
 })();
 

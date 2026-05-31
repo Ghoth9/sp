@@ -143,6 +143,11 @@
       </nav>
 
       <div class="top-header-right">
+        <!-- Online/Offline Status Badge -->
+        <div class="topbar-status-badge online" id="topbar-status-badge" title="สถานะเชื่อมต่อเครือข่าย">
+          <span class="status-dot"></span>
+          <span class="status-text">ออนไลน์</span>
+        </div>
         <!-- Date Display inside a premium Pill Badge -->
         <div class="topbar-date-badge" id="topbar-date-wrapper">
           <i data-lucide="calendar" style="width:14px; height:14px;"></i>
@@ -792,6 +797,8 @@
       <!-- Filled by JS -->
     </div>
     <div class="modal-footer">
+      <button class="btn btn-secondary btn-share-service" id="btn-detail-share-service" style="margin-right: auto;"><i data-lucide="share-2"></i> คัดลอกข้อความ</button>
+      <button class="btn btn-primary btn-print-service" id="btn-detail-print-service" style="margin-right: 6px;"><i data-lucide="printer"></i> พิมพ์เอกสาร</button>
       <button class="btn btn-secondary" data-modal-close="service-detail-modal">ปิด</button>
     </div>
   </div>
@@ -816,6 +823,27 @@
   </div>
 </div>
 
+<!-- ── Modal: Invoice Print ──────────────────────────────── -->
+<div class="modal-overlay" id="invoice-print-modal">
+  <div class="modal modal-wide" style="max-width: 800px;">
+    <div class="modal-header hide-print">
+      <div>
+        <h3>ใบเสนอราคา / ใบเสร็จรับเงิน</h3>
+        <p class="modal-subtitle">พรีวิวเอกสารสำหรับการพิมพ์หรือบันทึกเป็น PDF</p>
+      </div>
+      <div style="display: flex; gap: 8px; align-items: center;">
+        <button class="btn btn-primary" id="btn-do-print"><i data-lucide="printer"></i> พิมพ์</button>
+        <button class="modal-close" data-modal-close="invoice-print-modal"><i data-lucide="x" width="18" height="18"></i></button>
+      </div>
+    </div>
+    <div class="modal-body" id="invoice-print-body">
+      <!-- Generated content for print -->
+    </div>
+    <div class="modal-footer hide-print">
+      <button class="btn btn-secondary" data-modal-close="invoice-print-modal">ปิด</button>
+    </div>
+  </div>
+</div>
 
 <!-- ── Toast Container ───────────────────────────────────── -->
 <div class="toast-container" id="toast-container"></div>

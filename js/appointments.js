@@ -249,6 +249,9 @@ const AppointmentsModule = (() => {
                                     <i data-lucide="x"></i>
                                 </button>
                             ` : ''}
+                            <button class="btn-icon btn-share-appointment" data-id="${a.id}" title="คัดลอกข้อความแจ้งยืนยันนัดหมาย">
+                                <i data-lucide="share-2"></i>
+                            </button>
                             <button class="btn-icon btn-edit-appointment" data-id="${a.id}" title="แก้ไข">
                                 <i data-lucide="pencil"></i>
                             </button>
@@ -452,6 +455,12 @@ const AppointmentsModule = (() => {
                 return;
             }
 
+            // Share
+            if (target.classList.contains('btn-share-appointment')) {
+                shareAppointmentMessage(target.dataset.id);
+                return;
+            }
+
             // Edit
             if (target.classList.contains('btn-edit-appointment')) {
                 const apt = DB.getById('appointments', target.dataset.id);
@@ -564,6 +573,32 @@ const AppointmentsModule = (() => {
         // Open LINE share URL
         const lineUrl = `https://line.me/R/share?text=${encodeURIComponent(msg)}`;
         window.open(lineUrl, '_blank');
+    }
+
+    function shareAppointmentMessage(id) {
+        const a = DB.getById('appointments', id);
+        if (!a) return;
+
+        const cust = DB.getById('customers', a.customerId);
+        const custName = cust ? cust.name : 'ลูกค้า';
+
+        const dateFormatted = App.formatDate(a.date);
+        
+        let msg = `❄️ แจ้งเตือนยืนยันนัดหมาย Spairdee ❄️\n\n`;
+        msg += `เรียนคุณ: ${custName}\n`;
+        msg += `ทางร้านแอร์ เอส พี แอร์ คอน ขอแจ้งยืนยันคิวนัดหมายบริการ "${a.serviceType || 'งานบริการแอร์'}"\n`;
+        msg += `• วันที่: ${dateFormatted}\n`;
+        msg += `• เวลา: ${a.time || '--:--'} น.\n`;
+        if (a.notes) msg += `• หมายเหตุเพิ่มเติม: ${a.notes}\n`;
+        msg += `\nหากต้องการเลื่อนคิวหรือแจ้งข้อมูลเพิ่มเติม สามารถติดต่อกลับได้ทันทีครับ ขอบคุณครับ! 🛠️`;
+
+        App.copyToClipboard(msg)
+            .then(() => {
+                App.showToast('คัดลอกข้อความด่วนนัดหมายเรียบร้อยแล้ว! สามารถนำไปวางส่ง LINE ได้ทันที', 'success');
+            })
+            .catch(err => {
+                App.showToast('ไม่สามารถคัดลอกข้อความได้: ' + err, 'error');
+            });
     }
 
     return { init, refresh };

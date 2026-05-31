@@ -151,6 +151,12 @@ const ServicesModule = (() => {
                                 <button class="btn-icon btn-view-service" data-id="${s.id}" title="ดูรายละเอียด">
                                     <i data-lucide="eye"></i>
                                 </button>
+                                <button class="btn-icon btn-print-service" data-id="${s.id}" title="พิมพ์ใบแจ้งหนี้/ใบเสร็จ">
+                                    <i data-lucide="printer"></i>
+                                </button>
+                                <button class="btn-icon btn-share-service" data-id="${s.id}" title="คัดลอกข้อความแจ้งลูกค้า">
+                                    <i data-lucide="share-2"></i>
+                                </button>
                                 <button class="btn-icon btn-edit-service" data-id="${s.id}" title="แก้ไข">
                                     <i data-lucide="pencil"></i>
                                 </button>
@@ -208,6 +214,12 @@ const ServicesModule = (() => {
                             <div class="table-actions">
                                 <button class="btn-icon btn-view-service" data-id="${s.id}" title="ดูรายละเอียด">
                                     <i data-lucide="eye"></i>
+                                </button>
+                                <button class="btn-icon btn-print-service" data-id="${s.id}" title="พิมพ์ใบแจ้งหนี้/ใบเสร็จ">
+                                    <i data-lucide="printer"></i>
+                                </button>
+                                <button class="btn-icon btn-share-service" data-id="${s.id}" title="คัดลอกข้อความแจ้งลูกค้า">
+                                    <i data-lucide="share-2"></i>
                                 </button>
                                 <button class="btn-icon btn-edit-service" data-id="${s.id}" title="แก้ไข">
                                     <i data-lucide="pencil"></i>
@@ -587,6 +599,12 @@ const ServicesModule = (() => {
         `;
 
         $('service-detail-title').textContent = `รายละเอียดบริการ ${s.id}`;
+        
+        const btnDetailPrint = $('btn-detail-print-service');
+        const btnDetailShare = $('btn-detail-share-service');
+        if (btnDetailPrint) btnDetailPrint.dataset.id = s.id;
+        if (btnDetailShare) btnDetailShare.dataset.id = s.id;
+        
         App.openModal('service-detail-modal');
     }
 
@@ -690,6 +708,29 @@ const ServicesModule = (() => {
                 renderImagePreviews();
             });
         }
+
+        // Global body click delegator for services-specific buttons
+        document.body.addEventListener('click', (e) => {
+            const target = e.target.closest('.btn-print-service, .btn-share-service');
+            if (!target) return;
+            
+            const serviceId = target.dataset.id;
+            if (!serviceId) return;
+            
+            if (target.classList.contains('btn-print-service')) {
+                printServiceInvoice(serviceId);
+            } else if (target.classList.contains('btn-share-service')) {
+                shareServiceMessage(serviceId);
+            }
+        });
+
+        // Trigger native print inside print preview modal
+        const btnDoPrint = $('btn-do-print');
+        if (btnDoPrint) {
+            btnDoPrint.addEventListener('click', () => {
+                window.print();
+            });
+        }
     }
 
     function clearFilters() {
@@ -707,6 +748,174 @@ const ServicesModule = (() => {
         if (searchInput) searchInput.value = '';
 
         render();
+    }
+
+    }
+
+    function printServiceInvoice(id) {
+        const s = DB.getById('services', id);
+        if (!s) return;
+
+        const cust = DB.getById('customers', s.customerId);
+        const custName = cust ? cust.name : 'ไม่ทราบ';
+        const custPhone = cust ? cust.phone : '-';
+        const custAddress = cust ? cust.address : '-';
+        const custLine = cust ? cust.lineId : '-';
+
+        const price = Number(s.price) || 0;
+        const paid = Number(s.paidAmount) || 0;
+        const balance = price - paid;
+
+        const dateFormatted = App.formatDate(s.serviceDate);
+        const payStatusText = s.paymentStatus === 'paid' ? 'ชำระเงินแล้ว' 
+                            : s.paymentStatus === 'partial' ? 'ชำระบางส่วน' : 'ค้างชำระ';
+
+        const printBody = $('invoice-print-body');
+        if (!printBody) return;
+
+        // Render Invoice Receipt
+        printBody.innerHTML = `
+            <div style="max-width: 100%; border: 1px solid #e2e8f0; padding: 30px; border-radius: 8px; background: #fff; box-shadow: var(--shadow-sm);">
+                <!-- Header -->
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid var(--accent-cyan); padding-bottom: 20px; margin-bottom: 20px;">
+                    <div>
+                        <h2 style="margin: 0 0 6px 0; color: var(--accent-cyan); font-size: 24px; font-weight: 700; font-family: var(--font-thai);">เอส พี แอร์ คอน แอนด์ เซอร์วิส</h2>
+                        <p style="margin: 0 0 4px 0; font-size: 13px; color: var(--text-secondary);">ให้บริการซ่อม ติดตั้ง ล้าง และย้ายแอร์ทุกชนิด</p>
+                        <p style="margin: 0; font-size: 13px; color: var(--text-secondary);">โทร. 089-xxx-xxxx | LINE ID: @spaircon</p>
+                    </div>
+                    <div style="text-align: right;">
+                        <h3 style="margin: 0 0 6px 0; font-size: 20px; font-weight: 700; color: var(--text-primary);">ใบแจ้งหนี้ / ใบเสร็จรับเงิน</h3>
+                        <p style="margin: 0 0 4px 0; font-size: 13px; color: var(--text-secondary);">เลขที่ใบงาน: <strong>${s.id}</strong></p>
+                        <p style="margin: 0; font-size: 13px; color: var(--text-secondary);">วันที่: ${dateFormatted}</p>
+                    </div>
+                </div>
+
+                <!-- Info Grid -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px; font-size: 14px;">
+                    <div>
+                        <h4 style="margin: 0 0 8px 0; font-size: 14px; font-weight: 700; color: var(--text-primary); text-transform: uppercase;">ข้อมูลลูกค้า</h4>
+                        <p style="margin: 0 0 4px 0;"><strong>ชื่อลูกค้า:</strong> ${custName}</p>
+                        <p style="margin: 0 0 4px 0;"><strong>เบอร์โทรศัพท์:</strong> ${custPhone}</p>
+                        <p style="margin: 0 0 4px 0;"><strong>LINE ID:</strong> ${custLine}</p>
+                        <p style="margin: 0; line-height: 1.4;"><strong>ที่อยู่:</strong> ${custAddress}</p>
+                    </div>
+                    <div style="text-align: right;">
+                        <h4 style="margin: 0 0 8px 0; font-size: 14px; font-weight: 700; color: var(--text-primary); text-transform: uppercase;">รายละเอียดงาน</h4>
+                        <p style="margin: 0 0 4px 0;"><strong>ประเภทบริการ:</strong> ${s.type}</p>
+                        <p style="margin: 0 0 4px 0;"><strong>เครื่องแอร์:</strong> ${s.acBrand || '-'} ${s.acModel || ''} ${s.acBTU ? `(${s.acBTU} BTU)` : ''}</p>
+                        <p style="margin: 0;"><strong>ช่างผู้ให้บริการ:</strong> ${s.technician || '-'}</p>
+                    </div>
+                </div>
+
+                <!-- Items Table -->
+                <table style="width: 100%; border-collapse: collapse; margin-bottom: 30px; font-size: 14px;">
+                    <thead>
+                        <tr style="border-bottom: 2px solid #e2e8f0; background: #f8fafc;">
+                            <th style="padding: 10px; text-align: left; font-weight: 600;">รายละเอียดบริการ</th>
+                            <th style="padding: 10px; text-align: right; font-weight: 600; width: 120px;">จำนวนเงิน</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="border-bottom: 1px solid #e2e8f0;">
+                            <td style="padding: 12px 10px;">
+                                <strong>บริการ${s.type}</strong><br>
+                                <span style="font-size: 12px; color: var(--text-secondary);">
+                                    ${s.symptoms ? `อาการเสีย: ${s.symptoms} | ` : ''}
+                                    ${s.solution ? `การแก้ไข: ${s.solution}` : ''}
+                                </span>
+                            </td>
+                            <td style="padding: 12px 10px; text-align: right;">${App.formatCurrency(price)}</td>
+                        </tr>
+                        ${s.partsUsed && s.partsUsed.length > 0 ? `
+                        <tr style="border-bottom: 1px solid #e2e8f0;">
+                            <td style="padding: 12px 10px;">
+                                <strong>อะไหล่และอุปกรณ์เสริมที่ใช้</strong><br>
+                                <span style="font-size: 12px; color: var(--text-secondary);">${s.partsUsed.join(', ')}</span>
+                            </td>
+                            <td style="padding: 12px 10px; text-align: right;">รวมในค่าบริการ</td>
+                        </tr>
+                        ` : ''}
+                    </tbody>
+                </table>
+
+                <!-- Summary Row -->
+                <div style="display: flex; justify-content: flex-end; margin-bottom: 40px; font-size: 14px;">
+                    <div style="width: 250px; text-align: right; display: flex; flex-direction: column; gap: 8px;">
+                        <div style="display: flex; justify-content: space-between;">
+                            <span style="color: var(--text-secondary);">ค่าบริการรวม:</span>
+                            <strong>${App.formatCurrency(price)}</strong>
+                        </div>
+                        <div style="display: flex; justify-content: space-between;">
+                            <span style="color: var(--text-secondary);">ชำระแล้ว:</span>
+                            <strong style="color: var(--success);">${App.formatCurrency(paid)}</strong>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; border-top: 1px solid #e2e8f0; padding-top: 8px;">
+                            <span style="font-weight: 600;">ยอดค้างชำระ:</span>
+                            <strong style="color: var(--danger); font-size: 16px;">${App.formatCurrency(balance)}</strong>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin-top: 4px;">
+                            <span style="font-size: 12px; color: var(--text-secondary);">สถานะการชำระ:</span>
+                            <span style="font-size: 12px; font-weight: 600; color: ${s.paymentStatus === 'paid' ? 'var(--success)' : 'var(--danger)'};">${payStatusText}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Signatures -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-top: 60px; text-align: center; font-size: 13px;">
+                    <div>
+                        <div style="border-bottom: 1px solid #cbd5e1; width: 200px; margin: 0 auto 10px; height: 40px;"></div>
+                        <p style="margin: 0; font-weight: 500;">ลงชื่อผู้รับบริการ (ลูกค้า)</p>
+                    </div>
+                    <div>
+                        <div style="border-bottom: 1px solid #cbd5e1; width: 200px; margin: 0 auto 10px; height: 40px; display: flex; align-items: flex-end; justify-content: center;">
+                            <span style="font-family: var(--font-eng); font-style: italic; color: var(--text-muted); font-size: 14px;">${s.technician || 'SP Air Con'}</span>
+                        </div>
+                        <p style="margin: 0; font-weight: 500;">ลงชื่อผู้ให้บริการ (ช่าง)</p>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        App.openModal('invoice-print-modal');
+    }
+
+    function shareServiceMessage(id) {
+        const s = DB.getById('services', id);
+        if (!s) return;
+
+        const cust = DB.getById('customers', s.customerId);
+        const custName = cust ? cust.name : 'ลูกค้า';
+
+        const price = Number(s.price) || 0;
+        const paid = Number(s.paidAmount) || 0;
+        const balance = price - paid;
+
+        const dateFormatted = App.formatDate(s.serviceDate);
+        const payStatusText = s.paymentStatus === 'paid' ? 'ชำระเงินเรียบร้อยแล้ว' 
+                            : s.paymentStatus === 'partial' ? `ชำระบางส่วนแล้ว คงเหลือค้างชำระ ${App.formatCurrency(balance)}` : `ค้างชำระ ${App.formatCurrency(balance)}`;
+
+        let msg = `❄️ รายละเอียดสรุปงานบริการ Spairdee ❄️\n\n`;
+        msg += `เรียนคุณ: ${custName}\n`;
+        msg += `• บริการ: ${s.type}\n`;
+        if (s.acBrand || s.acModel) {
+            msg += `• เครื่องแอร์: ${s.acBrand || '-'} ${s.acModel || ''} ${s.acBTU ? `(${s.acBTU} BTU)` : ''}\n`;
+        }
+        msg += `• วันที่ให้บริการ: ${dateFormatted}\n`;
+        if (s.symptoms) msg += `• อาการ/ปัญหา: ${s.symptoms}\n`;
+        if (s.solution) msg += `• การแก้ไข: ${s.solution}\n`;
+        if (s.partsUsed && s.partsUsed.length > 0) msg += `• อะไหล่ที่ใช้: ${s.partsUsed.join(', ')}\n`;
+        msg += `• ช่างผู้ดูแล: ${s.technician || '-'}\n`;
+        msg += `• ยอดบริการรวม: ${App.formatCurrency(price)}\n`;
+        msg += `• สถานะการเงิน: ${payStatusText}\n\n`;
+        msg += `ขอบคุณที่ไว้วางใจใช้บริการ เอส พี แอร์ คอน ครับ! 🛠️`;
+
+        App.copyToClipboard(msg)
+            .then(() => {
+                App.showToast('คัดลอกข้อความสรุปงานบริการเรียบร้อยแล้ว! สามารถนำไปวางส่ง LINE ได้ทันที', 'success');
+            })
+            .catch(err => {
+                App.showToast('ไม่สามารถคัดลอกข้อความได้: ' + err, 'error');
+            });
     }
 
     /* ── public API ─────────────────────────────────────────── */
