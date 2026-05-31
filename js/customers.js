@@ -557,6 +557,10 @@ const CustomersModule = (() => {
 
         // Delegated clicks
         page.addEventListener('click', (e) => {
+            if (e.target.closest('a')) {
+                return;
+            }
+
             let target = e.target.closest('button') || e.target.closest('.customer-card');
 
             if (!target) return;

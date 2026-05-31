@@ -265,7 +265,7 @@ const ServicesModule = (() => {
                     const canvas = document.createElement('canvas');
                     let width = img.width;
                     let height = img.height;
-                    const max_size = 1200; // ขนาดสูงสุดของรูปภาพ
+                    const max_size = 900; // ขนาดสูงสุดของรูปภาพ (ลดจาก 1200 เป็น 900 เพื่อประหยัดพื้นที่จัดเก็บได้กว่า 60%)
 
                     if (width > height) {
                         if (width > max_size) {
@@ -284,8 +284,8 @@ const ServicesModule = (() => {
                     const ctx = canvas.getContext('2d');
                     ctx.drawImage(img, 0, 0, width, height);
 
-                    // บีบอัดเป็น JPEG คุณภาพ 0.8
-                    const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
+                    // บีบอัดเป็น JPEG คุณภาพ 0.7 (ให้รูปภาพมีขนาดเล็กลงมาก แต่ยังเห็นรายละเอียดครบถ้วน)
+                    const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
                     resolve({ name: file.name, data: dataUrl });
                 };
                 img.onerror = (err) => reject(err);
@@ -748,8 +748,6 @@ const ServicesModule = (() => {
         if (searchInput) searchInput.value = '';
 
         render();
-    }
-
     }
 
     function printServiceInvoice(id) {

@@ -592,6 +592,20 @@ const App = (() => {
                         isOnline ? 'กลับมาออนไลน์เชื่อมต่อแล้ว' : 'คุณกำลังใช้งานแบบออฟไลน์',
                         isOnline ? 'success' : 'warning'
                     );
+
+                    // Auto background sync when returning online if cloud enabled
+                    if (isOnline && typeof DB !== 'undefined' && DB.isCloudEnabled() && DB.getCloudUrl()) {
+                        showToast('กำลังประมวลผลข้อมูลค้างซิงก์ขึ้นคลาวด์...', 'info');
+                        DB.triggerSyncQueue()
+                            .then(() => DB.pullFromCloud())
+                            .then(() => {
+                                showToast('ซิงก์ข้อมูลคลาวด์อัตโนมัติสำเร็จ', 'success');
+                                refreshModule(currentPage);
+                            })
+                            .catch(err => {
+                                console.warn('[App] Auto cloud sync failed:', err);
+                            });
+                    }
                 }
             }
         };
