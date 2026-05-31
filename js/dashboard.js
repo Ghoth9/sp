@@ -94,31 +94,31 @@ const DashboardModule = (() => {
 
         container.innerHTML = `
             <div class="stat-card" id="stat-card-customers">
-                <div class="stat-card-icon"><i data-lucide="users"></i></div>
-                <div class="stat-card-info">
-                    <span class="stat-card-value" id="stat-total-customers">0</span>
-                    <span class="stat-card-label">ลูกค้าทั้งหมด</span>
+                <div class="stat-icon cyan"><i data-lucide="users"></i></div>
+                <div class="stat-info">
+                    <span class="stat-value" id="stat-total-customers">0</span>
+                    <span class="stat-label">ลูกค้าทั้งหมด</span>
                 </div>
             </div>
             <div class="stat-card" id="stat-card-services">
-                <div class="stat-card-icon"><i data-lucide="wrench"></i></div>
-                <div class="stat-card-info">
-                    <span class="stat-card-value" id="stat-services-month">0</span>
-                    <span class="stat-card-label">บริการเดือนนี้</span>
+                <div class="stat-icon teal"><i data-lucide="wrench"></i></div>
+                <div class="stat-info">
+                    <span class="stat-value" id="stat-services-month">0</span>
+                    <span class="stat-label">บริการเดือนนี้</span>
                 </div>
             </div>
             <div class="stat-card" id="stat-card-revenue">
-                <div class="stat-card-icon"><i data-lucide="banknote"></i></div>
-                <div class="stat-card-info">
-                    <span class="stat-card-value" id="stat-revenue-month">0</span>
-                    <span class="stat-card-label">รายได้เดือนนี้</span>
+                <div class="stat-icon success"><i data-lucide="banknote"></i></div>
+                <div class="stat-info">
+                    <span class="stat-value" id="stat-revenue-month">0</span>
+                    <span class="stat-label">รายได้เดือนนี้</span>
                 </div>
             </div>
             <div class="stat-card" id="stat-card-appointments">
-                <div class="stat-card-icon"><i data-lucide="calendar-check"></i></div>
-                <div class="stat-card-info">
-                    <span class="stat-card-value" id="stat-today-appointments">0</span>
-                    <span class="stat-card-label">นัดหมายวันนี้</span>
+                <div class="stat-icon warning"><i data-lucide="calendar-check"></i></div>
+                <div class="stat-info">
+                    <span class="stat-value" id="stat-today-appointments">0</span>
+                    <span class="stat-label">นัดหมายวันนี้</span>
                 </div>
             </div>
         `;
@@ -143,7 +143,7 @@ const DashboardModule = (() => {
         const dpr = window.devicePixelRatio || 1;
         const rect = canvas.parentElement.getBoundingClientRect();
         const w = rect.width || 500;
-        const h = 260;
+        const h = 320;
         canvas.width = w * dpr;
         canvas.height = h * dpr;
         canvas.style.width = w + 'px';
@@ -167,7 +167,7 @@ const DashboardModule = (() => {
                 .reduce((sum, s) => sum + (Number(s.paidAmount) || 0), 0);
         });
 
-        const maxVal = Math.max(...data, 1);
+        const maxVal = Math.max(...data, 10000);
 
         // Chart area
         const padding = { top: 30, right: 20, bottom: 40, left: 65 };
@@ -254,7 +254,7 @@ const DashboardModule = (() => {
         const ctx = canvas.getContext('2d');
 
         const dpr = window.devicePixelRatio || 1;
-        const size = Math.min(canvas.parentElement.getBoundingClientRect().width || 300, 300);
+        const size = Math.min(canvas.parentElement.getBoundingClientRect().width - 40 || 400, 400);
         canvas.width = size * dpr;
         canvas.height = size * dpr;
         canvas.style.width = size + 'px';
@@ -287,9 +287,9 @@ const DashboardModule = (() => {
         }
 
         const cx = size / 2;
-        const cy = size / 2 - 10;
-        const outerR = size / 2 - 30;
-        const innerR = outerR * 0.55;
+        const cy = size * 0.42;
+        const outerR = size * 0.32;
+        const innerR = outerR * 0.58;
         let startAngle = -Math.PI / 2;
 
         entries.forEach(([type, count]) => {
