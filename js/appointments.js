@@ -79,7 +79,7 @@ const AppointmentsModule = (() => {
 
         // Weekday headers
         WEEKDAYS.forEach(wd => {
-            html += `<div class="calendar-weekday">${wd}</div>`;
+            html += `<div class="calendar-day-header">${wd}</div>`;
         });
 
         // Empty cells before first day
@@ -107,7 +107,7 @@ const AppointmentsModule = (() => {
             if (hasOverdue) cls += ' overdue';
 
             html += `<div class="${cls}" data-date="${ds}" id="cal-day-${ds}">`;
-            html += `<span class="calendar-day-number">${d}</span>`;
+            html += `<span class="day-number">${d}</span>`;
 
             if (hasAppts) {
                 html += '<div class="calendar-dots">';
@@ -125,6 +125,7 @@ const AppointmentsModule = (() => {
         }
 
         gridEl.innerHTML = html;
+        if (window.lucide) lucide.createIcons();
     }
 
     /* ── overdue alerts ──────────────────────────────────────── */
@@ -369,6 +370,7 @@ const AppointmentsModule = (() => {
         renderCalendar();
         renderOverdueAlert();
         renderList();
+        if (window.lucide) lucide.createIcons();
     }
 
     /* ── event setup ─────────────────────────────────────────── */

@@ -448,6 +448,7 @@ const App = (() => {
             // Load current configs
             cloudEnabledToggle.checked = DB.isCloudEnabled();
             cloudUrlInput.value = DB.getCloudUrl();
+            updateStorageUsage(); // Initialize layout display on settings load
 
             const updateButtonStates = () => {
                 const isEnabled = cloudEnabledToggle.checked;
@@ -462,6 +463,7 @@ const App = (() => {
             cloudEnabledToggle.addEventListener('change', () => {
                 DB.setCloudConfig(cloudEnabledToggle.checked, cloudUrlInput.value.trim());
                 updateButtonStates();
+                updateStorageUsage(); // Update labels immediately!
                 showToast(cloudEnabledToggle.checked ? 'เปิดใช้งาน Cloud Mode แล้ว' : 'ปิดใช้งาน Cloud Mode แล้ว', 'info');
                 
                 // If enabled, trigger a sync to pull fresh data
@@ -482,6 +484,7 @@ const App = (() => {
             cloudUrlInput.addEventListener('change', () => {
                 DB.setCloudConfig(cloudEnabledToggle.checked, cloudUrlInput.value.trim());
                 updateButtonStates();
+                updateStorageUsage(); // Update labels immediately!
                 showToast('บันทึก Web App URL แล้ว', 'success');
             });
 
@@ -557,12 +560,17 @@ const App = (() => {
         if (settingsInstallBtn) settingsInstallBtn.addEventListener('click', () => triggerInstall(settingsInstallBtn));
         if (topInstallBtn) topInstallBtn.addEventListener('click', () => triggerInstall(topInstallBtn));
 
-        // Setup Date Display in topbar
+        // Setup Date Display in topbar (Clean & compact date format)
         const topbarDate = $('topbar-date');
         if (topbarDate) {
-            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
             const today = new Date();
-            topbarDate.textContent = today.toLocaleDateString('th-TH', options);
+            const days = ['อา.', 'จ.', 'อ.', 'พ.', 'พฤ.', 'ศ.', 'ส.'];
+            const months = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
+            const dayName = days[today.getDay()];
+            const dateNum = today.getDate();
+            const monthName = months[today.getMonth()];
+            const yearNum = today.getFullYear() + 543;
+            topbarDate.textContent = `${dayName} ${dateNum} ${monthName} ${yearNum}`;
         }
     }
 
@@ -573,6 +581,9 @@ const App = (() => {
 
         // 2. Setup Events
         setupGlobalEvents();
+
+        // Update Storage labels initially
+        updateStorageUsage();
 
         // 3. Initialize Feature Modules
         try {
