@@ -384,9 +384,9 @@ h6 { font-size: var(--text-base); }
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: rgba(6, 9, 19, 0.75); /* Dark translucent background */
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   border-bottom: 1px solid var(--border-color);
   position: sticky;
   top: 0;
@@ -2249,14 +2249,14 @@ h6 { font-size: var(--text-base); }
     left: 0;
     right: 0;
     height: 64px;
-    background: rgba(255, 255, 255, 0.90);
+    background: rgba(11, 15, 25, 0.90); /* Dark glassmorphic background */
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
     border-top: 1px solid var(--border-color);
     justify-content: space-around;
     align-items: center;
     z-index: 150;
-    box-shadow: 0 -4px 12px rgba(15, 23, 42, 0.05);
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.5); /* Darker shadow */
     padding: 0 var(--space-sm);
     overflow: visible; /* Crucial for elevated home button */
   }

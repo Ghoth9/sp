@@ -688,7 +688,8 @@ const DB = (() => {
         status: 'pending',
         notes: 'ร้านกาแฟ ล้างประจำ 3 เดือน',
         createdAt: '2025-05-27T10:00:00Z',
-      },
+      }
+    ];
     _saveAll(COLLECTIONS.customers, customers);
     _saveAll(COLLECTIONS.services, services);
     _saveAll(COLLECTIONS.appointments, appointments);
