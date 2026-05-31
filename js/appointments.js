@@ -47,8 +47,8 @@ const AppointmentsModule = (() => {
 
     /* ── calendar rendering ──────────────────────────────────── */
     function renderCalendar() {
-        const container = $('appointments-calendar');
-        if (!container) return;
+        const gridEl = $('calendar-grid');
+        if (!gridEl) return;
 
         const today = new Date();
         const todayDate = todayStr();
@@ -75,7 +75,7 @@ const AppointmentsModule = (() => {
             }
         });
 
-        let html = '<div class="calendar-grid" id="calendar-grid">';
+        let html = '';
 
         // Weekday headers
         WEEKDAYS.forEach(wd => {
@@ -124,8 +124,7 @@ const AppointmentsModule = (() => {
             html += '</div>';
         }
 
-        html += '</div>';
-        container.innerHTML = html;
+        gridEl.innerHTML = html;
     }
 
     /* ── overdue alerts ──────────────────────────────────────── */

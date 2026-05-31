@@ -11,6 +11,10 @@
 
   <title>Spairdee — ระบบจัดการร้านแอร์</title>
 
+  <!-- Favicon / Tab Icon -->
+  <link rel="icon" href="assets/icons/logo.png" type="image/png">
+  <link rel="shortcut icon" href="assets/icons/logo.png" type="image/png">
+
   <!-- PWA Manifest -->
   <link rel="manifest" href="manifest.json">
 
@@ -100,18 +104,50 @@
     <!-- Top Header -->
     <header class="top-header" id="top-bar">
       <div class="top-header-left">
+        <!-- Clickable Logo Button (Shortcut to Home/Dashboard) -->
+        <div class="top-logo-btn" id="top-logo-btn" title="กลับหน้าหลัก">
+          <img src="assets/icons/logo.png" alt="Spairdee Logo" class="top-logo-img">
+          <div class="top-logo-brand">
+            <span class="top-logo-name">Spairdee</span>
+            <span class="top-logo-sub">เอส พี แอร์ คอน</span>
+          </div>
+        </div>
         <button class="hamburger-btn btn-ghost btn-icon" id="hamburger-btn" aria-label="Toggle menu" style="display: none;">
           <i data-lucide="menu" width="22" height="22"></i>
         </button>
-        <h2 class="page-title" id="page-title">หน้าหลัก</h2>
+        <h2 class="page-title" id="page-title" style="display: none;">หน้าหลัก</h2>
       </div>
 
-      <div class="top-header-right">
-        <div class="search-bar" id="global-search-bar">
-          <i data-lucide="search" class="search-icon"></i>
-          <input type="text" id="global-search-input" placeholder="ค้นหาลูกค้า, งานบริการ..." autocomplete="off">
+      <!-- Top Navigation Menu (Desktop Only) -->
+      <nav class="top-nav" id="top-nav-menu">
+        <div class="top-nav-item active" data-page="dashboard">
+          <i data-lucide="layout-dashboard" style="width: 15px; height: 15px; display: inline-block; vertical-align: middle; margin-right: 4px;"></i>
+          <span style="vertical-align: middle;">หน้าหลัก</span>
         </div>
-        <span class="text-sm text-secondary" id="topbar-date"></span>
+        <div class="top-nav-item" data-page="customers">
+          <i data-lucide="users" style="width: 15px; height: 15px; display: inline-block; vertical-align: middle; margin-right: 4px;"></i>
+          <span style="vertical-align: middle;">รายชื่อลูกค้า</span>
+        </div>
+        <div class="top-nav-item" data-page="services">
+          <i data-lucide="wrench" style="width: 15px; height: 15px; display: inline-block; vertical-align: middle; margin-right: 4px;"></i>
+          <span style="vertical-align: middle;">ประวัติงานบริการ</span>
+        </div>
+        <div class="top-nav-item" data-page="appointments">
+          <i data-lucide="calendar" style="width: 15px; height: 15px; display: inline-block; vertical-align: middle; margin-right: 4px;"></i>
+          <span style="vertical-align: middle;">ตารางนัดหมาย</span>
+        </div>
+        <div class="top-nav-item" data-page="settings">
+          <i data-lucide="settings" style="width: 15px; height: 15px; display: inline-block; vertical-align: middle; margin-right: 4px;"></i>
+          <span style="vertical-align: middle;">ตั้งค่าระบบ</span>
+        </div>
+      </nav>
+
+      <div class="top-header-right">
+        <!-- Date Display inside a premium Pill Badge -->
+        <div class="topbar-date-badge" id="topbar-date-wrapper">
+          <i data-lucide="calendar" style="width:14px; height:14px;"></i>
+          <span id="topbar-date"></span>
+        </div>
         <button class="btn btn-ghost btn-icon" id="btn-top-install-pwa" style="display: none; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 50%; color: var(--accent-cyan);" title="ติดตั้งแอป">
           <i data-lucide="download" width="20" height="20"></i>
         </button>
@@ -294,9 +330,6 @@
             </select>
           </div>
           <div class="toolbar-right" style="display:flex; gap: 8px;">
-            <button class="btn btn-success" id="btn-share-line-today" style="background:#24c653; border-color:#24c653; color:#ffffff;">
-              <i data-lucide="send"></i> ส่งงานวันนี้เข้า LINE
-            </button>
             <button class="btn btn-primary" id="btn-add-appointment">
               <i data-lucide="plus"></i> เพิ่มนัดหมาย
             </button>
@@ -470,7 +503,7 @@
               </div>
               <div class="detail-item">
                 <div class="detail-label">ข้อมูลจัดเก็บ</div>
-                <div class="detail-value">localStorage (เบราว์เซอร์)</div>
+                <div class="detail-value" id="settings-db-type">localStorage (เบราว์เซอร์)</div>
               </div>
             </div>
 

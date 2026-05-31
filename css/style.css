@@ -2791,3 +2791,130 @@ h6 { font-size: var(--text-base); }
   color: var(--text-secondary);
   border: 1px solid var(--border-color);
 }
+
+/* ── Top Navigation Layout (Desktop Overrides) ────────────────── */
+.sidebar {
+  display: none !important; /* Hide left sidebar globally */
+}
+
+.main-content {
+  margin-left: 0 !important; /* Remove main content left margin */
+}
+
+.top-logo-btn {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: var(--radius-md);
+  user-select: none;
+}
+
+.top-logo-btn:hover {
+  background: rgba(15, 23, 42, 0.04);
+}
+
+.top-logo-btn:active {
+  transform: scale(0.97);
+}
+
+.top-logo-img {
+  width: 34px;
+  height: 34px;
+  object-fit: contain;
+}
+
+.top-logo-brand {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.25;
+}
+
+.top-logo-name {
+  font-family: var(--font-eng);
+  font-size: var(--text-base);
+  font-weight: 700;
+  color: var(--accent-cyan);
+}
+
+.top-logo-sub {
+  font-family: var(--font-thai);
+  font-size: 10px;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+/* Header Navigation Menu */
+.top-nav {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  margin: 0 var(--space-lg);
+}
+
+.top-nav-item {
+  font-family: var(--font-thai);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--text-secondary);
+  padding: 8px 14px;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  user-select: none;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.top-nav-item:hover {
+  background: rgba(15, 23, 42, 0.04);
+  color: var(--text-primary);
+}
+
+.top-nav-item.active {
+  background: rgba(2, 132, 199, 0.08); /* Faint blue accent */
+  color: var(--accent-cyan);
+  font-weight: 600;
+}
+
+.top-nav-item i {
+  width: 14px;
+  height: 14px;
+}
+
+/* Date Pill Badge */
+.topbar-date-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: 6px 14px;
+  background: rgba(15, 23, 42, 0.03);
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: var(--radius-full);
+  color: var(--text-secondary);
+  font-size: var(--text-xs);
+  font-weight: 500;
+  box-shadow: var(--shadow-sm);
+}
+
+.topbar-date-badge i {
+  color: var(--accent-cyan);
+}
+
+/* Mobile responsive navigation overrides */
+@media (max-width: 768px) {
+  .top-nav {
+    display: none !important; /* Hide top header navigation menu on mobile */
+  }
+
+  .topbar-date-badge {
+    padding: 6px 8px; /* Compact on mobile */
+  }
+
+  .topbar-date-badge span {
+    display: none; /* Hide date text on small screens, keep calendar icon */
+  }
+}

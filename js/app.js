@@ -36,6 +36,16 @@ const App = (() => {
             }
         });
 
+        // Update active class on top nav items
+        const topNavItems = document.querySelectorAll('#top-nav-menu .top-nav-item');
+        topNavItems.forEach(item => {
+            if (item.dataset.page === pageId) {
+                item.classList.add('active');
+            } else {
+                item.classList.remove('active');
+            }
+        });
+
         // Update active class on bottom nav items
         const bottomNavItems = document.querySelectorAll('.bottom-nav .bottom-nav-item');
         bottomNavItems.forEach(item => {
@@ -301,6 +311,11 @@ const App = (() => {
 
     function updateStorageUsage() {
         const label = $('storage-usage');
+        const dbTypeEl = $('settings-db-type');
+        if (dbTypeEl) {
+            dbTypeEl.textContent = DB.isCloudEnabled() ? 'Google Sheets (คลาวด์)' : 'localStorage (เบราว์เซอร์)';
+        }
+
         if (!label) return;
 
         try {
@@ -312,7 +327,9 @@ const App = (() => {
                 }
             }
             const kb = (total / 1024).toFixed(2);
-            label.textContent = `${kb} KB / 5,120 KB ( localStorage )`;
+            label.textContent = DB.isCloudEnabled()
+                ? `${kb} KB (แคชโลคอล) / ซิงก์ข้อมูลคลาวด์แล้ว`
+                : `${kb} KB / 5,120 KB ( localStorage )`;
         } catch {
             label.textContent = 'ไม่สามารถคำนวณได้';
         }
@@ -320,7 +337,7 @@ const App = (() => {
 
     // ── Setup Global Event Listeners ──────────────────────────
     function setupGlobalEvents() {
-        // Navigation clicks
+        // Navigation clicks (Sidebar / Fallbacks)
         const nav = $('sidebar-nav');
         if (nav) {
             nav.addEventListener('click', (e) => {
@@ -328,6 +345,25 @@ const App = (() => {
                 if (item && item.dataset.page) {
                     navigateTo(item.dataset.page);
                 }
+            });
+        }
+
+        // Top Navigation menu clicks
+        const topNav = $('top-nav-menu');
+        if (topNav) {
+            topNav.addEventListener('click', (e) => {
+                const item = e.target.closest('.top-nav-item');
+                if (item && item.dataset.page) {
+                    navigateTo(item.dataset.page);
+                }
+            });
+        }
+
+        // Top Logo Click -> Dashboard (Home) shortcut
+        const topLogo = $('top-logo-btn');
+        if (topLogo) {
+            topLogo.addEventListener('click', () => {
+                navigateTo('dashboard');
             });
         }
 
