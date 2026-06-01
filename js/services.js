@@ -54,13 +54,26 @@ const ServicesModule = (() => {
             const q = filters.searchQuery.toLowerCase();
             list = list.filter(s => {
                 const cust = DB.getById('customers', s.customerId);
-                const custName = cust ? cust.name.toLowerCase() : '';
-                return custName.includes(q) ||
+                const custName = cust ? (cust.name || '').toLowerCase() : '';
+                const custPhone = cust ? (cust.phone || '') : '';
+                const custAddress = cust ? (cust.address || '').toLowerCase() : '';
+                const custLine = cust ? (cust.lineId || '').toLowerCase() : '';
+                const partsStr = Array.isArray(s.partsUsed) ? s.partsUsed.join(' ').toLowerCase() : '';
+
+                return (s.id || '').toLowerCase().includes(q) ||
+                    (s.type || '').toLowerCase().includes(q) ||
+                    custName.includes(q) ||
+                    custPhone.includes(q) ||
+                    custAddress.includes(q) ||
+                    custLine.includes(q) ||
                     (s.acBrand || '').toLowerCase().includes(q) ||
                     (s.acModel || '').toLowerCase().includes(q) ||
+                    String(s.acBTU || '').includes(q) ||
                     (s.symptoms || '').toLowerCase().includes(q) ||
                     (s.solution || '').toLowerCase().includes(q) ||
-                    (s.technician || '').toLowerCase().includes(q);
+                    partsStr.includes(q) ||
+                    (s.technician || '').toLowerCase().includes(q) ||
+                    (s.notes || '').toLowerCase().includes(q);
             });
         }
 
@@ -432,10 +445,6 @@ const ServicesModule = (() => {
         const type = $('service-form-type').value;
         const serviceDate = $('service-form-date').value;
 
-        if (!customerId) {
-            App.showToast('กรุณาเลือกลูกค้า', 'error');
-            return;
-        }
         if (!type) {
             App.showToast('กรุณาเลือกประเภทบริการ', 'error');
             return;

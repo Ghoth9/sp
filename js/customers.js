@@ -25,9 +25,12 @@ const CustomersModule = (() => {
         if (searchQuery.trim()) {
             const q = searchQuery.trim().toLowerCase();
             list = list.filter(c =>
+                (c.id || '').toLowerCase().includes(q) ||
                 (c.name || '').toLowerCase().includes(q) ||
                 (c.phone || '').includes(q) ||
-                (c.lineId || '').toLowerCase().includes(q)
+                (c.lineId || '').toLowerCase().includes(q) ||
+                (c.address || '').toLowerCase().includes(q) ||
+                (c.notes || '').toLowerCase().includes(q)
             );
         }
         return list.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
