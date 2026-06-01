@@ -716,6 +716,9 @@ const App = (() => {
                     .then(reg => {
                         console.log('[PWA] Service Worker registered ✓', reg.scope);
                         
+                        // Force check for updates on load
+                        reg.update();
+                        
                         // Check if there is already an update waiting
                         if (reg.waiting) {
                             showUpdateToast(reg.waiting);

@@ -54,26 +54,26 @@ const ServicesModule = (() => {
             const q = filters.searchQuery.toLowerCase();
             list = list.filter(s => {
                 const cust = DB.getById('customers', s.customerId);
-                const custName = cust ? (cust.name || '').toLowerCase() : '';
-                const custPhone = cust ? (cust.phone || '') : '';
-                const custAddress = cust ? (cust.address || '').toLowerCase() : '';
-                const custLine = cust ? (cust.lineId || '').toLowerCase() : '';
+                const custName = cust ? String(cust.name || '').toLowerCase() : '';
+                const custPhone = cust ? String(cust.phone || '').toLowerCase() : '';
+                const custAddress = cust ? String(cust.address || '').toLowerCase() : '';
+                const custLine = cust ? String(cust.lineId || '').toLowerCase() : '';
                 const partsStr = Array.isArray(s.partsUsed) ? s.partsUsed.join(' ').toLowerCase() : '';
 
-                return (s.id || '').toLowerCase().includes(q) ||
-                    (s.type || '').toLowerCase().includes(q) ||
+                return String(s.id || '').toLowerCase().includes(q) ||
+                    String(s.type || '').toLowerCase().includes(q) ||
                     custName.includes(q) ||
                     custPhone.includes(q) ||
                     custAddress.includes(q) ||
                     custLine.includes(q) ||
-                    (s.acBrand || '').toLowerCase().includes(q) ||
-                    (s.acModel || '').toLowerCase().includes(q) ||
+                    String(s.acBrand || '').toLowerCase().includes(q) ||
+                    String(s.acModel || '').toLowerCase().includes(q) ||
                     String(s.acBTU || '').includes(q) ||
-                    (s.symptoms || '').toLowerCase().includes(q) ||
-                    (s.solution || '').toLowerCase().includes(q) ||
+                    String(s.symptoms || '').toLowerCase().includes(q) ||
+                    String(s.solution || '').toLowerCase().includes(q) ||
                     partsStr.includes(q) ||
-                    (s.technician || '').toLowerCase().includes(q) ||
-                    (s.notes || '').toLowerCase().includes(q);
+                    String(s.technician || '').toLowerCase().includes(q) ||
+                    String(s.notes || '').toLowerCase().includes(q);
             });
         }
 
