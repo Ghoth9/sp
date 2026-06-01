@@ -3012,12 +3012,21 @@ h6 { font-size: var(--text-base); }
     display: none !important; /* Hide top header navigation menu on mobile */
   }
 
+  .top-logo-sub {
+    display: none !important; /* Hide logo sub-brand on all mobile/tablet views to save space */
+  }
+
   .topbar-date-badge {
-    padding: 6px 12px; /* Increased padding on mobile for better touch target */
+    padding: 6px 10px; /* Slightly more compact on mobile */
+    font-size: 11px; /* Slightly smaller font to prevent overflow */
   }
 
   .topbar-date-badge span {
     display: inline !important; /* Make date text visible on mobile screen */
+  }
+
+  .topbar-date-badge .date-year {
+    display: none !important; /* Hide the year part on mobile to save horizontal space */
   }
 
   .topbar-status-badge {

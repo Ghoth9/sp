@@ -597,7 +597,7 @@ const App = (() => {
             const dateNum = today.getDate();
             const monthName = months[today.getMonth()];
             const yearNum = today.getFullYear() + 543;
-            topbarDate.textContent = `${dayName} ${dateNum} ${monthName} ${yearNum}`;
+            topbarDate.innerHTML = `<span class="date-day-month">${dayName} ${dateNum} ${monthName}</span><span class="date-year"> ${yearNum}</span>`;
 
             if (topbarDateWrapper) {
                 topbarDateWrapper.style.cursor = 'pointer';
