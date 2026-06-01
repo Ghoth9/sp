@@ -2617,6 +2617,10 @@ h6 { font-size: var(--text-base); }
   .quick-action {
     padding: var(--space-md);
   }
+
+  .top-logo-sub {
+    display: none !important; /* Hide logo sub-brand on very small screens to fit date badge */
+  }
 }
 
 /* ── Print styles ────────────────────────────────────────────── */
@@ -2943,6 +2947,18 @@ h6 { font-size: var(--text-base); }
   font-size: var(--text-xs);
   font-weight: 500;
   box-shadow: var(--shadow-sm);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.topbar-date-badge:hover {
+  background: rgba(2, 132, 199, 0.06);
+  border-color: rgba(2, 132, 199, 0.2);
+  color: var(--accent-cyan);
+}
+
+.topbar-date-badge:active {
+  transform: scale(0.95);
 }
 
 .topbar-date-badge i {
@@ -2997,11 +3013,11 @@ h6 { font-size: var(--text-base); }
   }
 
   .topbar-date-badge {
-    padding: 6px 8px; /* Compact on mobile */
+    padding: 6px 12px; /* Increased padding on mobile for better touch target */
   }
 
   .topbar-date-badge span {
-    display: none; /* Hide date text on small screens, keep calendar icon */
+    display: inline !important; /* Make date text visible on mobile screen */
   }
 
   .topbar-status-badge {

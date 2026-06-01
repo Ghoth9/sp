@@ -524,6 +524,18 @@
                 <i data-lucide="refresh-cw"></i> โหลดข้อมูลตัวอย่าง
               </button>
             </div>
+
+            <div class="divider"></div>
+
+            <div class="flex items-center justify-between">
+              <div>
+                <div class="text-sm text-muted">พบปัญหาแอปไม่อัปเดต?</div>
+                <p class="text-xs text-muted" style="margin-top: 2px;">ล้างไฟล์แคช PWA เพื่อดึงข้อมูลระบบเวอร์ชันล่าสุด</p>
+              </div>
+              <button class="btn btn-danger btn-sm" id="btn-force-clear-cache">
+                <i data-lucide="refresh-cw"></i> ล้างแคช & อัปเดตแอป
+              </button>
+            </div>
           </div>
         </div>
       </section>
@@ -730,7 +742,7 @@
         <input type="hidden" id="appointment-form-id">
 
         <div class="form-group">
-          <label class="form-label">ลูกค้า</label>
+          <label class="form-label">ลูกค้า <span class="text-muted" style="font-weight: normal; font-size: var(--text-xs);">(ไม่บังคับ)</span></label>
           <select class="form-select" id="appointment-form-customer">
             <option value="">-- เลือกลูกค้า (ไม่บังคับ) --</option>
           </select>

@@ -206,7 +206,7 @@ const AppointmentsModule = (() => {
         let html = '<div class="appointments-list" id="appointments-list">';
         appointments.forEach(a => {
             const cust = DB.getById('customers', a.customerId);
-            const custName = cust ? cust.name : 'ไม่ทราบ';
+            const custName = cust ? cust.name : 'ลูกค้าทั่วไป';
             const st = STATUS_MAP[a.status] || STATUS_MAP['pending'];
             const isOverdue = a.date < today && (a.status === 'pending' || a.status === 'in-progress');
             const isToday = a.date === today;
@@ -273,7 +273,7 @@ const AppointmentsModule = (() => {
         const sel = $(selectId);
         if (!sel) return;
         const customers = DB.getAll('customers').sort((a, b) => a.name.localeCompare(b.name));
-        let opts = '<option value="">-- เลือกลูกค้า --</option>';
+        let opts = '<option value="">-- เลือกลูกค้า (ไม่บังคับ) --</option>';
         customers.forEach(c => {
             const selected = c.id === selectedId ? 'selected' : '';
             opts += `<option value="${c.id}" ${selected}>${c.name} (${c.phone || '-'})</option>`;
@@ -344,7 +344,7 @@ const AppointmentsModule = (() => {
         if (!apt) return;
 
         const cust = DB.getById('customers', apt.customerId);
-        const custName = cust ? cust.name : 'ไม่ทราบ';
+        const custName = cust ? cust.name : 'ลูกค้าทั่วไป';
 
         if (!confirm(`ต้องการลบนัดหมาย ${apt.id}\n${custName} - ${App.formatDate(apt.date)} หรือไม่?`)) return;
 

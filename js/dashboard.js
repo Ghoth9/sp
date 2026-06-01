@@ -414,7 +414,7 @@ const DashboardModule = (() => {
         let html = '<ul class="upcoming-list" id="dashboard-upcoming-list">';
         upcoming.forEach(a => {
             const cust = DB.getById('customers', a.customerId);
-            const custName = cust ? cust.name : 'ไม่ทราบ';
+            const custName = cust ? cust.name : 'ลูกค้าทั่วไป';
             const isToday = a.date === todayStr;
             const statusClass = a.status === 'in-progress' ? 'badge-info' : 'badge-warning';
             const statusLabel = a.status === 'in-progress' ? 'กำลังดำเนินการ' : 'รอดำเนินการ';

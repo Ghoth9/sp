@@ -438,6 +438,32 @@ const App = (() => {
         const btnReloadDemo = $('btn-reload-demo');
         if (btnReloadDemo) btnReloadDemo.addEventListener('click', loadDemoData);
 
+        const btnForceClear = $('btn-force-clear-cache');
+        if (btnForceClear) {
+            btnForceClear.addEventListener('click', () => {
+                if (confirm('⚠️ ต้องการล้างไฟล์แคชระบบและบังคับอัปเดตแอปใช่หรือไม่?\n\n(ระบบจะโหลดหน้าเว็บและโค้ดเวอร์ชันล่าสุดจากเซิร์ฟเวอร์ โดยข้อมูลประวัติแอร์และลูกค้าของคุณจะไม่สูญหาย)')) {
+                    showToast('กำลังล้างแคชระบบ...', 'info');
+                    if ('serviceWorker' in navigator) {
+                        navigator.serviceWorker.getRegistrations().then(regs => {
+                            for (const r of regs) r.unregister();
+                        });
+                    }
+                    if (window.caches) {
+                        caches.keys().then(keys => {
+                            return Promise.all(keys.map(k => caches.delete(k)));
+                        }).then(() => {
+                            showToast('ล้างแคชสำเร็จ กำลังรีสตาร์ท...', 'success');
+                            setTimeout(() => { window.location.reload(true); }, 1000);
+                        }).catch(err => {
+                            showToast('ล้างแคชขัดข้อง: ' + err, 'error');
+                        });
+                    } else {
+                        window.location.reload(true);
+                    }
+                }
+            });
+        }
+
         // Cloud Sync Actions
         const cloudEnabledToggle = $('settings-cloud-enabled');
         const cloudUrlInput = $('settings-cloud-url');
@@ -562,6 +588,7 @@ const App = (() => {
 
         // Setup Date Display in topbar (Clean & compact date format)
         const topbarDate = $('topbar-date');
+        const topbarDateWrapper = $('topbar-date-wrapper');
         if (topbarDate) {
             const today = new Date();
             const days = ['อา.', 'จ.', 'อ.', 'พ.', 'พฤ.', 'ศ.', 'ส.'];
@@ -571,6 +598,20 @@ const App = (() => {
             const monthName = months[today.getMonth()];
             const yearNum = today.getFullYear() + 543;
             topbarDate.textContent = `${dayName} ${dateNum} ${monthName} ${yearNum}`;
+
+            if (topbarDateWrapper) {
+                topbarDateWrapper.style.cursor = 'pointer';
+                topbarDateWrapper.addEventListener('click', () => {
+                    const daysFull = ['วันอาทิตย์', 'วันจันทร์', 'วันอังคาร', 'วันพุธ', 'วันพฤหัสบดี', 'วันศุกร์', 'วันเสาร์'];
+                    const monthsFull = [
+                        'มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน',
+                        'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'
+                    ];
+                    const dayFull = daysFull[today.getDay()];
+                    const monthFull = monthsFull[today.getMonth()];
+                    showToast(`📅 ${dayFull}ที่ ${dateNum} ${monthFull} พ.ศ. ${yearNum}`, 'info');
+                });
+            }
         }
 
         // Setup Online/Offline Status Indicator
