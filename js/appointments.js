@@ -311,10 +311,6 @@ const AppointmentsModule = (() => {
         const status = $('appointment-form-status').value || 'pending';
         const notes = $('appointment-form-notes').value.trim();
 
-        if (!customerId) {
-            App.showToast('กรุณาเลือกลูกค้า', 'error');
-            return;
-        }
         if (!date) {
             App.showToast('กรุณาระบุวันที่', 'error');
             return;

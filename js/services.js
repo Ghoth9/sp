@@ -445,6 +445,10 @@ const ServicesModule = (() => {
         const type = $('service-form-type').value;
         const serviceDate = $('service-form-date').value;
 
+        if (!customerId) {
+            App.showToast('กรุณาเลือกลูกค้า', 'error');
+            return;
+        }
         if (!type) {
             App.showToast('กรุณาเลือกประเภทบริการ', 'error');
             return;
