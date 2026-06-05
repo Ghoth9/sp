@@ -158,6 +158,10 @@ const App = (() => {
                 document.body.style.overflow = '';
             }
         }
+
+        if (modalId === 'qr-scanner-modal') {
+            stopQrScanner();
+        }
     }
 
     // ── Toast Notifications ───────────────────────────────────
@@ -320,6 +324,8 @@ const App = (() => {
         if (dbTypeEl) {
             dbTypeEl.textContent = DB.isCloudEnabled() ? 'Google Sheets (คลาวด์)' : 'localStorage (เบราว์เซอร์)';
         }
+
+        updateCloudStatusBadge();
 
         if (!label) return;
 
@@ -536,7 +542,15 @@ const App = (() => {
             }
 
             // Save configs on changes
-            cloudEnabledToggle.addEventListener('change', () => {
+            cloudEnabledToggle.addEventListener('change', (e) => {
+                if (!cloudEnabledToggle.checked) {
+                    const confirmClose = confirm("⚠️ คุณแน่ใจหรือไม่ว่าต้องการปิดใช้งานระบบเชื่อมต่อคลาวด์?\n\nเมื่อปิดแล้วระบบจะสลับไปใช้ฐานข้อมูลจำลองในเครื่องนี้แทนข้อมูลจริงบนคลาวด์");
+                    if (!confirmClose) {
+                        cloudEnabledToggle.checked = true;
+                        return;
+                    }
+                }
+
                 DB.setCloudConfig(cloudEnabledToggle.checked, cloudUrlInput.value.trim());
                 updateButtonStates();
                 updateStorageUsage(); // Update labels immediately!
@@ -554,6 +568,10 @@ const App = (() => {
                         .catch(err => {
                             showToast('ซิงก์ข้อมูลล้มเหลว: ' + err, 'error');
                         });
+                } else if (!cloudEnabledToggle.checked) {
+                    setTimeout(() => {
+                        location.reload();
+                    }, 800);
                 }
             });
 
@@ -563,6 +581,34 @@ const App = (() => {
                 updateStorageUsage(); // Update labels immediately!
                 showToast('บันทึก Web App URL แล้ว', 'success');
             });
+
+            // Demo Banner QR Code Scan click
+            const btnBannerScanQr = $('btn-banner-scan-qr');
+            if (btnBannerScanQr) {
+                btnBannerScanQr.addEventListener('click', () => {
+                    startQrScanner();
+                });
+            }
+
+            // Settings Page QR Code Scan click
+            const btnSettingsScanQr = $('btn-settings-scan-qr');
+            if (btnSettingsScanQr) {
+                btnSettingsScanQr.addEventListener('click', () => {
+                    startQrScanner();
+                });
+            }
+
+            // Click on Topbar Cloud Badge -> Go to Settings page
+            const cloudBadge = $('topbar-cloud-badge');
+            if (cloudBadge) {
+                cloudBadge.addEventListener('click', () => {
+                    navigateTo('settings');
+                    const section = $('settings-cloud-enabled');
+                    if (section) {
+                        section.scrollIntoView({ behavior: 'smooth' });
+                    }
+                });
+            }
 
             btnCloudUpload.addEventListener('click', () => {
                 if (confirm('คุณต้องการอัปเดตข้อมูลบนคลาวด์ด้วยข้อมูลในเครื่องของคุณใช่หรือไม่? (ข้อมูลเดิมบน Google Sheet ในชีต ACSP จะถูกเขียนทับ)')) {
@@ -910,6 +956,126 @@ const App = (() => {
                 document.body.removeChild(textarea);
                 return Promise.reject(err);
             }
+        }
+    }
+
+    // ── QR Code Scanner Logic ─────────────────────────────────
+    let html5QrcodeScanner = null;
+
+    function startQrScanner() {
+        const qrReader = $('qr-reader');
+        if (!qrReader) return;
+
+        if (typeof Html5Qrcode === 'undefined') {
+            showToast('ระบบกล้องสแกนกำลังโหลด... กรุณาลองใหม่อีกครั้ง', 'warning');
+            return;
+        }
+
+        openModal('qr-scanner-modal');
+        const statusEl = $('qr-scanner-status');
+        if (statusEl) statusEl.textContent = "กำลังเชื่อมต่อกล้องถ่ายรูป...";
+
+        stopQrScanner();
+
+        html5QrcodeScanner = new Html5Qrcode("qr-reader");
+
+        html5QrcodeScanner.start(
+            { facingMode: "environment" },
+            {
+                fps: 10,
+                qrbox: { width: 250, height: 250 }
+            },
+            (decodedText) => {
+                console.log("[QR Scanner] Decoded QR:", decodedText);
+                try {
+                    const url = new URL(decodedText);
+                    const syncUrl = url.searchParams.get('sync_url');
+                    if (syncUrl) {
+                        stopQrScanner();
+                        closeModal('qr-scanner-modal');
+                        
+                        DB.setCloudConfig(true, syncUrl);
+                        showToast('เชื่อมต่อฐานข้อมูลคลาวด์ทีมงานสำเร็จ! กำลังโหลด...', 'success');
+                        setTimeout(() => {
+                            location.reload();
+                        }, 1200);
+                        return;
+                    }
+                } catch (e) {
+                    // Ignored
+                }
+
+                if (decodedText.includes('script.google.com/macros/')) {
+                    stopQrScanner();
+                    closeModal('qr-scanner-modal');
+                    
+                    DB.setCloudConfig(true, decodedText.trim());
+                    showToast('เชื่อมต่อฐานข้อมูลคลาวด์ทีมงานสำเร็จ! กำลังโหลด...', 'success');
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1200);
+                } else {
+                    showToast('QR Code นี้ไม่มีสิทธิ์เข้าถึงระบบแอร์ Spairdee', 'error');
+                }
+            },
+            (errorMessage) => {
+                // Ignore decoding errors
+            }
+        ).then(() => {
+            if (statusEl) statusEl.textContent = "เล็งกล้องไปที่ QR Code ของทีมงานเพื่อซิงก์ระบบ";
+        }).catch(err => {
+            console.error("[QR Scanner] Start error:", err);
+            if (statusEl) statusEl.textContent = "กล้องขัดข้อง: " + err;
+        });
+    }
+
+    function stopQrScanner() {
+        if (html5QrcodeScanner) {
+            const statusEl = $('qr-scanner-status');
+            if (statusEl) statusEl.textContent = "กำลังปิดกล้อง...";
+            
+            // Only stop if actively scanning
+            const stopPromise = html5QrcodeScanner.isScanning 
+                ? html5QrcodeScanner.stop() 
+                : Promise.resolve();
+
+            stopPromise.then(() => {
+                console.log("[QR Scanner] Stopped.");
+                html5QrcodeScanner = null;
+            }).catch(err => {
+                console.error("[QR Scanner] Stop error:", err);
+                html5QrcodeScanner = null;
+            });
+        }
+    }
+
+    // ── Update Topbar Cloud Badge State ───────────────────────
+    function updateCloudStatusBadge() {
+        const badge = $('topbar-cloud-badge');
+        if (!badge) return;
+
+        const isEnabled = DB.isCloudEnabled();
+        const hasUrl = DB.getCloudUrl().trim().length > 0;
+
+        badge.classList.remove('connected', 'disconnected');
+
+        const iconEl = badge.querySelector('.cloud-icon');
+        const textEl = badge.querySelector('.cloud-text');
+
+        if (isEnabled && hasUrl) {
+            badge.classList.add('connected');
+            badge.title = "ระบบเชื่อมต่อคลาวด์เปิดใช้งาน (ข้อมูลจริง)";
+            if (textEl) textEl.textContent = "เชื่อมต่อคลาวด์";
+            if (iconEl) iconEl.setAttribute('data-lucide', 'cloud');
+        } else {
+            badge.classList.add('disconnected');
+            badge.title = "โหมดสาธิต (ใช้ข้อมูลจำลองในเครื่องนี้)";
+            if (textEl) textEl.textContent = "โหมดสาธิต";
+            if (iconEl) iconEl.setAttribute('data-lucide', 'cloud-off');
+        }
+
+        if (window.lucide) {
+            lucide.createIcons();
         }
     }
 

@@ -716,9 +716,11 @@ const DB = (() => {
 
   function setCloudConfig(enabled, url) {
     _cloudEnabled = !!enabled;
-    _cloudUrl = url || '';
+    if (url !== undefined && url !== null) {
+      _cloudUrl = url;
+      localStorage.setItem('acsp_cloud_url', _cloudUrl);
+    }
     localStorage.setItem('acsp_cloud_enabled', String(_cloudEnabled));
-    localStorage.setItem('acsp_cloud_url', _cloudUrl);
   }
 
   function _pushToCloud(action, collection, id, data) {

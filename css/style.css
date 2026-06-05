@@ -3006,6 +3006,64 @@ h6 { font-size: var(--text-base); }
   animation: pulse 1.5s infinite;
 }
 
+/* Cloud Pill Badge */
+.topbar-cloud-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  background: rgba(15, 23, 42, 0.03);
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: var(--radius-full);
+  color: var(--text-secondary);
+  font-size: var(--text-xs);
+  font-weight: 500;
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-fast);
+  cursor: pointer;
+  user-select: none;
+}
+
+.topbar-cloud-badge:hover {
+  background: rgba(15, 23, 42, 0.06);
+  border-color: rgba(15, 23, 42, 0.15);
+}
+
+.topbar-cloud-badge:active {
+  transform: scale(0.95);
+}
+
+.topbar-cloud-badge .cloud-icon {
+  width: 14px;
+  height: 14px;
+  transition: all var(--transition-fast);
+}
+
+.topbar-cloud-badge.connected {
+  background: rgba(22, 163, 74, 0.05);
+  border-color: rgba(22, 163, 74, 0.2);
+  color: var(--success);
+  font-weight: 600;
+  box-shadow: 0 0 10px rgba(22, 163, 74, 0.05);
+}
+
+.topbar-cloud-badge.connected .cloud-icon {
+  color: var(--success);
+  filter: drop-shadow(0 0 4px rgba(22, 163, 74, 0.4));
+}
+
+.topbar-cloud-badge.disconnected {
+  background: rgba(217, 119, 6, 0.05);
+  border-color: rgba(217, 119, 6, 0.2);
+  color: var(--warning);
+  font-weight: 600;
+  box-shadow: 0 0 10px rgba(217, 119, 6, 0.05);
+}
+
+.topbar-cloud-badge.disconnected .cloud-icon {
+  color: var(--warning);
+}
+
 /* Mobile responsive navigation overrides */
 @media (max-width: 768px) {
   .top-nav {
@@ -3035,6 +3093,14 @@ h6 { font-size: var(--text-base); }
 
   .topbar-status-badge .status-text {
     display: none; /* Hide text on small screens, keep color dot */
+  }
+
+  .topbar-cloud-badge {
+    padding: 6px 8px; /* Compact on mobile */
+  }
+
+  .topbar-cloud-badge .cloud-text {
+    display: none; /* Hide text on small screens, keep icon */
   }
 }
 

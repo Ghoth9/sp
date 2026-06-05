@@ -4,7 +4,7 @@
 // Caching strategy: Cache-first for static, Network-first for dynamic
 // ============================================================
 
-const CACHE_NAME = 'spairdee-v40';
+const CACHE_NAME = 'spairdee-v41';
 
 // Static assets to pre-cache on install
 const STATIC_ASSETS = [
@@ -27,7 +27,8 @@ const STATIC_ASSETS = [
 // External CDN resources to cache
 const CDN_ASSETS = [
     'https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap',
-    'https://unpkg.com/lucide@latest/dist/umd/lucide.min.js'
+    'https://unpkg.com/lucide@latest/dist/umd/lucide.min.js',
+    'https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js'
 ];
 
 // ── Install Event ─────────────────────────────────────────────

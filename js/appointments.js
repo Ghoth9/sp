@@ -566,9 +566,21 @@ const AppointmentsModule = (() => {
 
         msg += `\n*แจ้งเตือน*: หากบ้านไหนไม่อยู่หรือติดต่อไม่ได้ ให้ช่างอัปเดตระบบเป็นสถานะ "ไม่มีคนอยู่/ติดต่อไม่ได้" ทันทีครับ`;
 
-        // Open LINE share URL
-        const lineUrl = `https://line.me/R/share?text=${encodeURIComponent(msg)}`;
-        window.open(lineUrl, '_blank');
+        // Copy formatted message to clipboard first for bulletproof fallback
+        App.copyToClipboard(msg)
+            .then(() => {
+                App.showToast('คัดลอกสรุปคิวงานวันนี้ลงคลิปบอร์ดแล้ว! และกำลังเปิดหน้าแชร์ไป LINE...', 'success');
+                setTimeout(() => {
+                    const lineUrl = `https://line.me/R/share?text=${encodeURIComponent(msg)}`;
+                    window.open(lineUrl, '_blank');
+                }, 1000);
+            })
+            .catch(err => {
+                console.warn("[LINE Share] Clipboard failed:", err);
+                App.showToast('ไม่สามารถคัดลอกลงคลิปบอร์ดได้ แต่กำลังเปิดแชร์ไป LINE...', 'warning');
+                const lineUrl = `https://line.me/R/share?text=${encodeURIComponent(msg)}`;
+                window.open(lineUrl, '_blank');
+            });
     }
 
     function shareAppointmentMessage(id) {
