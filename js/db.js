@@ -699,12 +699,12 @@ const DB = (() => {
   }
 
   // ── Cloud Sync Configuration & Functions ──────────────────
-  const DEFAULT_CLOUD_URL = 'https://script.google.com/macros/s/AKfycbxurKONxQEqeF6NyLb_OuiQkCbToT6-gyWkIIwhdGmj7DJcEeHlxNheJ-F2YZdHdlla/exec';
+  const DEFAULT_CLOUD_URL = '';
   
   let _cloudUrl = localStorage.getItem('acsp_cloud_url') || DEFAULT_CLOUD_URL;
   let _cloudEnabled = localStorage.getItem('acsp_cloud_enabled') !== null
     ? localStorage.getItem('acsp_cloud_enabled') === 'true'
-    : true; // เปิดใช้งาน Cloud Mode เป็นค่าเริ่มต้นสำหรับเครื่องใหม่/ช่างทุกคน
+    : false; // ปิดใช้งาน Cloud Mode เป็นค่าเริ่มต้นเพื่อป้องกันข้อมูลรั่วไหลสู่คนนอก
 
   function isCloudEnabled() {
     return _cloudEnabled;
@@ -889,6 +889,28 @@ const DB = (() => {
   // ── Initialise ────────────────────────────────────────────
 
   function init() {
+    // Check for sync_url in query parameters
+    const urlParams = new URLSearchParams(window.location.search);
+    const syncUrlParam = urlParams.get('sync_url');
+    if (syncUrlParam) {
+      localStorage.setItem('acsp_cloud_url', syncUrlParam);
+      localStorage.setItem('acsp_cloud_enabled', 'true');
+      _cloudUrl = syncUrlParam;
+      _cloudEnabled = true;
+      
+      // Clear query params to keep URL clean and secure in address bar
+      if (window.history && window.history.replaceState) {
+        const cleanUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
+        window.history.replaceState({}, document.title, cleanUrl);
+      }
+      
+      // Mark as initialized so they don't get default demo data written over the synced cloud data
+      localStorage.setItem(INITIALIZED_KEY, 'true');
+      
+      // Flag for app.js to show success toast
+      window.__sync_configured = true;
+    }
+
     if (!localStorage.getItem(INITIALIZED_KEY)) {
       _seedDemoData();
     }

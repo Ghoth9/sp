@@ -476,14 +476,57 @@ const App = (() => {
             cloudUrlInput.value = DB.getCloudUrl();
             updateStorageUsage(); // Initialize layout display on settings load
 
+            const shareSection = $('share-cloud-section');
             const updateButtonStates = () => {
                 const isEnabled = cloudEnabledToggle.checked;
                 const hasUrl = cloudUrlInput.value.trim().length > 0;
                 btnCloudUpload.disabled = !isEnabled || !hasUrl;
                 btnCloudTriggerLine.disabled = !isEnabled || !hasUrl;
+                if (shareSection) {
+                    shareSection.style.display = (isEnabled && hasUrl) ? 'block' : 'none';
+                }
             };
 
             updateButtonStates();
+
+            // Setup share button handlers
+            const btnCopyShare = $('btn-copy-share-link');
+            const btnShowShareQR = $('btn-show-share-qr');
+
+            if (btnCopyShare) {
+                btnCopyShare.addEventListener('click', () => {
+                    const url = DB.getCloudUrl();
+                    if (!url) return;
+                    const shareLink = `${window.location.protocol}//${window.location.host}${window.location.pathname}?sync_url=${encodeURIComponent(url)}`;
+                    copyToClipboard(shareLink)
+                        .then(() => showToast('คัดลอกลิงก์ตั้งค่าสำหรับทีมงานลงคลิปบอร์ดแล้ว! สามารถส่งต่อใน LINE ได้ทันที', 'success'))
+                        .catch(err => showToast('ไม่สามารถคัดลอกลิงก์ได้: ' + err, 'error'));
+                });
+            }
+
+            if (btnShowShareQR) {
+                btnShowShareQR.addEventListener('click', () => {
+                    const url = DB.getCloudUrl();
+                    if (!url) return;
+                    const shareLink = `${window.location.protocol}//${window.location.host}${window.location.pathname}?sync_url=${encodeURIComponent(url)}`;
+                    
+                    const qrImg = $('share-qr-img');
+                    const qrLoading = $('share-qr-loading');
+                    
+                    if (qrImg && qrLoading) {
+                        qrImg.style.display = 'none';
+                        qrLoading.style.display = 'block';
+                        
+                        const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(shareLink)}`;
+                        qrImg.src = qrApiUrl;
+                        qrImg.onload = () => {
+                            qrLoading.style.display = 'none';
+                            qrImg.style.display = 'block';
+                        };
+                    }
+                    openModal('share-qr-modal');
+                });
+            }
 
             // Save configs on changes
             cloudEnabledToggle.addEventListener('change', () => {
@@ -661,6 +704,11 @@ const App = (() => {
     function init() {
         // 1. Initialize Database
         DB.init();
+
+        // Check if sync was configured from URL
+        if (window.__sync_configured) {
+            showToast('เชื่อมต่อฐานข้อมูลคลาวด์ร้านแอร์เรียบร้อยแล้ว!', 'success');
+        }
 
         // 2. Setup Events
         setupGlobalEvents();
