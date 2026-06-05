@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AC Service Pro - Icon Generator</title>
+    <title>Spairdee - Icon Generator</title>
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -42,10 +42,10 @@
     </style>
 </head>
 <body>
-    <h1>🎨 AC Service Pro Icon Generator</h1>
+    <h1>🎨 Spairdee Icon Generator</h1>
     <div class="instructions">
         <p><strong>Instructions:</strong> Click the buttons below to generate and download PWA icons. 
-        Save them to the <code>assets/icons/</code> folder as <code>icon-192.png</code> and <code>icon-512.png</code>.</p>
+        Save them to the <code>assets/icons/</code> folder as <code>icon-192.png</code>, <code>icon-512.png</code>, and <code>logo.png</code>.</p>
     </div>
     <div class="canvases">
         <div class="canvas-group">
@@ -202,11 +202,11 @@
             ctx.fillStyle = '#e2e8f0';
             ctx.font = `700 ${48 * scale}px Inter, Arial, sans-serif`;
             ctx.letterSpacing = `${6 * scale}px`;
-            ctx.fillText('AC', 256 * scale, 400 * scale);
+            ctx.fillText('SP', 256 * scale, 400 * scale);
 
             ctx.fillStyle = '#06b6d4';
-            ctx.font = `400 ${20 * scale}px Inter, Arial, sans-serif`;
-            ctx.fillText('SERVICE PRO', 256 * scale, 435 * scale);
+            ctx.font = `500 ${22 * scale}px Inter, Arial, sans-serif`;
+            ctx.fillText('SPAIRDEE', 256 * scale, 435 * scale);
         }
 
         function download(canvasId, filename) {
@@ -218,8 +218,29 @@
         }
 
         // Draw on load
-        drawIcon(document.getElementById('canvas192'));
-        drawIcon(document.getElementById('canvas512'));
+        const canvas192 = document.getElementById('canvas192');
+        const canvas512 = document.getElementById('canvas512');
+        drawIcon(canvas192);
+        drawIcon(canvas512);
+
+        if (window.location.search.includes('auto=true')) {
+            const sendImage = (name, canvas) => {
+                return fetch('/save-icon', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, data: canvas.toDataURL('image/png') })
+                });
+            };
+            Promise.all([
+                sendImage('icon-192.png', canvas192),
+                sendImage('icon-512.png', canvas512),
+                sendImage('logo.png', canvas192)
+            ]).then(() => {
+                fetch('/done');
+            }).catch(err => {
+                console.error('Failed to auto-save icons:', err);
+            });
+        }
     </script>
 </body>
 </html>

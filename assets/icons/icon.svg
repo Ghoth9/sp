@@ -84,12 +84,12 @@
     <line x1="-5" y1="-6" x2="5" y2="-6" stroke="#0a0e17" stroke-width="2" stroke-linecap="round" />
   </g>
 
-  <!-- Text: "AC" -->
+  <!-- Text: "SP" -->
   <text x="256" y="400" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-weight="700" font-size="48" fill="#e2e8f0" letter-spacing="6">
-    AC
+    SP
   </text>
-  <!-- Text: "SERVICE PRO" -->
-  <text x="256" y="435" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-weight="400" font-size="20" fill="#06b6d4" letter-spacing="8">
-    SERVICE PRO
+  <!-- Text: "SPAIRDEE" -->
+  <text x="256" y="435" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-weight="500" font-size="22" fill="#06b6d4" letter-spacing="8">
+    SPAIRDEE
   </text>
 </svg>
