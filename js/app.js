@@ -506,11 +506,25 @@ const App = (() => {
             const btnCopyShare = $('btn-copy-share-link');
             const btnShowShareQR = $('btn-show-share-qr');
 
+            const getShareLink = (url) => {
+                let proto = window.location.protocol;
+                let host = window.location.host;
+                let path = window.location.pathname;
+                
+                // Fallback to production URL if running from local file
+                if (proto === 'file:' || !host) {
+                    proto = 'https:';
+                    host = 'spairdee.netlify.app';
+                    path = '/';
+                }
+                return `${proto}//${host}${path}?sync_url=${encodeURIComponent(url)}`;
+            };
+
             if (btnCopyShare) {
                 btnCopyShare.addEventListener('click', () => {
                     const url = DB.getCloudUrl();
                     if (!url) return;
-                    const shareLink = `${window.location.protocol}//${window.location.host}${window.location.pathname}?sync_url=${encodeURIComponent(url)}`;
+                    const shareLink = getShareLink(url);
                     copyToClipboard(shareLink)
                         .then(() => showToast('คัดลอกลิงก์ตั้งค่าสำหรับทีมงานลงคลิปบอร์ดแล้ว! สามารถส่งต่อใน LINE ได้ทันที', 'success'))
                         .catch(err => showToast('ไม่สามารถคัดลอกลิงก์ได้: ' + err, 'error'));
@@ -521,7 +535,7 @@ const App = (() => {
                 btnShowShareQR.addEventListener('click', () => {
                     const url = DB.getCloudUrl();
                     if (!url) return;
-                    const shareLink = `${window.location.protocol}//${window.location.host}${window.location.pathname}?sync_url=${encodeURIComponent(url)}`;
+                    const shareLink = getShareLink(url);
                     
                     const qrImg = $('share-qr-img');
                     const qrLoading = $('share-qr-loading');
@@ -530,7 +544,7 @@ const App = (() => {
                         qrImg.style.display = 'none';
                         qrLoading.style.display = 'block';
                         
-                        const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(shareLink)}`;
+                        const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(shareLink)}`;
                         qrImg.src = qrApiUrl;
                         qrImg.onload = () => {
                             qrLoading.style.display = 'none';
