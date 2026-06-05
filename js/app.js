@@ -650,47 +650,16 @@ const App = (() => {
                     html5QrcodeScanner.scanFile(file, true)
                         .then(decodedText => {
                             console.log("[QR Scanner File] Decoded:", decodedText);
-                            qrFileInput.value = ''; // clear input
-                            
-                            let syncUrl = '';
-                            if (decodedText.includes('script.google.com/macros/')) {
-                                syncUrl = decodedText.trim();
-                            } else {
-                                try {
-                                    let testUrl = decodedText.trim();
-                                    if (!testUrl.startsWith('http://') && !testUrl.startsWith('https://')) {
-                                        testUrl = 'https://' + testUrl;
-                                    }
-                                    const parsedUrl = new URL(testUrl);
-                                    const urlParam = parsedUrl.searchParams.get('sync_url');
-                                    if (urlParam && urlParam.includes('script.google.com/macros/')) {
-                                        syncUrl = urlParam.trim();
-                                    }
-                                } catch (err) {
-                                    try {
-                                        const decodedDecoded = decodeURIComponent(decodedText);
-                                        if (decodedDecoded.includes('script.google.com/macros/')) {
-                                            const match = decodedDecoded.match(/https?:\/\/script\.google\.com\/macros\/[^\s"'>]+/);
-                                            if (match) {
-                                                syncUrl = match[0].trim();
-                                            }
-                                        }
-                                    } catch (ex) {
-                                        // Ignore
-                                    }
-                                }
-                            }
-
+                            qrFileInput.value = '';
+                            const syncUrl = resolveQrSyncUrl(decodedText);
                             if (syncUrl) {
                                 stopQrScanner();
                                 closeModal('qr-scanner-modal');
                                 DB.setCloudConfig(true, syncUrl);
                                 showToast('เชื่อมต่อฐานข้อมูลคลาวด์ทีมงานสำเร็จ! กำลังโหลด...', 'success');
-                                setTimeout(() => {
-                                    location.reload();
-                                }, 1200);
+                                setTimeout(() => { location.reload(); }, 1200);
                             } else {
-                                showToast('QR Code นี้ไม่มีสิทธิ์เข้าถึงระบบแอร์ Spairdee', 'error');
+                                showToast('QR Code นี้ไม่ถูกต้อง กรุณาใช้ QR Code ที่ได้รับจากร้าน', 'error');
                             }
                         })
                         .catch(err => {
@@ -1102,6 +1071,42 @@ const App = (() => {
     // ── QR Code Scanner Logic ─────────────────────────────────
     let html5QrcodeScanner = null;
 
+    // Shared resolver: extracts the cloud sync URL from any form of QR code content
+    function resolveQrSyncUrl(rawText) {
+        if (!rawText) return null;
+        const text = rawText.trim();
+
+        // Case 1: raw GAS URL scanned directly
+        if (text.includes('script.google.com/macros/')) {
+            return text;
+        }
+
+        // Case 2: share link with ?sync_url= parameter
+        try {
+            const u = new URL(text.startsWith('http') ? text : 'https://' + text);
+            const param = u.searchParams.get('sync_url');
+            if (param && param.includes('script.google.com/macros/')) return param.trim();
+        } catch (_) {}
+
+        // Case 3: URL-encoded string (e.g. double-encoded)
+        try {
+            const decoded = decodeURIComponent(text);
+            if (decoded.includes('script.google.com/macros/')) {
+                // Try parse again after decoding
+                try {
+                    const u2 = new URL(decoded.startsWith('http') ? decoded : 'https://' + decoded);
+                    const param2 = u2.searchParams.get('sync_url');
+                    if (param2 && param2.includes('script.google.com/macros/')) return param2.trim();
+                } catch (_) {}
+                // Fallback: extract raw URL from decoded string
+                const match = decoded.match(/https?:\/\/script\.google\.com\/macros\/[^\s"'<>]+/);
+                if (match) return match[0].trim();
+            }
+        } catch (_) {}
+
+        return null;
+    }
+
     function startQrScanner() {
         const qrReader = $('qr-reader');
         if (!qrReader) return;
@@ -1117,6 +1122,7 @@ const App = (() => {
 
         stopQrScanner();
 
+        let qrResolved = false;
         html5QrcodeScanner = new Html5Qrcode("qr-reader");
 
         html5QrcodeScanner.start(
@@ -1126,71 +1132,23 @@ const App = (() => {
                 qrbox: { width: 250, height: 250 }
             },
             (decodedText) => {
+                if (qrResolved) return; // guard: ignore subsequent frames
                 console.log("[QR Scanner] Decoded QR:", decodedText);
-                try {
-                    const url = new URL(decodedText);
-                    const syncUrl = url.searchParams.get('sync_url');
-                    if (syncUrl) {
-                        stopQrScanner();
-                        closeModal('qr-scanner-modal');
-                        
-                        DB.setCloudConfig(true, syncUrl);
-                        showToast('เชื่อมต่อฐานข้อมูลคลาวด์ทีมงานสำเร็จ! กำลังโหลด...', 'success');
-                        setTimeout(() => {
-                            location.reload();
-                        }, 1200);
-                        return;
-                    }
-                } catch (e) {
-                    // Ignored
-                }
-
-                let syncUrl = '';
-                if (decodedText.includes('script.google.com/macros/')) {
-                    syncUrl = decodedText.trim();
-                } else {
-                    // Try to parse URL query param sync_url
-                    try {
-                        let testUrl = decodedText.trim();
-                        if (!testUrl.startsWith('http://') && !testUrl.startsWith('https://')) {
-                            testUrl = 'https://' + testUrl;
-                        }
-                        const parsedUrl = new URL(testUrl);
-                        const urlParam = parsedUrl.searchParams.get('sync_url');
-                        if (urlParam && urlParam.includes('script.google.com/macros/')) {
-                            syncUrl = urlParam.trim();
-                        }
-                    } catch (err) {
-                        // Not a parseable URL, try decoding raw characters
-                        try {
-                            const decodedDecoded = decodeURIComponent(decodedText);
-                            if (decodedDecoded.includes('script.google.com/macros/')) {
-                                const match = decodedDecoded.match(/https?:\/\/script\.google\.com\/macros\/[^\s"'>]+/);
-                                if (match) {
-                                    syncUrl = match[0].trim();
-                                }
-                            }
-                        } catch (e) {
-                            // Ignored
-                        }
-                    }
-                }
-
-                if (syncUrl) {
+                // ── Unified QR decode resolver ────────────────────
+                const resolvedUrl = resolveQrSyncUrl(decodedText);
+                if (resolvedUrl) {
+                    qrResolved = true;
                     stopQrScanner();
                     closeModal('qr-scanner-modal');
-                    
-                    DB.setCloudConfig(true, syncUrl);
+                    DB.setCloudConfig(true, resolvedUrl);
                     showToast('เชื่อมต่อฐานข้อมูลคลาวด์ทีมงานสำเร็จ! กำลังโหลด...', 'success');
-                    setTimeout(() => {
-                        location.reload();
-                    }, 1200);
+                    setTimeout(() => { location.reload(); }, 1200);
                 } else {
-                    showToast('QR Code นี้ไม่มีสิทธิ์เข้าถึงระบบแอร์ Spairdee', 'error');
+                    showToast('QR Code นี้ไม่ถูกต้อง กรุณาใช้ QR Code ที่ได้รับจากร้าน', 'error');
                 }
             },
             (errorMessage) => {
-                // Ignore decoding errors
+                // Ignore frame-by-frame decoding errors (normal during scanning)
             }
         ).then(() => {
             if (statusEl) statusEl.textContent = "เล็งกล้องไปที่ QR Code ของทีมงานเพื่อซิงก์ระบบ";
