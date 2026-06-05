@@ -610,6 +610,21 @@ const App = (() => {
                 });
             }
 
+            // Advanced settings collapse/expand toggle
+            const linkToggleAdvanced = $('link-toggle-advanced-settings');
+            const advancedSection = $('settings-advanced-cloud-url');
+            if (linkToggleAdvanced && advancedSection) {
+                linkToggleAdvanced.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const isHidden = advancedSection.style.display === 'none';
+                    advancedSection.style.display = isHidden ? 'block' : 'none';
+                    linkToggleAdvanced.innerHTML = isHidden 
+                        ? '<i data-lucide="chevron-up" style="width:12px; height:12px; display:inline-block; vertical-align:middle;"></i> ซ่อนการตั้งค่าขั้นสูง' 
+                        : '<i data-lucide="chevron-down" style="width:12px; height:12px; display:inline-block; vertical-align:middle;"></i> ตั้งค่าขั้นสูง (แก้ไขลิงก์ระบบ)';
+                    if (window.lucide) lucide.createIcons();
+                });
+            }
+
             btnCloudUpload.addEventListener('click', () => {
                 if (confirm('คุณต้องการอัปเดตข้อมูลบนคลาวด์ด้วยข้อมูลในเครื่องของคุณใช่หรือไม่? (ข้อมูลเดิมบน Google Sheet ในชีต ACSP จะถูกเขียนทับ)')) {
                     btnCloudUpload.disabled = true;

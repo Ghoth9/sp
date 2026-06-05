@@ -528,59 +528,91 @@ const AppointmentsModule = (() => {
     }
 
     function shareTodayScheduleToLine() {
-        const today = todayStr();
-        const appointments = DB.getAll('appointments').filter(a => a.date === today);
-
-        if (appointments.length === 0) {
-            App.showToast('ไม่มีงานนัดหมายสำหรับวันนี้', 'info');
-            return;
+        const btn = $('btn-share-line-today');
+        
+        // If Cloud Mode is enabled, trigger backend instantly!
+        if (DB.isCloudEnabled() && DB.getCloudUrl()) {
+            if (btn) {
+                btn.disabled = true;
+                btn.innerHTML = '<i class="spinner" style="display:inline-block; width:12px; height:12px; border:2px solid; border-top-color:transparent; border-radius:50%; animation:spin 1s linear infinite; margin-right:4px;"></i> กำลังส่งเข้า LINE...';
+            }
+            App.showToast('กำลังสั่งให้ระบบหลังบ้านส่งคิวงานเข้า LINE...', 'info');
+            
+            DB.triggerCloudLineReport()
+                .then(() => {
+                    App.showToast('ส่งคิวงานเข้ากลุ่ม LINE ของทีมงานสำเร็จแล้ว! (ผ่านระบบคลาวด์)', 'success');
+                })
+                .catch(err => {
+                    App.showToast('การส่งผ่านคลาวด์ขัดข้อง: ' + err + ' จะเปลี่ยนไปใช้การคัดลอกส่งมือแทน', 'warning');
+                    runClientSideLineShare();
+                })
+                .finally(() => {
+                    if (btn) {
+                        btn.disabled = false;
+                        btn.innerHTML = '<i data-lucide="share-2"></i> ส่งคิวงานเข้า LINE';
+                        if (window.lucide) lucide.createIcons();
+                    }
+                });
+        } else {
+            // Fallback for Demo Mode
+            runClientSideLineShare();
         }
 
-        // Sort by time
-        appointments.sort((a, b) => (a.time || '').localeCompare(b.time || ''));
+        function runClientSideLineShare() {
+            const today = todayStr();
+            const appointments = DB.getAll('appointments').filter(a => a.date === today);
 
-        // Format message
-        let msg = `❄️ สรุปคิวงานบริการแอร์ วันนี้ (${App.formatDate(today)}) ❄️\n\n`;
-
-        appointments.forEach((a, index) => {
-            const cust = DB.getById('customers', a.customerId);
-            const custName = cust ? cust.name : 'ไม่ระบุ';
-            const custPhone = cust ? cust.phone : 'ไม่ระบุ';
-            const custAddress = cust ? cust.address : 'ไม่ระบุ';
-            const mapsLink = cust ? cust.mapsLink : '';
-
-            const statusLabel = STATUS_MAP[a.status] ? STATUS_MAP[a.status].label : a.status;
-
-            msg += `คิวที่ ${index + 1}: ${a.time || '--:--'} น. | ${a.serviceType || 'งานบริการ'}\n`;
-            msg += `• ลูกค้า: ${custName} (${custPhone})\n`;
-            msg += `• ที่อยู่: ${custAddress}\n`;
-            if (mapsLink) {
-                msg += `• แผนที่: ${mapsLink}\n`;
+            if (appointments.length === 0) {
+                App.showToast('ไม่มีงานนัดหมายสำหรับวันนี้', 'info');
+                return;
             }
-            msg += `• สถานะ: ${statusLabel}\n`;
-            if (a.notes) {
-                msg += `• หมายเหตุ: ${a.notes}\n`;
-            }
-            msg += `-----------------------\n`;
-        });
 
-        msg += `\n*แจ้งเตือน*: หากบ้านไหนไม่อยู่หรือติดต่อไม่ได้ ให้ช่างอัปเดตระบบเป็นสถานะ "ไม่มีคนอยู่/ติดต่อไม่ได้" ทันทีครับ`;
+            // Sort by time
+            appointments.sort((a, b) => (a.time || '').localeCompare(b.time || ''));
 
-        // Copy formatted message to clipboard first for bulletproof fallback
-        App.copyToClipboard(msg)
-            .then(() => {
-                App.showToast('คัดลอกสรุปคิวงานวันนี้ลงคลิปบอร์ดแล้ว! และกำลังเปิดหน้าแชร์ไป LINE...', 'success');
-                setTimeout(() => {
+            // Format message
+            let msg = `❄️ สรุปคิวงานบริการแอร์ วันนี้ (${App.formatDate(today)}) ❄️\n\n`;
+
+            appointments.forEach((a, index) => {
+                const cust = DB.getById('customers', a.customerId);
+                const custName = cust ? cust.name : 'ไม่ระบุ';
+                const custPhone = cust ? cust.phone : 'ไม่ระบุ';
+                const custAddress = cust ? cust.address : 'ไม่ระบุ';
+                const mapsLink = cust ? cust.mapsLink : '';
+
+                const statusLabel = STATUS_MAP[a.status] ? STATUS_MAP[a.status].label : a.status;
+
+                msg += `คิวที่ ${index + 1}: ${a.time || '--:--'} น. | ${a.serviceType || 'งานบริการ'}\n`;
+                msg += `• ลูกค้า: ${custName} (${custPhone})\n`;
+                msg += `• ที่อยู่: ${custAddress}\n`;
+                if (mapsLink) {
+                    msg += `• แผนที่: ${mapsLink}\n`;
+                }
+                msg += `• สถานะ: ${statusLabel}\n`;
+                if (a.notes) {
+                    msg += `• หมายเหตุ: ${a.notes}\n`;
+                }
+                msg += `-----------------------\n`;
+            });
+
+            msg += `\n*แจ้งเตือน*: หากบ้านไหนไม่อยู่หรือติดต่อไม่ได้ ให้ช่างอัปเดตระบบเป็นสถานะ "ไม่มีคนอยู่/ติดต่อไม่ได้" ทันทีครับ`;
+
+            // Copy formatted message to clipboard first for bulletproof fallback
+            App.copyToClipboard(msg)
+                .then(() => {
+                    App.showToast('คัดลอกสรุปคิวงานวันนี้ลงคลิปบอร์ดแล้ว! และกำลังเปิดหน้าแชร์ไป LINE...', 'success');
+                    setTimeout(() => {
+                        const lineUrl = `https://line.me/R/share?text=${encodeURIComponent(msg)}`;
+                        window.open(lineUrl, '_blank');
+                    }, 1000);
+                })
+                .catch(err => {
+                    console.warn("[LINE Share] Clipboard failed:", err);
+                    App.showToast('ไม่สามารถคัดลอกลงคลิปบอร์ดได้ แต่กำลังเปิดแชร์ไป LINE...', 'warning');
                     const lineUrl = `https://line.me/R/share?text=${encodeURIComponent(msg)}`;
                     window.open(lineUrl, '_blank');
-                }, 1000);
-            })
-            .catch(err => {
-                console.warn("[LINE Share] Clipboard failed:", err);
-                App.showToast('ไม่สามารถคัดลอกลงคลิปบอร์ดได้ แต่กำลังเปิดแชร์ไป LINE...', 'warning');
-                const lineUrl = `https://line.me/R/share?text=${encodeURIComponent(msg)}`;
-                window.open(lineUrl, '_blank');
-            });
+                });
+        }
     }
 
     function shareAppointmentMessage(id) {
