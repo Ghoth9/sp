@@ -613,62 +613,6 @@ const App = (() => {
                 showToast('บันทึก Web App URL แล้ว', 'success');
             });
 
-            // Demo Banner QR Code Scan click
-            const btnBannerScanQr = $('btn-banner-scan-qr');
-            if (btnBannerScanQr) {
-                btnBannerScanQr.addEventListener('click', () => {
-                    startQrScanner();
-                });
-            }
-
-            // Settings Page QR Code Scan click
-            const btnSettingsScanQr = $('btn-settings-scan-qr');
-            if (btnSettingsScanQr) {
-                btnSettingsScanQr.addEventListener('click', () => {
-                    startQrScanner();
-                });
-            }
-
-            // QR File Upload scan triggers
-            const btnUploadQrFile = $('btn-upload-qr-file');
-            const qrFileInput = $('qr-file-input');
-            if (btnUploadQrFile && qrFileInput) {
-                btnUploadQrFile.addEventListener('click', () => {
-                    qrFileInput.click();
-                });
-
-                qrFileInput.addEventListener('change', (e) => {
-                    const file = e.target.files[0];
-                    if (!file) return;
-
-                    if (!html5QrcodeScanner) {
-                        html5QrcodeScanner = new Html5Qrcode("qr-reader");
-                    }
-
-                    showToast('กำลังวิเคราะห์รูปภาพ QR Code...', 'info');
-                    
-                    html5QrcodeScanner.scanFile(file, true)
-                        .then(decodedText => {
-                            console.log("[QR Scanner File] Decoded:", decodedText);
-                            qrFileInput.value = '';
-                            const syncUrl = resolveQrSyncUrl(decodedText);
-                            if (syncUrl) {
-                                stopQrScanner();
-                                closeModal('qr-scanner-modal');
-                                DB.setCloudConfig(true, syncUrl);
-                                showToast('เชื่อมต่อฐานข้อมูลคลาวด์ทีมงานสำเร็จ! กำลังโหลด...', 'success');
-                                setTimeout(() => { location.reload(); }, 1200);
-                            } else {
-                                showToast('QR Code นี้ไม่ถูกต้อง กรุณาใช้ QR Code ที่ได้รับจากร้าน', 'error');
-                            }
-                        })
-                        .catch(err => {
-                            console.warn("[QR Scanner File] Error:", err);
-                            qrFileInput.value = '';
-                            showToast('ไม่พบ QR Code ในรูปภาพที่เลือก กรุณาลองใช้รูปอื่น', 'error');
-                        });
-                });
-            }
 
             // Click on Topbar Cloud Badge -> Go to Settings page
             const cloudBadge = $('topbar-cloud-badge');
@@ -734,6 +678,49 @@ const App = (() => {
                         btnCloudTriggerLine.innerHTML = '<i data-lucide="send"></i> รันคำสั่งส่ง LINE';
                         if (window.lucide) lucide.createIcons();
                         updateButtonStates();
+                    });
+            });
+        }
+
+        // QR Code scan buttons + file input -- always bind, regardless of cloud config state
+        const btnBannerScanQr = $('btn-banner-scan-qr');
+        if (btnBannerScanQr) {
+            btnBannerScanQr.addEventListener('click', () => startQrScanner());
+        }
+        const btnSettingsScanQr = $('btn-settings-scan-qr');
+        if (btnSettingsScanQr) {
+            btnSettingsScanQr.addEventListener('click', () => startQrScanner());
+        }
+        const btnUploadQrFile = $('btn-upload-qr-file');
+        const qrFileInput = $('qr-file-input');
+        if (btnUploadQrFile && qrFileInput) {
+            btnUploadQrFile.addEventListener('click', () => qrFileInput.click());
+            qrFileInput.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                if (!html5QrcodeScanner) {
+                    html5QrcodeScanner = new Html5Qrcode('qr-reader');
+                }
+                showToast('กำลังวิเคราะห์รูปภาพ QR Code...', 'info');
+                html5QrcodeScanner.scanFile(file, true)
+                    .then(decodedText => {
+                        console.log('[QR Scanner File] Decoded:', decodedText);
+                        qrFileInput.value = '';
+                        const syncUrl = resolveQrSyncUrl(decodedText);
+                        if (syncUrl) {
+                            stopQrScanner();
+                            closeModal('qr-scanner-modal');
+                            DB.setCloudConfig(true, syncUrl);
+                            showToast('เชื่อมต่อฐานข้อมูลคลาวด์ทีมงานสำเร็จ! กำลังโหลด...', 'success');
+                            setTimeout(() => { location.reload(); }, 1200);
+                        } else {
+                            showToast('QR Code นี้ไม่ถูกต้อง กรุณาใช้ QR Code ที่ได้รับจากร้าน', 'error');
+                        }
+                    })
+                    .catch(err => {
+                        console.warn('[QR Scanner File] Error:', err);
+                        qrFileInput.value = '';
+                        showToast('ไม่พบ QR Code ในรูปภาพที่เลือก กรุณาลองใช้รูปอื่น', 'error');
                     });
             });
         }
