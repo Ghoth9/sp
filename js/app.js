@@ -310,6 +310,11 @@ const App = (() => {
     }
 
     function updateStorageUsage() {
+        const demoBanner = $('demo-banner');
+        if (demoBanner) {
+            demoBanner.style.display = DB.isCloudEnabled() ? 'none' : 'block';
+        }
+
         const label = $('storage-usage');
         const dbTypeEl = $('settings-db-type');
         if (dbTypeEl) {
@@ -704,7 +709,16 @@ const App = (() => {
 
     // ── App Initialization ────────────────────────────────────
     function init() {
+        const progressEl = $('splash-loader-progress');
+        const statusEl = $('splash-status');
+
+        const updateProgress = (pct, text) => {
+            if (progressEl) progressEl.style.width = pct + '%';
+            if (statusEl) statusEl.textContent = text;
+        };
+
         // 1. Initialize Database
+        updateProgress(20, 'กำลังเชื่อมต่อฐานข้อมูล...');
         DB.init();
 
         // Check if sync was configured from URL
@@ -713,12 +727,14 @@ const App = (() => {
         }
 
         // 2. Setup Events
+        updateProgress(50, 'กำลังเตรียมเมนูการใช้งาน...');
         setupGlobalEvents();
 
-        // Update Storage labels initially
+        // Update Storage labels initially (also sets demo banner display)
         updateStorageUsage();
 
         // 3. Initialize Feature Modules
+        updateProgress(75, 'กำลังโหลดข้อมูลบริการ...');
         try {
             if (typeof DashboardModule !== 'undefined') DashboardModule.init();
             if (typeof CustomersModule !== 'undefined') CustomersModule.init();
@@ -729,12 +745,23 @@ const App = (() => {
         }
 
         // 4. Initial navigation
+        updateProgress(90, 'กำลังเปิดเซสชัน...');
         navigateTo('dashboard');
 
         // 5. Icons Render
         if (window.lucide) {
             lucide.createIcons();
         }
+
+        // Complete loading and fade out splash screen
+        updateProgress(100, 'แอปพร้อมใช้งาน');
+        setTimeout(() => {
+            const splash = $('app-splash-screen');
+            if (splash) {
+                splash.classList.add('fade-out');
+                setTimeout(() => splash.remove(), 500);
+            }
+        }, 400);
 
         // 6. PWA Installation Event Listeners
         window.addEventListener('beforeinstallprompt', (e) => {
