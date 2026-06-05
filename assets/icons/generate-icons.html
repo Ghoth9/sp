@@ -75,138 +75,61 @@
             ctx.arc(size / 2, size / 2, size / 2, 0, Math.PI * 2);
             ctx.fill();
 
-            // Outer ring
-            ctx.strokeStyle = 'rgba(6, 182, 212, 0.15)';
-            ctx.lineWidth = 2 * scale;
+            // Stylized SP Emblem
+
+            // Draw Left block (S) - Black/Slate
+            ctx.fillStyle = '#1e293b';
             ctx.beginPath();
-            ctx.arc(size / 2, size / 2, 230 * scale, 0, Math.PI * 2);
-            ctx.stroke();
-
-            const cx = 256 * scale;
-            const cy = 230 * scale;
-
-            // Glow
-            ctx.shadowColor = '#06b6d4';
-            ctx.shadowBlur = 12 * scale;
-
-            const cyanGrad = ctx.createLinearGradient(cx - 90 * scale, cy - 90 * scale, cx + 90 * scale, cy + 90 * scale);
-            cyanGrad.addColorStop(0, '#22d3ee');
-            cyanGrad.addColorStop(1, '#0891b2');
-
-            // Center dot
-            ctx.fillStyle = cyanGrad;
-            ctx.beginPath();
-            ctx.arc(cx, cy, 12 * scale, 0, Math.PI * 2);
-            ctx.fill();
-
-            // Draw snowflake arms
-            ctx.strokeStyle = cyanGrad;
-            ctx.lineCap = 'round';
-
-            function drawArm(angle) {
-                ctx.save();
-                ctx.translate(cx, cy);
-                ctx.rotate(angle);
-
-                // Main arm
-                ctx.lineWidth = 8 * scale;
-                ctx.beginPath();
-                ctx.moveTo(0, -18 * scale);
-                ctx.lineTo(0, -90 * scale);
-                ctx.stroke();
-
-                // Branch at 60
-                ctx.lineWidth = 6 * scale;
-                ctx.beginPath();
-                ctx.moveTo(0, -60 * scale);
-                ctx.lineTo(-22 * scale, -82 * scale);
-                ctx.stroke();
-                ctx.beginPath();
-                ctx.moveTo(0, -60 * scale);
-                ctx.lineTo(22 * scale, -82 * scale);
-                ctx.stroke();
-
-                // Branch at 40
-                ctx.lineWidth = 5 * scale;
-                ctx.beginPath();
-                ctx.moveTo(0, -40 * scale);
-                ctx.lineTo(-15 * scale, -55 * scale);
-                ctx.stroke();
-                ctx.beginPath();
-                ctx.moveTo(0, -40 * scale);
-                ctx.lineTo(15 * scale, -55 * scale);
-                ctx.stroke();
-
-                ctx.restore();
-            }
-
-            for (let i = 0; i < 6; i++) {
-                drawArm(i * Math.PI / 3);
-            }
-
-            // Wrench
-            ctx.save();
-            ctx.translate(330 * scale, 330 * scale);
-            ctx.rotate(-Math.PI / 4);
-
-            ctx.shadowBlur = 8 * scale;
-            ctx.fillStyle = '#06b6d4';
-
-            // Handle
-            const rr = 6 * scale;
-            const rw = 16 * scale;
-            const rh = 75 * scale;
-            const rx = -8 * scale;
-            const ry = -60 * scale;
-            ctx.beginPath();
-            ctx.moveTo(rx + rr, ry);
-            ctx.lineTo(rx + rw - rr, ry);
-            ctx.quadraticCurveTo(rx + rw, ry, rx + rw, ry + rr);
-            ctx.lineTo(rx + rw, ry + rh - rr);
-            ctx.quadraticCurveTo(rx + rw, ry + rh, rx + rw - rr, ry + rh);
-            ctx.lineTo(rx + rr, ry + rh);
-            ctx.quadraticCurveTo(rx, ry + rh, rx, ry + rh - rr);
-            ctx.lineTo(rx, ry + rr);
-            ctx.quadraticCurveTo(rx, ry, rx + rr, ry);
-            ctx.fill();
-
-            // Wrench head
-            ctx.beginPath();
-            ctx.moveTo(-20 * scale, -60 * scale);
-            ctx.bezierCurveTo(-20 * scale, -80 * scale, -8 * scale, -90 * scale, 0, -90 * scale);
-            ctx.bezierCurveTo(8 * scale, -90 * scale, 20 * scale, -80 * scale, 20 * scale, -60 * scale);
-            ctx.lineTo(12 * scale, -60 * scale);
-            ctx.bezierCurveTo(12 * scale, -72 * scale, 8 * scale, -80 * scale, 0, -80 * scale);
-            ctx.bezierCurveTo(-8 * scale, -80 * scale, -12 * scale, -72 * scale, -12 * scale, -60 * scale);
+            ctx.moveTo(186 * scale, 150 * scale);
+            ctx.lineTo(271 * scale, 150 * scale);
+            ctx.lineTo(231 * scale, 300 * scale);
+            ctx.lineTo(146 * scale, 300 * scale);
             ctx.closePath();
             ctx.fill();
 
-            // Grip lines
-            ctx.strokeStyle = '#0a0e17';
-            ctx.lineWidth = 2 * scale;
-            ctx.shadowBlur = 0;
-            for (let y of [-6, 0, 6]) {
-                ctx.beginPath();
-                ctx.moveTo(-5 * scale, y * scale);
-                ctx.lineTo(5 * scale, y * scale);
-                ctx.stroke();
-            }
+            // Draw Right block (P) - Blue
+            ctx.fillStyle = '#00a2e8';
+            ctx.beginPath();
+            ctx.moveTo(281 * scale, 150 * scale);
+            ctx.lineTo(366 * scale, 150 * scale);
+            ctx.lineTo(326 * scale, 300 * scale);
+            ctx.lineTo(241 * scale, 300 * scale);
+            ctx.closePath();
+            ctx.fill();
 
-            ctx.restore();
+            // Draw White S Path
+            ctx.strokeStyle = '#ffffff';
+            ctx.lineWidth = 14 * scale;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            ctx.beginPath();
+            ctx.moveTo(241 * scale, 175 * scale);
+            ctx.lineTo(211 * scale, 175 * scale);
+            ctx.lineTo(196 * scale, 220 * scale);
+            ctx.lineTo(226 * scale, 220 * scale);
+            ctx.lineTo(211 * scale, 265 * scale);
+            ctx.lineTo(181 * scale, 265 * scale);
+            ctx.stroke();
 
-            // Text
+            // Draw White P Path
+            ctx.beginPath();
+            ctx.moveTo(286 * scale, 275 * scale);
+            ctx.lineTo(321 * scale, 175 * scale);
+            ctx.lineTo(351 * scale, 175 * scale);
+            ctx.lineTo(336 * scale, 225 * scale);
+            ctx.lineTo(306 * scale, 225 * scale);
+            ctx.stroke();
+
+            // Draw Text: AIRCON AND SERVICE
             ctx.shadowColor = 'transparent';
             ctx.shadowBlur = 0;
             ctx.textAlign = 'center';
-
-            ctx.fillStyle = '#e2e8f0';
-            ctx.font = `700 ${48 * scale}px Inter, Arial, sans-serif`;
-            ctx.letterSpacing = `${6 * scale}px`;
-            ctx.fillText('SP', 256 * scale, 400 * scale);
-
-            ctx.fillStyle = '#06b6d4';
-            ctx.font = `500 ${22 * scale}px Inter, Arial, sans-serif`;
-            ctx.fillText('SPAIRDEE', 256 * scale, 435 * scale);
+            ctx.fillStyle = '#94a3b8';
+            ctx.font = `700 ${14 * scale}px Inter, Arial, sans-serif`;
+            if ('letterSpacing' in ctx) {
+                ctx.letterSpacing = `${3 * scale}px`;
+            }
+            ctx.fillText('AIRCON AND SERVICE', 256 * scale, 340 * scale);
         }
 
         function download(canvasId, filename) {

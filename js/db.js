@@ -106,7 +106,7 @@ const DB = (() => {
       appointments: 'APT',
     };
     const id = _nextId(prefixMap[collection], key);
-    const record = { id, ...data, createdAt: new Date().toISOString() };
+    const record = { id, ...data, createdAt: data.createdAt || new Date().toISOString() };
     const all = _getAll(key);
     all.push(record);
     _saveAll(key, all);

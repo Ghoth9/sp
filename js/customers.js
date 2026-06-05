@@ -80,6 +80,7 @@ const CustomersModule = (() => {
                         <div class="customer-meta">
                             <span><i data-lucide="phone"></i> ${c.phone || '-'}</span>
                             ${c.lineId ? `<span><i data-lucide="message-circle"></i> ${c.lineId}</span>` : ''}
+                            <span><i data-lucide="calendar" style="width:12px;height:12px;"></i> ${App.formatDate(c.createdAt)}</span>
                         </div>
                         ${(() => {
                             if (!c.address) return '';
@@ -124,6 +125,7 @@ const CustomersModule = (() => {
                             <th>ชื่อ</th>
                             <th>โทรศัพท์</th>
                             <th class="hide-mobile">LINE ID</th>
+                            <th class="hide-mobile">วันที่เพิ่ม</th>
                             <th class="hide-mobile">บริการ</th>
                             <th>ยอดใช้จ่าย</th>
                             <th>จัดการ</th>
@@ -143,6 +145,7 @@ const CustomersModule = (() => {
                     </td>
                     <td>${c.phone || '-'}</td>
                     <td class="hide-mobile">${c.lineId || '-'}</td>
+                    <td class="hide-mobile">${App.formatDate(c.createdAt)}</td>
                     <td class="hide-mobile">${svcCount}</td>
                     <td>${App.formatCurrency(spent)}</td>
                     <td>
@@ -193,6 +196,13 @@ const CustomersModule = (() => {
         const form = $('customer-form');
         if (form) form.reset();
         $('customer-form-id').value = '';
+        
+        const today = new Date();
+        const yyyy = today.getFullYear();
+        const mm = String(today.getMonth() + 1).padStart(2, '0');
+        const dd = String(today.getDate()).padStart(2, '0');
+        $('customer-form-created-at').value = `${yyyy}-${mm}-${dd}`;
+        
         $('customer-modal-title').textContent = 'เพิ่มลูกค้าใหม่';
     }
 
@@ -203,6 +213,10 @@ const CustomersModule = (() => {
         $('customer-form-address').value = customer.address || '';
         $('customer-form-maps').value = customer.mapsLink || '';
         $('customer-form-line').value = customer.lineId || '';
+        
+        const dateVal = customer.createdAt ? customer.createdAt.slice(0, 10) : '';
+        $('customer-form-created-at').value = dateVal;
+        
         $('customer-form-notes').value = customer.notes || '';
         $('customer-modal-title').textContent = 'แก้ไขข้อมูลลูกค้า';
     }
@@ -214,6 +228,7 @@ const CustomersModule = (() => {
         const address = $('customer-form-address').value.trim();
         const mapsLink = $('customer-form-maps').value.trim();
         const lineId = $('customer-form-line').value.trim();
+        const createdAtVal = $('customer-form-created-at').value;
         const notes = $('customer-form-notes').value.trim();
 
         if (!name) {
@@ -225,6 +240,13 @@ const CustomersModule = (() => {
         if (id) {
             // Update
             const existing = DB.getById('customers', id);
+            let updatedCreatedAt = existing.createdAt;
+            if (createdAtVal) {
+                const newDateStr = createdAtVal;
+                if (!existing.createdAt || !existing.createdAt.startsWith(newDateStr)) {
+                    updatedCreatedAt = new Date(newDateStr + 'T00:00:00').toISOString();
+                }
+            }
             DB.update('customers', id, {
                 ...existing,
                 name,
@@ -232,11 +254,14 @@ const CustomersModule = (() => {
                 address,
                 mapsLink,
                 lineId,
-                notes
+                notes,
+                createdAt: updatedCreatedAt
             });
             App.showToast('อัปเดตข้อมูลลูกค้าเรียบร้อย', 'success');
         } else {
             // Add
+            const dateStr = createdAtVal || new Date().toISOString().slice(0, 10);
+            const createdAt = new Date(dateStr + 'T00:00:00').toISOString();
             DB.add('customers', {
                 id: nextId(),
                 name,
@@ -245,7 +270,7 @@ const CustomersModule = (() => {
                 mapsLink,
                 lineId,
                 notes,
-                createdAt: new Date().toISOString()
+                createdAt
             });
             App.showToast('เพิ่มลูกค้าใหม่เรียบร้อย', 'success');
         }
