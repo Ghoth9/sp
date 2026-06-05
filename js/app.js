@@ -555,6 +555,16 @@ const App = (() => {
                 });
             }
 
+            const btnDownloadShareQR = $('btn-download-share-qr');
+            if (btnDownloadShareQR) {
+                btnDownloadShareQR.addEventListener('click', () => {
+                    const qrImg = $('share-qr-img');
+                    if (qrImg && qrImg.src) {
+                        downloadQrCode(qrImg.src);
+                    }
+                });
+            }
+
             // Save configs on changes
             cloudEnabledToggle.addEventListener('change', (e) => {
                 if (cloudEnabledToggle.checked) {
@@ -616,6 +626,78 @@ const App = (() => {
             if (btnSettingsScanQr) {
                 btnSettingsScanQr.addEventListener('click', () => {
                     startQrScanner();
+                });
+            }
+
+            // QR File Upload scan triggers
+            const btnUploadQrFile = $('btn-upload-qr-file');
+            const qrFileInput = $('qr-file-input');
+            if (btnUploadQrFile && qrFileInput) {
+                btnUploadQrFile.addEventListener('click', () => {
+                    qrFileInput.click();
+                });
+
+                qrFileInput.addEventListener('change', (e) => {
+                    const file = e.target.files[0];
+                    if (!file) return;
+
+                    if (!html5QrcodeScanner) {
+                        html5QrcodeScanner = new Html5Qrcode("qr-reader");
+                    }
+
+                    showToast('กำลังวิเคราะห์รูปภาพ QR Code...', 'info');
+                    
+                    html5QrcodeScanner.scanFile(file, true)
+                        .then(decodedText => {
+                            console.log("[QR Scanner File] Decoded:", decodedText);
+                            qrFileInput.value = ''; // clear input
+                            
+                            let syncUrl = '';
+                            if (decodedText.includes('script.google.com/macros/')) {
+                                syncUrl = decodedText.trim();
+                            } else {
+                                try {
+                                    let testUrl = decodedText.trim();
+                                    if (!testUrl.startsWith('http://') && !testUrl.startsWith('https://')) {
+                                        testUrl = 'https://' + testUrl;
+                                    }
+                                    const parsedUrl = new URL(testUrl);
+                                    const urlParam = parsedUrl.searchParams.get('sync_url');
+                                    if (urlParam && urlParam.includes('script.google.com/macros/')) {
+                                        syncUrl = urlParam.trim();
+                                    }
+                                } catch (err) {
+                                    try {
+                                        const decodedDecoded = decodeURIComponent(decodedText);
+                                        if (decodedDecoded.includes('script.google.com/macros/')) {
+                                            const match = decodedDecoded.match(/https?:\/\/script\.google\.com\/macros\/[^\s"'>]+/);
+                                            if (match) {
+                                                syncUrl = match[0].trim();
+                                            }
+                                        }
+                                    } catch (ex) {
+                                        // Ignore
+                                    }
+                                }
+                            }
+
+                            if (syncUrl) {
+                                stopQrScanner();
+                                closeModal('qr-scanner-modal');
+                                DB.setCloudConfig(true, syncUrl);
+                                showToast('เชื่อมต่อฐานข้อมูลคลาวด์ทีมงานสำเร็จ! กำลังโหลด...', 'success');
+                                setTimeout(() => {
+                                    location.reload();
+                                }, 1200);
+                            } else {
+                                showToast('QR Code นี้ไม่มีสิทธิ์เข้าถึงระบบแอร์ Spairdee', 'error');
+                            }
+                        })
+                        .catch(err => {
+                            console.warn("[QR Scanner File] Error:", err);
+                            qrFileInput.value = '';
+                            showToast('ไม่พบ QR Code ในรูปภาพที่เลือก กรุณาลองใช้รูปอื่น', 'error');
+                        });
                 });
             }
 
@@ -972,6 +1054,28 @@ const App = (() => {
 
         container.appendChild(toast);
         if (window.lucide) lucide.createIcons();
+    }
+    async function downloadQrCode(imgUrl) {
+        try {
+            showToast('กำลังเตรียมไฟล์ดาวน์โหลด...', 'info');
+            const response = await fetch(imgUrl);
+            const blob = await response.blob();
+            const blobUrl = URL.createObjectURL(blob);
+            
+            const link = document.createElement('a');
+            link.href = blobUrl;
+            link.download = 'spairdee-share-permission-qr.png';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(blobUrl);
+            showToast('ดาวน์โหลด QR Code สำเร็จ!', 'success');
+        } catch (err) {
+            console.error("Download QR error:", err);
+            // Fallback: open in new tab so they can save
+            window.open(imgUrl, '_blank');
+            showToast('เปิดรูปในหน้าต่างใหม่ กรุณากดค้างที่รูปเพื่อบันทึก', 'info');
+        }
     }
 
     function copyToClipboard(text) {
