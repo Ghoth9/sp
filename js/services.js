@@ -193,7 +193,7 @@ const ServicesModule = (() => {
                             <tr>
                                 <th>วันที่</th>
                                 <th>ลูกค้า</th>
-                                <th>ประเภท</th>
+                                <th class="hide-mobile">ประเภท</th>
                                 <th class="hide-mobile">แอร์</th>
                                 <th class="hide-mobile">อาการ/งาน</th>
                                 <th class="hide-mobile">ช่าง</th>
@@ -216,7 +216,7 @@ const ServicesModule = (() => {
                     <tr id="service-row-${s.id}">
                         <td class="nowrap">${App.formatDate(s.serviceDate)}</td>
                         <td>${custName}</td>
-                        <td><span class="service-type-badge">${s.type}</span></td>
+                        <td class="hide-mobile"><span class="service-type-badge">${s.type}</span></td>
                         <td class="text-muted small hide-mobile">${acInfo || '-'}</td>
                         <td class="truncate-cell hide-mobile" title="${(s.symptoms || '') + ' → ' + (s.solution || '')}">${s.symptoms || '-'}</td>
                         <td class="hide-mobile">${s.technician || '-'}</td>

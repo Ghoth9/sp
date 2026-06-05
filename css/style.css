@@ -2262,13 +2262,30 @@ h6 { font-size: var(--text-base); }
     display: none !important;
   }
 
+  html, body {
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+    overflow-x: hidden;
+    max-width: 100%;
+  }
+
   .main-content {
     margin-left: 0;
     padding-bottom: 80px; /* Space for fixed bottom navigation bar */
+    overflow-x: hidden;
+    max-width: 100%;
   }
 
   .page-content {
-    padding: var(--space-md);
+    padding: 10px 6px;
+    overflow-x: hidden;
+    max-width: 100%;
+  }
+
+  .card {
+    padding: 12px;
+    border-radius: 12px;
+    margin-bottom: 12px;
   }
 
   .top-header {
@@ -2286,7 +2303,10 @@ h6 { font-size: var(--text-base); }
     bottom: 0;
     left: 0;
     right: 0;
-    height: 64px;
+    height: calc(60px + env(safe-area-inset-bottom, 0px));
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    will-change: transform;
+    transform: translate3d(0, 0, 0);
     background: rgba(255, 255, 255, 0.90); /* Light glassmorphic background */
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);

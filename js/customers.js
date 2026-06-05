@@ -127,7 +127,7 @@ const CustomersModule = (() => {
                             <th class="hide-mobile">LINE ID</th>
                             <th class="hide-mobile">วันที่เพิ่ม</th>
                             <th class="hide-mobile">บริการ</th>
-                            <th>ยอดใช้จ่าย</th>
+                            <th class="hide-mobile">ยอดใช้จ่าย</th>
                             <th>จัดการ</th>
                         </tr>
                     </thead>
@@ -147,7 +147,7 @@ const CustomersModule = (() => {
                     <td class="hide-mobile">${c.lineId || '-'}</td>
                     <td class="hide-mobile">${App.formatDate(c.createdAt)}</td>
                     <td class="hide-mobile">${svcCount}</td>
-                    <td>${App.formatCurrency(spent)}</td>
+                    <td class="hide-mobile">${App.formatCurrency(spent)}</td>
                     <td>
                         <div class="table-actions">
                             <button class="btn-icon btn-view-customer" data-id="${c.id}" title="ดูรายละเอียด">

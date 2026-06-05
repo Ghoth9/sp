@@ -1041,11 +1041,42 @@ const App = (() => {
                     // Ignored
                 }
 
+                let syncUrl = '';
                 if (decodedText.includes('script.google.com/macros/')) {
+                    syncUrl = decodedText.trim();
+                } else {
+                    // Try to parse URL query param sync_url
+                    try {
+                        let testUrl = decodedText.trim();
+                        if (!testUrl.startsWith('http://') && !testUrl.startsWith('https://')) {
+                            testUrl = 'https://' + testUrl;
+                        }
+                        const parsedUrl = new URL(testUrl);
+                        const urlParam = parsedUrl.searchParams.get('sync_url');
+                        if (urlParam && urlParam.includes('script.google.com/macros/')) {
+                            syncUrl = urlParam.trim();
+                        }
+                    } catch (err) {
+                        // Not a parseable URL, try decoding raw characters
+                        try {
+                            const decodedDecoded = decodeURIComponent(decodedText);
+                            if (decodedDecoded.includes('script.google.com/macros/')) {
+                                const match = decodedDecoded.match(/https?:\/\/script\.google\.com\/macros\/[^\s"'>]+/);
+                                if (match) {
+                                    syncUrl = match[0].trim();
+                                }
+                            }
+                        } catch (e) {
+                            // Ignored
+                        }
+                    }
+                }
+
+                if (syncUrl) {
                     stopQrScanner();
                     closeModal('qr-scanner-modal');
                     
-                    DB.setCloudConfig(true, decodedText.trim());
+                    DB.setCloudConfig(true, syncUrl);
                     showToast('เชื่อมต่อฐานข้อมูลคลาวด์ทีมงานสำเร็จ! กำลังโหลด...', 'success');
                     setTimeout(() => {
                         location.reload();
