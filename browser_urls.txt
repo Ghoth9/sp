@@ -1,0 +1,8 @@
+Found history file: C:\Users\golst\AppData\Local\Microsoft\Edge\User Data\Default\History
+Last visited Spairdee URLs in Default:
+  URL: https://spairdee.netlify.app/index.html | Title: Spairdee — ระบบจัดการร้านแอร์
+  URL: https://spairdee.netlify.app/ | Title: Spairdee — ระบบจัดการร้านแอร์
+  URL: https://ghoth9.github.io/sp/index.html | Title: Spairdee — ระบบจัดการร้านแอร์
+  URL: https://ghoth9.github.io/sp/ | Title: Spairdee — ระบบจัดการร้านแอร์
+  URL: file:///C:/Users/golst/OneDrive/Documents/GitHub/cru-line-chatbot/SP/index.html | Title: Spairdee — ระบบจัดการร้านแอร์
+

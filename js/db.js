@@ -698,8 +698,7 @@ const DB = (() => {
     console.log('[DB] Demo data seeded ✓');
   }
 
-  // ── Cloud Sync Configuration & Functions ──────────────────
-  const DEFAULT_CLOUD_URL = 'https://script.google.com/macros/s/AKfycbxurKONxQEqeF6NyLb_OuiQkCbToT6-gyWkIIwhdGmj7DJcEeHlxNheJ-F2YZdHdlla/exec';
+  const DEFAULT_CLOUD_URL = '';
   
   let _cloudUrl = localStorage.getItem('acsp_cloud_url') || DEFAULT_CLOUD_URL;
   let _cloudEnabled = localStorage.getItem('acsp_cloud_enabled') !== null

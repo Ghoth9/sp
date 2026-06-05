@@ -1,0 +1,21 @@
+Last visited Spairdee URLs in Opera GX:
+  URL: https://spairdee.netlify.app/ | Title: Spairdee — ระบบจัดการร้านแอร์
+  URL: https://app.netlify.com/projects/spairdee/overview | Title: Project overview | spairdee | Netlify
+  URL: https://www.spairdee.com/%E0%B8%95%E0%B8%B4%E0%B8%94%E0%B8%95%E0%B9%88%E0%B8%AD%E0%B9%80%E0%B8%A3%E0%B8%B2/ | Title: ติดต่อเรา – Spairdee
+  URL: https://github.com/Ghoth9/sp/settings | Title: General
+  URL: https://github.com/Ghoth9/sp/settings/pages | Title: Pages
+  URL: https://www.spairdee.com/ | Title: Spairdee
+  URL: https://app.netlify.com/projects/spairdee/database | Title: Database | spairdee | Netlify
+  URL: https://app.netlify.com/projects/spairdee/ | Title: Project overview | spairdee | Netlify
+  URL: https://app.netlify.com/projects/spairdee/configuration/general#danger-zone | Title: General | Project configuration | spairdee | Netlify
+  URL: https://app.netlify.com/projects/spairdee/configuration/access#content | Title: Access & security | Project configuration | spairdee | Netlify
+  URL: https://app.netlify.com/projects/spairdee/configuration/deploys#continuous-deployment | Title: Build & deploy | Project configuration | spairdee | Netlify
+  URL: https://app.netlify.com/projects/spairdee/configuration/env#content | Title: Environment variables | Project configuration | spairdee | Netlify
+  URL: https://app.netlify.com/projects/spairdee/configuration/deploys#build-plugins | Title: Build & deploy | Project configuration | spairdee | Netlify
+  URL: https://app.netlify.com/projects/spairdee/configuration/deploys#split-testing | Title: Build & deploy | Project configuration | spairdee | Netlify
+  URL: https://app.netlify.com/projects/spairdee/configuration/deploys#post-processing | Title: Build & deploy | Project configuration | spairdee | Netlify
+  URL: https://app.netlify.com/projects/spairdee/configuration/general | Title: General | Project configuration | spairdee | Netlify
+  URL: https://app.netlify.com/projects/spairdee/configuration | Title: General | Project configuration | spairdee | Netlify
+  URL: https://app.netlify.com/projects/spairdee/blobs | Title: Blobs | spairdee | Netlify
+  URL: https://app.netlify.com/projects/spairdee/domain-management | Title: Domain management | spairdee | Netlify
+  URL: https://app.netlify.com/projects/spairdee/security | Title: spairdee | Netlify

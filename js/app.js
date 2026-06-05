@@ -543,7 +543,14 @@ const App = (() => {
 
             // Save configs on changes
             cloudEnabledToggle.addEventListener('change', (e) => {
-                if (!cloudEnabledToggle.checked) {
+                if (cloudEnabledToggle.checked) {
+                    const urlVal = cloudUrlInput.value.trim();
+                    if (!urlVal) {
+                        showToast('กรุณากรอก Google Apps Script Web App URL ก่อนเปิดใช้งาน Cloud Mode', 'error');
+                        cloudEnabledToggle.checked = false;
+                        return;
+                    }
+                } else {
                     const confirmClose = confirm("⚠️ คุณแน่ใจหรือไม่ว่าต้องการปิดใช้งานระบบเชื่อมต่อคลาวด์?\n\nเมื่อปิดแล้วระบบจะสลับไปใช้ฐานข้อมูลจำลองในเครื่องนี้แทนข้อมูลจริงบนคลาวด์");
                     if (!confirmClose) {
                         cloudEnabledToggle.checked = true;

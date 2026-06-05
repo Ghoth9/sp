@@ -1,0 +1,7 @@
+function doGet(e) {
+  try {
+    const ssId = getSpreadsheetId();
+    if (!ssId) {
+      return errorResponse("ยังไม่ได้ตั้งค่า SPREADSHEET_ID ใน Script Properties จ้า");
+    }
+------------------------------
