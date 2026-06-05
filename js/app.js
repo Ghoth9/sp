@@ -403,11 +403,13 @@ const App = (() => {
             });
         }
 
-        // Modal Close Button handler
+        // Modal Close Button handler & Backdrop click handler
         document.body.addEventListener('click', (e) => {
             const closeBtn = e.target.closest('[data-modal-close]');
             if (closeBtn) {
                 closeModal(closeBtn.dataset.modalClose);
+            } else if (e.target.classList.contains('modal-overlay')) {
+                closeModal(e.target.id);
             }
         });
 

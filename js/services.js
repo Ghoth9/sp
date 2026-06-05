@@ -642,8 +642,8 @@ const ServicesModule = (() => {
             btnSave.addEventListener('click', saveService);
         }
 
-        page.addEventListener('click', (e) => {
-            const target = e.target.closest('button');
+        document.body.addEventListener('click', (e) => {
+            const target = e.target.closest('.btn-view-service, .btn-print-service, .btn-share-service, .btn-edit-service, .btn-delete-service, #btn-add-service, #btn-clear-service-filters');
             if (!target) return;
 
             if (target.id === 'btn-add-service') {
@@ -651,25 +651,28 @@ const ServicesModule = (() => {
                 App.openModal('service-modal');
                 return;
             }
-            if (target.classList.contains('btn-edit-service')) {
-                const svc = DB.getById('services', target.dataset.id);
+            if (target.id === 'btn-clear-service-filters') {
+                clearFilters();
+                return;
+            }
+
+            const serviceId = target.dataset.id;
+            if (!serviceId) return;
+
+            if (target.classList.contains('btn-view-service')) {
+                showServiceDetail(serviceId);
+            } else if (target.classList.contains('btn-print-service')) {
+                printServiceInvoice(serviceId);
+            } else if (target.classList.contains('btn-share-service')) {
+                shareServiceMessage(serviceId);
+            } else if (target.classList.contains('btn-edit-service')) {
+                const svc = DB.getById('services', serviceId);
                 if (svc) {
                     fillForm(svc);
                     App.openModal('service-modal');
                 }
-                return;
-            }
-            if (target.classList.contains('btn-delete-service')) {
-                deleteService(target.dataset.id);
-                return;
-            }
-            if (target.classList.contains('btn-view-service')) {
-                showServiceDetail(target.dataset.id);
-                return;
-            }
-            if (target.id === 'btn-clear-service-filters') {
-                clearFilters();
-                return;
+            } else if (target.classList.contains('btn-delete-service')) {
+                deleteService(serviceId);
             }
         });
 
@@ -722,20 +725,7 @@ const ServicesModule = (() => {
             });
         }
 
-        // Global body click delegator for services-specific buttons
-        document.body.addEventListener('click', (e) => {
-            const target = e.target.closest('.btn-print-service, .btn-share-service');
-            if (!target) return;
-            
-            const serviceId = target.dataset.id;
-            if (!serviceId) return;
-            
-            if (target.classList.contains('btn-print-service')) {
-                printServiceInvoice(serviceId);
-            } else if (target.classList.contains('btn-share-service')) {
-                shareServiceMessage(serviceId);
-            }
-        });
+        // Event delegation logic moved to unified delegator above
 
         // Trigger native print inside print preview modal
         const btnDoPrint = $('btn-do-print');
