@@ -942,7 +942,7 @@ const DB = (() => {
         localStorage.setItem('acsp_current_user', JSON.stringify(resData.user));
         return resData;
       } else {
-        throw new Error(resData ? resData.message : "ชื่อผู้ใช้หรือรหัสผ่านผิดพลาด");
+        throw new Error(resData ? (resData.message || resData.error || "ชื่อผู้ใช้หรือรหัสผ่านผิดพลาด") : "ชื่อผู้ใช้หรือรหัสผ่านผิดพลาด");
       }
     });
   }
