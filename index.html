@@ -12,9 +12,9 @@
   <title>Spairdee — ระบบจัดการร้านแอร์</title>
 
   <!-- Favicon / Tab Icon -->
-  <link rel="icon" href="assets/icons/logo.png?v=2.5.0" type="image/png">
-  <link rel="shortcut icon" href="assets/icons/logo.png?v=2.5.0" type="image/png">
-  <link rel="apple-touch-icon" href="assets/icons/logo.png?v=2.5.0">
+  <link rel="icon" href="assets/icons/logo.png?v=2.5.1" type="image/png">
+  <link rel="shortcut icon" href="assets/icons/logo.png?v=2.5.1" type="image/png">
+  <link rel="apple-touch-icon" href="assets/icons/logo.png?v=2.5.1">
 
   <!-- PWA Manifest -->
   <link rel="manifest" href="manifest.json">
@@ -39,7 +39,7 @@
 <div id="app-splash-screen" class="splash-screen">
   <div class="splash-content">
     <div class="splash-logo">
-      <img src="assets/icons/logo.png?v=2.5.0" alt="Spairdee Logo">
+      <img src="assets/icons/logo.png?v=2.5.1" alt="Spairdee Logo">
     </div>
     <h2 class="splash-title">Spairdee</h2>
     <p class="splash-subtitle">เอส พี แอร์ คอน แอนด์ เซอร์วิส</p>
@@ -64,7 +64,7 @@
     <!-- Logo -->
     <div class="sidebar-header">
       <div class="sidebar-logo" style="background: none; padding: 0; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center;">
-        <img src="assets/icons/logo.png?v=2.5.0" alt="Logo" style="width: 100%; height: 100%; object-fit: contain;">
+        <img src="assets/icons/logo.png?v=2.5.1" alt="Logo" style="width: 100%; height: 100%; object-fit: contain;">
       </div>
       <div class="sidebar-brand">
         <h1>Spairdee</h1>
@@ -112,7 +112,7 @@
       <button class="btn btn-primary btn-sm w-full mb-sm" id="btn-install-pwa" style="display: none; justify-content: center; width: 100%; margin-bottom: 8px;">
         <i data-lucide="download" width="16" height="16"></i> ติดตั้งแอป Spairdee
       </button>
-      <div class="text-xs text-muted text-center" id="sidebar-version">Spairdee v2.5.0</div>
+      <div class="text-xs text-muted text-center" id="sidebar-version">Spairdee v2.5.1</div>
     </div>
 
   </aside>
@@ -125,7 +125,7 @@
       <div class="top-header-left">
         <!-- Clickable Logo Button (Shortcut to Home/Dashboard) -->
         <div class="top-logo-btn" id="top-logo-btn" title="กลับหน้าหลัก">
-          <img src="assets/icons/logo.png?v=2.5.0" alt="Spairdee Logo" class="top-logo-img">
+          <img src="assets/icons/logo.png?v=2.5.1" alt="Spairdee Logo" class="top-logo-img">
           <div class="top-logo-brand">
             <span class="top-logo-name">Spairdee</span>
             <span class="top-logo-sub">เอส พี แอร์ คอน</span>
@@ -618,7 +618,7 @@
             <div class="detail-grid">
               <div class="detail-item">
                 <div class="detail-label">เวอร์ชัน</div>
-                <div class="detail-value">2.5.0</div>
+                <div class="detail-value">2.5.1</div>
               </div>
               <div class="detail-item">
                 <div class="detail-label">เทคโนโลยี</div>
@@ -1156,6 +1156,28 @@
      ================================================================ -->
 <!-- ── Fullscreen Login Screen ── -->
 <div id="login-screen" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #070a13; z-index: 10000; display: flex; align-items: center; justify-content: center; font-family: 'Noto Sans Thai', 'Inter', sans-serif;">
+  <style>
+    #login-screen .form-label {
+      color: rgba(255, 255, 255, 0.8) !important;
+    }
+    #login-screen .form-input {
+      color: #ffffff !important;
+      background: rgba(10, 15, 26, 0.7) !important;
+      border: 1px solid rgba(255, 255, 255, 0.15) !important;
+      border-radius: 10px !important;
+    }
+    #login-screen .form-input::placeholder {
+      color: rgba(255, 255, 255, 0.35) !important;
+    }
+    #login-screen .form-input:focus {
+      border-color: var(--accent-cyan) !important;
+      background: rgba(10, 15, 26, 0.95) !important;
+      box-shadow: 0 0 10px rgba(6, 182, 212, 0.3) !important;
+    }
+    #login-screen i {
+      color: rgba(255, 255, 255, 0.5) !important;
+    }
+  </style>
   <!-- Ambient background glows -->
   <div style="position: absolute; width: 300px; height: 300px; background: radial-gradient(circle, rgba(6, 182, 212, 0.15) 0%, rgba(6, 182, 212, 0) 70%); top: 20%; left: 30%; filter: blur(50px); pointer-events: none;"></div>
   <div style="position: absolute; width: 350px; height: 350px; background: radial-gradient(circle, rgba(59, 130, 246, 0.12) 0%, rgba(59, 130, 246, 0) 70%); bottom: 20%; right: 25%; filter: blur(60px); pointer-events: none;"></div>
@@ -1163,7 +1185,7 @@
   <div class="login-card" style="width: 100%; max-width: 400px; padding: 40px 32px; background: rgba(15, 23, 42, 0.65); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 16px; box-shadow: var(--shadow-lg); text-align: center; position: relative; z-index: 1;">
     <div style="margin-bottom: 28px;">
       <div style="width: 64px; height: 64px; background: rgba(6, 182, 212, 0.1); border: 1px solid rgba(6, 182, 212, 0.2); border-radius: 16px; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;">
-        <img src="assets/icons/logo.png?v=2.5.0" alt="Logo" style="width: 40px; height: 40px; object-fit: contain;">
+        <img src="assets/icons/logo.png?v=2.5.1" alt="Logo" style="width: 40px; height: 40px; object-fit: contain;">
       </div>
       <h2 style="font-size: 24px; font-weight: 700; color: #fff; margin-bottom: 6px; letter-spacing: -0.5px;">เข้าสู่ระบบ Spairdee</h2>
       <p style="color: var(--text-muted); font-size: 14px;">กรุณากรอกชื่อบัญชีและรหัสผ่านเพื่อเข้าใช้งาน</p>
