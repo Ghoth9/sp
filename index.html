@@ -413,11 +413,7 @@
            PAGE: SETTINGS
            ============================================================ -->
       <section class="page-section" id="page-settings" data-page="settings">
-
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 450px), 1fr)); gap: var(--space-lg); align-items: start;">
-          
-          <!-- Column 1: Account, Users & Installation -->
-          <div style="display: flex; flex-direction: column; gap: var(--space-lg); min-width: 0;">
+        <div style="max-width: 800px; margin: 0 auto; display: flex; flex-direction: column; gap: var(--space-lg);">
             <!-- Current Session Account Card -->
             <div class="card static" id="settings-user-session-card" style="border-left: 4px solid var(--accent-cyan); display: flex; align-items: center; justify-content: space-between; padding: var(--space-md) var(--space-lg);">
               <div style="display: flex; align-items: center; gap: 12px;">
@@ -494,10 +490,8 @@
                 </div>
               </div>
             </div>
-          </div>
 
-          <!-- Column 2: Data, Cloud & Info -->
-          <div style="display: flex; flex-direction: column; gap: var(--space-lg); min-width: 0;">
+            <!-- Data, Cloud & Info -->
             <!-- Cloud Sync Management -->
             <div>
               <h3 class="mb-lg flex items-center gap-sm">
@@ -626,7 +620,7 @@
                 <div class="detail-grid">
                   <div class="detail-item">
                     <div class="detail-label">เวอร์ชัน</div>
-                    <div class="detail-value">2.5.4</div>
+                    <div class="detail-value">2.5.5</div>
                   </div>
                   <div class="detail-item">
                     <div class="detail-label">เทคโนโลยี</div>
@@ -663,8 +657,6 @@
                 </div>
               </div>
             </div>
-
-          </div>
 
         </div>
       </section>

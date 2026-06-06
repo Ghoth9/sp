@@ -235,32 +235,32 @@ const AppointmentsModule = (() => {
                         <span class="badge ${st.cls}">${st.label}</span>
                         <div class="apt-card-actions">
                             ${a.status === 'pending' ? `
-                                <button class="btn-icon btn-apt-start" data-id="${a.id}" title="เริ่มงาน">
+                                <button class="btn btn-icon btn-ghost btn-apt-start" data-id="${a.id}" title="เริ่มงาน">
                                     <i data-lucide="play"></i>
                                 </button>
                             ` : ''}
                             ${a.status === 'in-progress' ? `
-                                <button class="btn-icon btn-apt-complete" data-id="${a.id}" title="เสร็จสิ้น">
+                                <button class="btn btn-icon btn-ghost btn-apt-complete" data-id="${a.id}" title="เสร็จสิ้น">
                                     <i data-lucide="check"></i>
                                 </button>
                             ` : ''}
                             ${a.status !== 'completed' && a.status !== 'cancelled' && a.status !== 'no-one-home' ? `
-                                <button class="btn-icon btn-apt-no-home" data-id="${a.id}" title="ไม่มีคนอยู่/ติดต่อไม่ได้">
+                                <button class="btn btn-icon btn-ghost btn-apt-no-home" data-id="${a.id}" title="ไม่มีคนอยู่/ติดต่อไม่ได้">
                                     <i data-lucide="user-x"></i>
                                 </button>
                             ` : ''}
                             ${a.status !== 'completed' && a.status !== 'cancelled' ? `
-                                <button class="btn-icon btn-apt-cancel" data-id="${a.id}" title="ยกเลิก">
+                                <button class="btn btn-icon btn-ghost btn-apt-cancel" data-id="${a.id}" title="ยกเลิก">
                                     <i data-lucide="x"></i>
                                 </button>
                             ` : ''}
-                            <button class="btn-icon btn-share-appointment" data-id="${a.id}" title="คัดลอกข้อความแจ้งยืนยันนัดหมาย">
+                            <button class="btn btn-icon btn-ghost btn-share-appointment" data-id="${a.id}" title="คัดลอกข้อความแจ้งยืนยันนัดหมาย">
                                 <i data-lucide="share-2"></i>
                             </button>
-                            <button class="btn-icon btn-edit-appointment" data-id="${a.id}" title="แก้ไข">
+                            <button class="btn btn-icon btn-ghost btn-edit-appointment" data-id="${a.id}" title="แก้ไข">
                                 <i data-lucide="pencil"></i>
                             </button>
-                            <button class="btn-icon btn-delete-appointment" data-id="${a.id}" title="ลบ">
+                            <button class="btn btn-icon btn-ghost btn-delete-appointment" data-id="${a.id}" title="ลบ">
                                 <i data-lucide="trash-2"></i>
                             </button>
                         </div>

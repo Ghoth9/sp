@@ -92,25 +92,47 @@ const ServicesModule = (() => {
         const totalUnpaid = totalRevenue - totalPaid;
 
         container.innerHTML = `
-            <div class="summary-cards" id="services-summary-cards">
-                <div class="summary-card">
-                    <span class="summary-value">${services.length}</span>
-                    <span class="summary-label">รายการ</span>
+            <div class="stats-grid mb-lg" id="services-summary-cards" style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: var(--space-md);">
+                <div class="stat-card" style="padding: var(--space-md); border-radius: var(--radius-md); background: var(--bg-card); display: flex; align-items: center; gap: var(--space-md); border: 1px solid var(--border-color); box-shadow: var(--shadow-sm);">
+                    <div class="stat-icon cyan" style="width: 44px; height: 44px; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; background: rgba(6, 182, 212, 0.1); color: var(--accent-cyan); flex-shrink: 0;">
+                        <i data-lucide="wrench"></i>
+                    </div>
+                    <div class="stat-info" style="display: flex; flex-direction: column;">
+                        <span class="stat-label" style="font-size: 12px; color: var(--text-muted); font-weight: 500;">รายการบริการ</span>
+                        <span class="stat-value" style="font-size: 20px; font-weight: 700; color: var(--text-primary);">${services.length} งาน</span>
+                    </div>
                 </div>
-                <div class="summary-card">
-                    <span class="summary-value">${App.formatCurrency(totalRevenue)}</span>
-                    <span class="summary-label">ยอดรวม</span>
+                <div class="stat-card" style="padding: var(--space-md); border-radius: var(--radius-md); background: var(--bg-card); display: flex; align-items: center; gap: var(--space-md); border: 1px solid var(--border-color); box-shadow: var(--shadow-sm);">
+                    <div class="stat-icon primary" style="width: 44px; height: 44px; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; background: rgba(99, 102, 241, 0.1); color: var(--primary-color); flex-shrink: 0;">
+                        <i data-lucide="wallet"></i>
+                    </div>
+                    <div class="stat-info" style="display: flex; flex-direction: column;">
+                        <span class="stat-label" style="font-size: 12px; color: var(--text-muted); font-weight: 500;">ยอดบริการรวม</span>
+                        <span class="stat-value" style="font-size: 20px; font-weight: 700; color: var(--text-primary);">${App.formatCurrency(totalRevenue)}</span>
+                    </div>
                 </div>
-                <div class="summary-card">
-                    <span class="summary-value text-success">${App.formatCurrency(totalPaid)}</span>
-                    <span class="summary-label">ชำระแล้ว</span>
+                <div class="stat-card" style="padding: var(--space-md); border-radius: var(--radius-md); background: var(--bg-card); display: flex; align-items: center; gap: var(--space-md); border: 1px solid var(--border-color); box-shadow: var(--shadow-sm);">
+                    <div class="stat-icon success" style="width: 44px; height: 44px; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; background: rgba(34, 197, 94, 0.1); color: var(--success-color); flex-shrink: 0;">
+                        <i data-lucide="check-circle-2"></i>
+                    </div>
+                    <div class="stat-info" style="display: flex; flex-direction: column;">
+                        <span class="stat-label" style="font-size: 12px; color: var(--text-muted); font-weight: 500;">ชำระเงินแล้ว</span>
+                        <span class="stat-value text-success" style="font-size: 20px; font-weight: 700; color: var(--success-color);">${App.formatCurrency(totalPaid)}</span>
+                    </div>
                 </div>
-                <div class="summary-card">
-                    <span class="summary-value text-danger">${App.formatCurrency(totalUnpaid)}</span>
-                    <span class="summary-label">ค้างชำระ</span>
+                <div class="stat-card" style="padding: var(--space-md); border-radius: var(--radius-md); background: var(--bg-card); display: flex; align-items: center; gap: var(--space-md); border: 1px solid var(--border-color); box-shadow: var(--shadow-sm);">
+                    <div class="stat-icon danger" style="width: 44px; height: 44px; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; background: rgba(239, 68, 68, 0.1); color: var(--danger-color); flex-shrink: 0;">
+                        <i data-lucide="alert-circle"></i>
+                    </div>
+                    <div class="stat-info" style="display: flex; flex-direction: column;">
+                        <span class="stat-label" style="font-size: 12px; color: var(--text-muted); font-weight: 500;">คงเหลือค้างชำระ</span>
+                        <span class="stat-value text-danger" style="font-size: 20px; font-weight: 700; color: var(--danger-color);">${App.formatCurrency(totalUnpaid)}</span>
+                    </div>
                 </div>
             </div>
         `;
+
+        if (window.lucide) lucide.createIcons();
     }
 
     /* ── render table ───────────────────────────────────────── */
@@ -161,19 +183,19 @@ const ServicesModule = (() => {
                                 <strong class="text-base" style="color: var(--accent-cyan);">${App.formatCurrency(s.price)}</strong>
                             </div>
                             <div class="table-actions" style="margin-top: 0; padding: 0; border: none;">
-                                <button class="btn-icon btn-view-service" data-id="${s.id}" title="ดูรายละเอียด">
+                                <button class="btn btn-icon btn-ghost btn-view-service" data-id="${s.id}" title="ดูรายละเอียด">
                                     <i data-lucide="eye"></i>
                                 </button>
-                                <button class="btn-icon btn-print-service" data-id="${s.id}" title="พิมพ์ใบแจ้งหนี้/ใบเสร็จ">
+                                <button class="btn btn-icon btn-ghost btn-print-service" data-id="${s.id}" title="พิมพ์ใบแจ้งหนี้/ใบเสร็จ">
                                     <i data-lucide="printer"></i>
                                 </button>
-                                <button class="btn-icon btn-share-service" data-id="${s.id}" title="คัดลอกข้อความแจ้งลูกค้า">
+                                <button class="btn btn-icon btn-ghost btn-share-service" data-id="${s.id}" title="คัดลอกข้อความแจ้งลูกค้า">
                                     <i data-lucide="share-2"></i>
                                 </button>
-                                <button class="btn-icon btn-edit-service" data-id="${s.id}" title="แก้ไข">
+                                <button class="btn btn-icon btn-ghost btn-edit-service" data-id="${s.id}" title="แก้ไข">
                                     <i data-lucide="pencil"></i>
                                 </button>
-                                <button class="btn-icon btn-delete-service" data-id="${s.id}" title="ลบ">
+                                <button class="btn btn-icon btn-ghost btn-delete-service" data-id="${s.id}" title="ลบ">
                                     <i data-lucide="trash-2"></i>
                                 </button>
                             </div>
@@ -225,19 +247,19 @@ const ServicesModule = (() => {
                         <td><span class="badge ${ps.cls}">${ps.label}</span></td>
                         <td>
                             <div class="table-actions">
-                                <button class="btn-icon btn-view-service" data-id="${s.id}" title="ดูรายละเอียด">
+                                <button class="btn btn-icon btn-ghost btn-view-service" data-id="${s.id}" title="ดูรายละเอียด">
                                     <i data-lucide="eye"></i>
                                 </button>
-                                <button class="btn-icon btn-print-service" data-id="${s.id}" title="พิมพ์ใบแจ้งหนี้/ใบเสร็จ">
+                                <button class="btn btn-icon btn-ghost btn-print-service" data-id="${s.id}" title="พิมพ์ใบแจ้งหนี้/ใบเสร็จ">
                                     <i data-lucide="printer"></i>
                                 </button>
-                                <button class="btn-icon btn-share-service" data-id="${s.id}" title="คัดลอกข้อความแจ้งลูกค้า">
+                                <button class="btn btn-icon btn-ghost btn-share-service" data-id="${s.id}" title="คัดลอกข้อความแจ้งลูกค้า">
                                     <i data-lucide="share-2"></i>
                                 </button>
-                                <button class="btn-icon btn-edit-service" data-id="${s.id}" title="แก้ไข">
+                                <button class="btn btn-icon btn-ghost btn-edit-service" data-id="${s.id}" title="แก้ไข">
                                     <i data-lucide="pencil"></i>
                                 </button>
-                                <button class="btn-icon btn-delete-service hide-mobile" data-id="${s.id}" title="ลบ">
+                                <button class="btn btn-icon btn-ghost btn-delete-service hide-mobile" data-id="${s.id}" title="ลบ">
                                     <i data-lucide="trash-2"></i>
                                 </button>
                             </div>
@@ -930,5 +952,5 @@ const ServicesModule = (() => {
         render();
     }
 
-    return { init, refresh };
+    return { init, refresh, showServiceDetail };
 })();

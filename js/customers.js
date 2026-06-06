@@ -67,10 +67,10 @@ const CustomersModule = (() => {
                     <div class="customer-card-header">
                         <div class="customer-avatar">${(c.name || '?').charAt(0)}</div>
                         <div class="customer-card-actions">
-                            <button class="btn-icon btn-edit-customer" data-id="${c.id}" title="แก้ไข">
+                            <button class="btn btn-icon btn-ghost btn-edit-customer" data-id="${c.id}" title="แก้ไข">
                                 <i data-lucide="pencil"></i>
                             </button>
-                            <button class="btn-icon btn-delete-customer" data-id="${c.id}" title="ลบ">
+                            <button class="btn btn-icon btn-ghost btn-delete-customer" data-id="${c.id}" title="ลบ">
                                 <i data-lucide="trash-2"></i>
                             </button>
                         </div>
@@ -150,13 +150,13 @@ const CustomersModule = (() => {
                     <td class="hide-mobile">${App.formatCurrency(spent)}</td>
                     <td>
                         <div class="table-actions">
-                            <button class="btn-icon btn-view-customer" data-id="${c.id}" title="ดูรายละเอียด">
+                            <button class="btn btn-icon btn-ghost btn-view-customer" data-id="${c.id}" title="ดูรายละเอียด">
                                 <i data-lucide="eye"></i>
                             </button>
-                            <button class="btn-icon btn-edit-customer" data-id="${c.id}" title="แก้ไข">
+                            <button class="btn btn-icon btn-ghost btn-edit-customer" data-id="${c.id}" title="แก้ไข">
                                 <i data-lucide="pencil"></i>
                             </button>
-                            <button class="btn-icon btn-delete-customer hide-mobile" data-id="${c.id}" title="ลบ">
+                            <button class="btn btn-icon btn-ghost btn-delete-customer hide-mobile" data-id="${c.id}" title="ลบ">
                                 <i data-lucide="trash-2"></i>
                             </button>
                         </div>
@@ -373,7 +373,12 @@ const CustomersModule = (() => {
                                         <i data-lucide="calendar" style="width:12px;height:12px;display:inline-block;vertical-align:middle;margin-right:2px;"></i> 
                                         ${App.formatDate(s.serviceDate)}
                                     </span>
-                                    <span class="timeline-type-tag">ประวัติบริการ</span>
+                                    <div style="display: flex; align-items: center; gap: 8px;">
+                                        <span class="timeline-type-tag">ประวัติบริการ</span>
+                                        <button class="btn btn-icon btn-ghost btn-view-service-detail" data-id="${s.id}" title="ดูรายละเอียดงานบริการ" style="width:28px; height:28px; padding:0; display:flex; align-items:center; justify-content:center;">
+                                            <i data-lucide="eye" style="width:14px; height:14px;"></i>
+                                        </button>
+                                    </div>
                                 </div>
                                 <h4 class="timeline-title">${s.type}</h4>
                                 <div class="timeline-details">
@@ -658,12 +663,44 @@ const CustomersModule = (() => {
             });
         }
 
-        // Close on backdrop click
+        // Close and buttons inside customer detail modal
         const detailModal = $('customer-detail-modal');
         if (detailModal) {
             detailModal.addEventListener('click', (e) => {
                 if (e.target === detailModal) {
                     closeDetail();
+                    return;
+                }
+
+                // Edit customer inside modal
+                const btnEdit = e.target.closest('.btn-edit-customer');
+                if (btnEdit) {
+                    const id = btnEdit.dataset.id;
+                    const c = DB.getById('customers', id);
+                    if (c) {
+                        closeDetail();
+                        fillForm(c);
+                        App.openModal('customer-modal');
+                    }
+                    return;
+                }
+
+                // Delete customer inside modal
+                const btnDelete = e.target.closest('.btn-delete-customer');
+                if (btnDelete) {
+                    const id = btnDelete.dataset.id;
+                    deleteCustomer(id);
+                    return;
+                }
+
+                // View service detail inside modal timeline
+                const btnViewService = e.target.closest('.btn-view-service-detail');
+                if (btnViewService) {
+                    const sId = btnViewService.dataset.id;
+                    if (sId && typeof ServicesModule !== 'undefined' && ServicesModule.showServiceDetail) {
+                        ServicesModule.showServiceDetail(sId);
+                    }
+                    return;
                 }
             });
 
