@@ -34,8 +34,10 @@ const AppointmentsModule = (() => {
 
     /* ── helpers ─────────────────────────────────────────────── */
     function todayStr() {
-        return new Date().toISOString().slice(0, 10);
+        const d = new Date();
+        return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
     }
+
 
     function pad2(n) {
         return String(n).padStart(2, '0');
@@ -185,8 +187,9 @@ const AppointmentsModule = (() => {
         const listTitle = $('appointments-list-title');
         if (listTitle) {
             if (selectedDate) {
-                const sd = new Date(selectedDate);
-                listTitle.textContent = `นัดหมายวันที่ ${sd.getDate()} ${MONTH_NAMES[sd.getMonth()]} ${sd.getFullYear() + 543}`;
+                const [y, m, d] = selectedDate.split('-').map(Number);
+                listTitle.textContent = `นัดหมายวันที่ ${d} ${MONTH_NAMES[m - 1]} ${y + 543}`;
+
             } else {
                 listTitle.textContent = `นัดหมาย ${MONTH_NAMES[calendarMonth]} ${calendarYear + 543}`;
             }
@@ -215,8 +218,9 @@ const AppointmentsModule = (() => {
                 <div class="appointment-card glass-card ${isOverdue ? 'overdue' : ''} ${isToday ? 'today-card' : ''}" id="apt-card-${a.id}">
                     <div class="apt-card-left">
                         <div class="apt-card-date">
-                            <span class="apt-day">${new Date(a.date).getDate()}</span>
-                            <span class="apt-month">${MONTH_NAMES[new Date(a.date).getMonth()].slice(0, 3)}</span>
+                            <span class="apt-day">${parseInt(a.date.split('-')[2], 10)}</span>
+                            <span class="apt-month">${MONTH_NAMES[parseInt(a.date.split('-')[1], 10) - 1].slice(0, 3)}</span>
+
                         </div>
                         <span class="apt-time">${a.time || '--:--'}</span>
                     </div>

@@ -260,8 +260,13 @@ const CustomersModule = (() => {
             App.showToast('อัปเดตข้อมูลลูกค้าเรียบร้อย', 'success');
         } else {
             // Add
-            const dateStr = createdAtVal || new Date().toISOString().slice(0, 10);
+            let dateStr = createdAtVal;
+            if (!dateStr) {
+                const today = new Date();
+                dateStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+            }
             const createdAt = new Date(dateStr + 'T00:00:00').toISOString();
+
             DB.add('customers', {
                 id: nextId(),
                 name,

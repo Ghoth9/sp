@@ -55,7 +55,7 @@ const DashboardModule = (() => {
         const now = new Date();
         const year = now.getFullYear();
         const month = now.getMonth();
-        const todayStr = now.toISOString().slice(0, 10);
+        const todayStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
 
         // This month services & revenue
         const thisMonthServices = services.filter(s => {
@@ -397,7 +397,9 @@ const DashboardModule = (() => {
         const container = $('dashboard-upcoming-appointments');
         if (!container) return;
 
-        const todayStr = new Date().toISOString().slice(0, 10);
+        const today = new Date();
+        const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+
         const upcoming = appointments
             .filter(a => a.date >= todayStr && (a.status === 'pending' || a.status === 'in-progress'))
             .sort((a, b) => {

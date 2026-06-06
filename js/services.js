@@ -387,8 +387,9 @@ const ServicesModule = (() => {
         $('service-form-id').value = '';
         $('service-modal-title').textContent = 'เพิ่มรายการบริการ';
         populateCustomerDropdown('service-form-customer', '');
-        // Set default date to today
-        $('service-form-date').value = new Date().toISOString().slice(0, 10);
+        const today = new Date();
+        $('service-form-date').value = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+
         
         selectedImages = [];
         existingImages = [];
