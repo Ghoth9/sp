@@ -112,7 +112,7 @@
       <button class="btn btn-primary btn-sm w-full mb-sm" id="btn-install-pwa" style="display: none; justify-content: center; width: 100%; margin-bottom: 8px;">
         <i data-lucide="download" width="16" height="16"></i> ติดตั้งแอป Spairdee
       </button>
-      <div class="text-xs text-muted text-center" id="sidebar-version">Spairdee v2.5.2</div>
+      <div class="text-xs text-muted text-center" id="sidebar-version">Spairdee v2.5.3</div>
     </div>
 
   </aside>
@@ -908,11 +908,39 @@
       <form id="appointment-form" autocomplete="off">
         <input type="hidden" id="appointment-form-id">
 
-        <div class="form-group">
-          <label class="form-label">ลูกค้า <span class="text-muted" style="font-weight: normal; font-size: var(--text-xs);">(ไม่บังคับ)</span></label>
-          <select class="form-select" id="appointment-form-customer">
-            <option value="">-- เลือกลูกค้า (ไม่บังคับ) --</option>
+        <div class="form-group" id="appointment-customer-select-container">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+            <label class="form-label" style="margin-bottom: 0;">ลูกค้า <span class="text-danger">*</span></label>
+            <button type="button" class="btn btn-sm btn-success" id="btn-appointment-quick-add-customer" style="padding: 2px 8px; font-size: var(--text-xs); display: flex; align-items: center; gap: 4px;">
+              <i data-lucide="plus" width="12" height="12"></i> สร้างด่วน
+            </button>
+          </div>
+          <select class="form-select" id="appointment-form-customer" required>
+            <option value="">-- เลือกลูกค้า --</option>
           </select>
+        </div>
+
+        <div id="appointment-quick-customer-container" style="display: none; border: 1px dashed rgba(22, 163, 74, 0.4); padding: var(--space-md); border-radius: var(--radius-md); background: rgba(22, 163, 74, 0.03); margin-bottom: var(--space-lg);">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-sm);">
+            <span style="font-size: var(--text-sm); font-weight: 600; color: var(--success); display: flex; align-items: center; gap: 4px;">
+              <i data-lucide="user-plus" width="14" height="14"></i> สร้างข้อมูลลูกค้าใหม่
+            </span>
+            <button type="button" class="btn btn-sm btn-ghost" id="btn-appointment-cancel-quick-add" style="padding: 2px 6px; font-size: var(--text-xs); color: var(--danger);">
+              ยกเลิก
+            </button>
+          </div>
+          <div class="form-group">
+            <label class="form-label">ชื่อลูกค้า <span class="text-danger">*</span></label>
+            <input type="text" class="form-input" id="appointment-quick-customer-name" placeholder="ชื่อ-นามสกุล">
+          </div>
+          <div class="form-group">
+            <label class="form-label">เบอร์โทรศัพท์ <span class="text-danger">*</span></label>
+            <input type="tel" class="form-input" id="appointment-quick-customer-phone" placeholder="เบอร์โทรศัพท์">
+          </div>
+          <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label">ที่อยู่ <span class="text-muted" style="font-weight: normal; font-size: var(--text-xs);">(ไม่บังคับ)</span></label>
+            <textarea class="form-textarea" id="appointment-quick-customer-address" placeholder="ที่อยู่ลูกค้า..." rows="2"></textarea>
+          </div>
         </div>
 
         <div class="form-group">

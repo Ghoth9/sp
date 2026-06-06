@@ -23,6 +23,7 @@ const AppointmentsModule = (() => {
     let calendarYear, calendarMonth; // 0-indexed month
     let listFilter = ''; // status filter
     let selectedDate = ''; // YYYY-MM-DD
+    let isQuickAddingCustomer = false;
 
     /* ── generate next ID ───────────────────────────────────── */
     function nextId() {
@@ -277,7 +278,7 @@ const AppointmentsModule = (() => {
         const sel = $(selectId);
         if (!sel) return;
         const customers = DB.getAll('customers').sort((a, b) => a.name.localeCompare(b.name));
-        let opts = '<option value="">-- เลือกลูกค้า (ไม่บังคับ) --</option>';
+        let opts = '<option value="">-- เลือกลูกค้า --</option>';
         customers.forEach(c => {
             const selected = c.id === selectedId ? 'selected' : '';
             opts += `<option value="${c.id}" ${selected}>${c.name} (${c.phone || '-'})</option>`;
@@ -293,6 +294,21 @@ const AppointmentsModule = (() => {
         populateCustomerDropdown('appointment-form-customer', '');
         // Default date
         $('appointment-form-date').value = selectedDate || todayStr();
+
+        // Reset quick add customer state
+        isQuickAddingCustomer = false;
+        const selectContainer = $('appointment-customer-select-container');
+        const quickContainer = $('appointment-quick-customer-container');
+        if (selectContainer && quickContainer) {
+            selectContainer.style.display = 'block';
+            quickContainer.style.display = 'none';
+            $('appointment-form-customer').required = true;
+            $('appointment-quick-customer-name').required = false;
+            $('appointment-quick-customer-phone').required = false;
+            $('appointment-quick-customer-name').value = '';
+            $('appointment-quick-customer-phone').value = '';
+            $('appointment-quick-customer-address').value = '';
+        }
     }
 
     function fillForm(apt) {
@@ -304,11 +320,26 @@ const AppointmentsModule = (() => {
         $('appointment-form-status').value = apt.status || 'pending';
         $('appointment-form-notes').value = apt.notes || '';
         $('appointment-modal-title').textContent = 'แก้ไขนัดหมาย';
+
+        // Reset quick add customer state when editing
+        isQuickAddingCustomer = false;
+        const selectContainer = $('appointment-customer-select-container');
+        const quickContainer = $('appointment-quick-customer-container');
+        if (selectContainer && quickContainer) {
+            selectContainer.style.display = 'block';
+            quickContainer.style.display = 'none';
+            $('appointment-form-customer').required = true;
+            $('appointment-quick-customer-name').required = false;
+            $('appointment-quick-customer-phone').required = false;
+            $('appointment-quick-customer-name').value = '';
+            $('appointment-quick-customer-phone').value = '';
+            $('appointment-quick-customer-address').value = '';
+        }
     }
 
     function saveAppointment() {
         const id = $('appointment-form-id').value;
-        const customerId = $('appointment-form-customer').value;
+        let customerId = $('appointment-form-customer').value;
         const serviceType = $('appointment-form-type').value;
         const date = $('appointment-form-date').value;
         const time = $('appointment-form-time').value;
@@ -322,6 +353,48 @@ const AppointmentsModule = (() => {
         if (!serviceType) {
             App.showToast('กรุณาเลือกประเภทบริการ', 'error');
             return;
+        }
+
+        // Check if quick adding customer
+        if (isQuickAddingCustomer) {
+            const name = $('appointment-quick-customer-name').value.trim();
+            const phone = $('appointment-quick-customer-phone').value.trim();
+            const address = $('appointment-quick-customer-address').value.trim();
+
+            if (!name) {
+                App.showToast('กรุณาระบุชื่อลูกค้าใหม่', 'error');
+                $('appointment-quick-customer-name').focus();
+                return;
+            }
+            if (!phone) {
+                App.showToast('กรุณาระบุเบอร์โทรศัพท์ลูกค้าใหม่', 'error');
+                $('appointment-quick-customer-phone').focus();
+                return;
+            }
+
+            // Create customer
+            try {
+                const newCust = DB.create('customers', {
+                    name,
+                    phone,
+                    address,
+                    mapsLink: '',
+                    lineId: '',
+                    notes: 'สร้างด่วนจากหน้าตารางนัดหมาย',
+                    createdAt: new Date().toISOString()
+                });
+                customerId = newCust.id;
+                App.showToast(`สร้างลูกค้า ${name} สำเร็จ`, 'success');
+            } catch (err) {
+                App.showToast('ไม่สามารถสร้างลูกค้าใหม่ได้: ' + err.message, 'error');
+                return;
+            }
+        } else {
+            if (!customerId) {
+                App.showToast('กรุณาเลือกลูกค้า', 'error');
+                $('appointment-form-customer').focus();
+                return;
+            }
         }
 
         const data = { customerId, serviceType, date, time, status, notes };
@@ -385,6 +458,44 @@ const AppointmentsModule = (() => {
         const btnSave = $('btn-save-appointment');
         if (btnSave) {
             btnSave.addEventListener('click', saveAppointment);
+        }
+
+        // Quick add customer toggles
+        const btnQuickAdd = $('btn-appointment-quick-add-customer');
+        const btnCancelQuickAdd = $('btn-appointment-cancel-quick-add');
+        const selectContainer = $('appointment-customer-select-container');
+        const quickContainer = $('appointment-quick-customer-container');
+
+        if (btnQuickAdd && btnCancelQuickAdd && selectContainer && quickContainer) {
+            btnQuickAdd.addEventListener('click', () => {
+                isQuickAddingCustomer = true;
+                selectContainer.style.display = 'none';
+                quickContainer.style.display = 'block';
+                
+                // Toggle required
+                $('appointment-form-customer').required = false;
+                $('appointment-quick-customer-name').required = true;
+                $('appointment-quick-customer-phone').required = true;
+                
+                // Focus name field
+                $('appointment-quick-customer-name').focus();
+            });
+
+            btnCancelQuickAdd.addEventListener('click', () => {
+                isQuickAddingCustomer = false;
+                selectContainer.style.display = 'block';
+                quickContainer.style.display = 'none';
+                
+                // Toggle required
+                $('appointment-form-customer').required = true;
+                $('appointment-quick-customer-name').required = false;
+                $('appointment-quick-customer-phone').required = false;
+                
+                // Reset inputs
+                $('appointment-quick-customer-name').value = '';
+                $('appointment-quick-customer-phone').value = '';
+                $('appointment-quick-customer-address').value = '';
+            });
         }
 
         page.addEventListener('click', (e) => {
