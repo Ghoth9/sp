@@ -3254,3 +3254,111 @@ h6 { font-size: var(--text-base); }
   color: var(--accent-dark);
   text-decoration: underline;
 }
+
+/* ── Premium Futuristic Dashboard Enhancements ── */
+#page-dashboard {
+  animation: fadeIn var(--transition-base) ease-out;
+}
+
+#page-dashboard .stat-card {
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease, border-color 0.3s ease;
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  backdrop-filter: blur(10px);
+}
+
+#page-dashboard .stat-card:hover {
+  transform: translateY(-5px) scale(1.015);
+  box-shadow: 0 10px 25px rgba(99, 102, 241, 0.08);
+}
+
+/* Individual card hover neon glows */
+#stat-card-customers:hover {
+  border-color: rgba(6, 182, 212, 0.4);
+  box-shadow: 0 12px 25px rgba(6, 182, 212, 0.12);
+}
+
+#stat-card-services:hover {
+  border-color: rgba(20, 184, 166, 0.4);
+  box-shadow: 0 12px 25px rgba(20, 184, 166, 0.12);
+}
+
+#stat-card-revenue:hover {
+  border-color: rgba(34, 197, 94, 0.4);
+  box-shadow: 0 12px 25px rgba(34, 197, 94, 0.12);
+}
+
+#stat-card-appointments:hover {
+  border-color: rgba(245, 158, 11, 0.4);
+  box-shadow: 0 12px 25px rgba(245, 158, 11, 0.12);
+}
+
+/* Glassmorphic card gradients background hints */
+#stat-card-customers {
+  background: linear-gradient(135deg, var(--bg-card) 70%, rgba(6, 182, 212, 0.03) 100%);
+}
+#stat-card-services {
+  background: linear-gradient(135deg, var(--bg-card) 70%, rgba(20, 184, 166, 0.03) 100%);
+}
+#stat-card-revenue {
+  background: linear-gradient(135deg, var(--bg-card) 70%, rgba(34, 197, 94, 0.03) 100%);
+}
+#stat-card-appointments {
+  background: linear-gradient(135deg, var(--bg-card) 70%, rgba(245, 158, 11, 0.03) 100%);
+}
+
+/* Charts and layout grid design */
+#page-dashboard .card.static {
+  border-radius: 16px;
+  border: 1px solid var(--border-color);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+  transition: box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+#page-dashboard .card.static:hover {
+  box-shadow: 0 8px 30px rgba(99, 102, 241, 0.05);
+  border-color: rgba(99, 102, 241, 0.2);
+}
+
+/* Header typography styling */
+#page-dashboard .card-header h3 {
+  font-size: var(--text-base);
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  color: var(--text-primary);
+}
+
+/* Table aesthetic enhancements */
+#dashboard-recent-table, #dashboard-recent-table th, #dashboard-recent-table td {
+  border-color: rgba(226, 232, 240, 0.5);
+}
+
+#dashboard-recent-table tbody tr {
+  transition: background-color 0.2s ease;
+}
+
+#dashboard-recent-table tbody tr:hover {
+  background-color: rgba(99, 102, 241, 0.02) !important;
+}
+
+/* Upcoming Appointments premium item styles */
+.upcoming-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-md);
+  border-radius: 10px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-secondary);
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.upcoming-item:hover {
+  transform: translateX(4px);
+  border-color: rgba(6, 182, 212, 0.3);
+  box-shadow: var(--shadow-sm);
+  background: var(--bg-card);
+}

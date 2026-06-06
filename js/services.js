@@ -58,7 +58,7 @@ const ServicesModule = (() => {
                 const custPhone = cust ? String(cust.phone || '').toLowerCase() : '';
                 const custAddress = cust ? String(cust.address || '').toLowerCase() : '';
                 const custLine = cust ? String(cust.lineId || '').toLowerCase() : '';
-                const partsStr = Array.isArray(s.partsUsed) ? s.partsUsed.join(' ').toLowerCase() : '';
+                const partsStr = Array.isArray(s.partsUsed) ? s.partsUsed.join(' ').toLowerCase() : String(s.partsUsed || '').toLowerCase();
 
                 return String(s.id || '').toLowerCase().includes(q) ||
                     String(s.type || '').toLowerCase().includes(q) ||
@@ -429,7 +429,7 @@ const ServicesModule = (() => {
         $('service-form-btu').value = service.acBTU || '';
         $('service-form-symptoms').value = service.symptoms || '';
         $('service-form-solution').value = service.solution || '';
-        $('service-form-parts').value = (service.partsUsed || []).join(', ');
+        $('service-form-parts').value = Array.isArray(service.partsUsed) ? service.partsUsed.join(', ') : (service.partsUsed || '');
         $('service-form-price').value = service.price || '';
         $('service-form-payment-status').value = service.paymentStatus || 'unpaid';
         $('service-form-paid').value = service.paidAmount || '';
@@ -586,7 +586,7 @@ const ServicesModule = (() => {
                 </div>
                 <div class="detail-field full-width">
                     <label>อะไหล่ที่ใช้</label>
-                    <span>${(s.partsUsed || []).join(', ') || '-'}</span>
+                    <span>${Array.isArray(s.partsUsed) ? s.partsUsed.join(', ') : (s.partsUsed || '-')}</span>
                 </div>
                 <div class="detail-field">
                     <label>ราคา</label>
@@ -850,15 +850,20 @@ const ServicesModule = (() => {
                             </td>
                             <td style="padding: 12px 10px; text-align: right;">${App.formatCurrency(price)}</td>
                         </tr>
-                        ${s.partsUsed && s.partsUsed.length > 0 ? `
-                        <tr style="border-bottom: 1px solid #e2e8f0;">
-                            <td style="padding: 12px 10px;">
-                                <strong>อะไหล่และอุปกรณ์เสริมที่ใช้</strong><br>
-                                <span style="font-size: 12px; color: var(--text-secondary);">${s.partsUsed.join(', ')}</span>
-                            </td>
-                            <td style="padding: 12px 10px; text-align: right;">รวมในค่าบริการ</td>
-                        </tr>
-                        ` : ''}
+                        ${(() => {
+                            const hasParts = Array.isArray(s.partsUsed) ? s.partsUsed.length > 0 : !!s.partsUsed;
+                            if (!hasParts) return '';
+                            const partsText = Array.isArray(s.partsUsed) ? s.partsUsed.join(', ') : s.partsUsed;
+                            return `
+                            <tr style="border-bottom: 1px solid #e2e8f0;">
+                                <td style="padding: 12px 10px;">
+                                    <strong>อะไหล่และอุปกรณ์เสริมที่ใช้</strong><br>
+                                    <span style="font-size: 12px; color: var(--text-secondary);">${partsText}</span>
+                                </td>
+                                <td style="padding: 12px 10px; text-align: right;">รวมในค่าบริการ</td>
+                            </tr>
+                            `;
+                        })()}
                     </tbody>
                 </table>
 
@@ -927,7 +932,11 @@ const ServicesModule = (() => {
         msg += `• วันที่ให้บริการ: ${dateFormatted}\n`;
         if (s.symptoms) msg += `• อาการ/ปัญหา: ${s.symptoms}\n`;
         if (s.solution) msg += `• การแก้ไข: ${s.solution}\n`;
-        if (s.partsUsed && s.partsUsed.length > 0) msg += `• อะไหล่ที่ใช้: ${s.partsUsed.join(', ')}\n`;
+        const hasParts = Array.isArray(s.partsUsed) ? s.partsUsed.length > 0 : !!s.partsUsed;
+        if (hasParts) {
+            const partsText = Array.isArray(s.partsUsed) ? s.partsUsed.join(', ') : s.partsUsed;
+            msg += `• อะไหล่ที่ใช้: ${partsText}\n`;
+        }
         msg += `• ช่างผู้ดูแล: ${s.technician || '-'}\n`;
         msg += `• ยอดบริการรวม: ${App.formatCurrency(price)}\n`;
         msg += `• สถานะการเงิน: ${payStatusText}\n\n`;

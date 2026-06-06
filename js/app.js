@@ -1117,15 +1117,22 @@ const App = (() => {
 
         // 3. Initialize Feature Modules
         updateProgress(75, 'กำลังโหลดข้อมูลบริการ...');
-        try {
-            if (isLoggedIn) {
+        if (isLoggedIn) {
+            try {
                 if (typeof DashboardModule !== 'undefined') DashboardModule.init();
+            } catch (e) { console.error('[App] Failed to init DashboardModule', e); }
+
+            try {
                 if (typeof CustomersModule !== 'undefined') CustomersModule.init();
+            } catch (e) { console.error('[App] Failed to init CustomersModule', e); }
+
+            try {
                 if (typeof ServicesModule !== 'undefined') ServicesModule.init();
+            } catch (e) { console.error('[App] Failed to init ServicesModule', e); }
+
+            try {
                 if (typeof AppointmentsModule !== 'undefined') AppointmentsModule.init();
-            }
-        } catch (e) {
-            console.error('[App] Failed to initialize modules', e);
+            } catch (e) { console.error('[App] Failed to init AppointmentsModule', e); }
         }
 
         // 4. Initial navigation
