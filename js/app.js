@@ -854,7 +854,226 @@ const App = (() => {
         window.addEventListener('online', updateOnlineStatus);
         window.addEventListener('offline', updateOnlineStatus);
         updateOnlineStatus();
+
+        // --- Login Form Submit ---
+        const loginForm = $('login-form');
+        const loginUsername = $('login-username');
+        const loginPassword = $('login-password');
+        const btnLoginSubmit = $('btn-login-submit');
+        const loginSpinner = $('login-spinner');
+        if (loginForm) {
+            loginForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const username = loginUsername.value.trim();
+                const password = loginPassword.value.trim();
+
+                if (!username || !password) {
+                    showToast('กรุณากรอกชื่อผู้ใช้และรหัสผ่าน', 'warning');
+                    return;
+                }
+
+                if (btnLoginSubmit) btnLoginSubmit.disabled = true;
+                if (loginSpinner) loginSpinner.style.display = 'inline-block';
+
+                DB.login(username, password)
+                    .then(res => {
+                        showToast('เข้าสู่ระบบสำเร็จ ยินดีต้อนรับ ' + res.user.name, 'success');
+                        const loginScreen = $('login-screen');
+                        if (loginScreen) loginScreen.style.display = 'none';
+                        const appLayout = $('app');
+                        if (appLayout) appLayout.style.display = 'flex';
+
+                        setTimeout(() => {
+                            location.reload();
+                        }, 800);
+                    })
+                    .catch(err => {
+                        showToast(err.message || 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง', 'error');
+                        if (btnLoginSubmit) btnLoginSubmit.disabled = false;
+                        if (loginSpinner) loginSpinner.style.display = 'none';
+                    });
+            });
+        }
+
+        // --- Logout Button ---
+        const btnLogout = $('btn-logout');
+        if (btnLogout) {
+            btnLogout.addEventListener('click', () => {
+                const confirmLogout = confirm("🚪 คุณต้องการออกจากระบบใช่หรือไม่?\n\nเมื่อออกจากระบบ ข้อมูลประวัติและงานบริการทั้งหมดจะถูกลบออกจากเครื่องนี้เพื่อความปลอดภัย");
+                if (confirmLogout) {
+                    DB.logout();
+                }
+            });
+        }
+
+        // --- Add User Button ---
+        const btnAddUser = $('btn-add-user');
+        if (btnAddUser) {
+            btnAddUser.addEventListener('click', () => {
+                $('user-form-id').value = '';
+                $('user-form-name').value = '';
+                $('user-form-username').value = '';
+                $('user-form-password').value = '';
+                $('user-form-role').value = 'technician';
+                $('user-modal-title').textContent = 'เพิ่มผู้ใช้งานใหม่';
+                openModal('user-modal');
+            });
+        }
+
+        // --- User Form Submit ---
+        const userForm = $('user-form');
+        if (userForm) {
+            userForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const id = $('user-form-id').value.trim();
+                const name = $('user-form-name').value.trim();
+                const username = $('user-form-username').value.trim().toLowerCase().replace(/\s+/g, '');
+                const password = $('user-form-password').value.trim();
+                const role = $('user-form-role').value;
+
+                if (!name || !username || !password) {
+                    showToast('กรุณากรอกข้อมูลให้ครบถ้วน', 'warning');
+                    return;
+                }
+
+                const userData = { name, username, password, role };
+
+                if (id) {
+                    const updated = DB.update('users', id, userData);
+                    if (updated) {
+                        showToast('แก้ไขข้อมูลสมาชิกสำเร็จ', 'success');
+                        closeModal('user-modal');
+                        renderUserList();
+                    } else {
+                        showToast('เกิดข้อผิดพลาดในการแก้ไขข้อมูล', 'error');
+                    }
+                } else {
+                    const added = DB.create('users', userData);
+                    if (added) {
+                        showToast('เพิ่มผู้ใช้งานสมาชิกใหม่สำเร็จ', 'success');
+                        closeModal('user-modal');
+                        renderUserList();
+                    } else {
+                        showToast('เกิดข้อผิดพลาดในการสร้างบัญชีใหม่', 'error');
+                    }
+                }
+            });
+        }
+
         window.__app_initialized = true;
+    }
+
+    // ── Authentication & User Management ──────────────────────
+    function applyRolePermissions() {
+        const user = DB.getCurrentUser();
+        if (!user) return;
+
+        const sessionName = $('settings-session-name');
+        const sessionRole = $('settings-session-role');
+        if (sessionName) sessionName.textContent = user.name || user.username;
+        if (sessionRole) {
+            sessionRole.textContent = user.role === 'admin' ? 'ผู้ดูแลระบบ' : 'ช่างเทคนิค';
+            sessionRole.className = user.role === 'admin' ? 'badge badge-success' : 'badge badge-info';
+        }
+
+        const isAdmin = user.role === 'admin';
+        
+        // Settings page sections
+        const userMgmtSection = $('settings-user-mgmt-section');
+        if (userMgmtSection) {
+            userMgmtSection.style.display = isAdmin ? 'block' : 'none';
+            if (isAdmin) renderUserList();
+        }
+
+        const dataMgmtCard = $('settings-data-mgmt-card');
+        const dataMgmtHeading = $('settings-data-mgmt-heading');
+        if (dataMgmtCard) dataMgmtCard.style.display = isAdmin ? 'block' : 'none';
+        if (dataMgmtHeading) dataMgmtHeading.style.display = isAdmin ? 'block' : 'none';
+
+        const btnCloudUploadAll = $('btn-cloud-upload-all');
+        if (btnCloudUploadAll) btnCloudUploadAll.style.display = isAdmin ? 'inline-flex' : 'none';
+    }
+
+    function renderUserList() {
+        const listContainer = $('user-mgmt-list');
+        if (!listContainer) return;
+
+        const users = DB.getAll('users');
+        if (users.length === 0) {
+            listContainer.innerHTML = `
+                <tr>
+                  <td colspan="4" class="text-center text-muted" style="padding: 20px; font-size: 13px;">ไม่มีข้อมูลบัญชีผู้ใช้งานอื่นในเครื่อง</td>
+                </tr>
+            `;
+            return;
+        }
+
+        listContainer.innerHTML = users.map(user => `
+            <tr style="border-bottom: 1px solid var(--border-color);">
+              <td style="padding: var(--space-sm); font-weight: 500; font-size: 13px;">${user.name}</td>
+              <td style="padding: var(--space-sm); font-family: monospace; font-size: 13px;">${user.username}</td>
+              <td style="padding: var(--space-sm);">
+                <span class="badge ${user.role === 'admin' ? 'badge-success' : 'badge-info'}" style="font-size: 10px; padding: 2px 6px;">
+                  ${user.role === 'admin' ? 'แอดมิน' : 'ช่างเทคนิค'}
+                </span>
+              </td>
+              <td style="padding: var(--space-sm); text-align: right;">
+                <div style="display: flex; gap: 8px; justify-content: flex-end;">
+                  <button class="btn btn-ghost btn-xs btn-edit-user" data-id="${user.id}" title="แก้ไข" style="padding: 4px 8px; height: auto;">
+                    <i data-lucide="edit-2" style="width: 13px; height: 13px;"></i>
+                  </button>
+                  <button class="btn btn-ghost btn-xs btn-delete-user text-danger" data-id="${user.id}" title="ลบ" style="padding: 4px 8px; height: auto;">
+                    <i data-lucide="trash" style="width: 13px; height: 13px;"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+        `).join('');
+
+        if (window.lucide) lucide.createIcons();
+
+        // Bind Edit buttons
+        listContainer.querySelectorAll('.btn-edit-user').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const id = btn.getAttribute('data-id');
+                const user = DB.getById('users', id);
+                if (user) {
+                    $('user-form-id').value = user.id;
+                    $('user-form-name').value = user.name;
+                    $('user-form-username').value = user.username;
+                    $('user-form-password').value = user.password || '';
+                    $('user-form-role').value = user.role || 'technician';
+                    $('user-modal-title').textContent = 'แก้ไขข้อมูลผู้ใช้งาน';
+                    openModal('user-modal');
+                }
+            });
+        });
+
+        // Bind Delete buttons
+        listContainer.querySelectorAll('.btn-delete-user').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const id = btn.getAttribute('data-id');
+                const user = DB.getById('users', id);
+                if (!user) return;
+                
+                const curUser = DB.getCurrentUser();
+                if (curUser && curUser.id === id) {
+                    showToast('ไม่สามารถลบบัญชีที่กำลังล็อกอินอยู่ได้', 'error');
+                    return;
+                }
+
+                const confirmDel = confirm(`⚠️ คุณแน่ใจหรือไม่ว่าต้องการลบบัญชีผู้ใช้ "${user.name}"?`);
+                if (confirmDel) {
+                    const success = DB.delete('users', id);
+                    if (success) {
+                        showToast('ลบบัญชีผู้ใช้งานสำเร็จ', 'success');
+                        renderUserList();
+                    } else {
+                        showToast('เกิดข้อผิดพลาดในการลบข้อมูล', 'error');
+                    }
+                }
+            });
+        });
     }
 
     // ── App Initialization ────────────────────────────────────
@@ -871,6 +1090,15 @@ const App = (() => {
         updateProgress(20, 'กำลังเชื่อมต่อฐานข้อมูล...');
         DB.init();
 
+        const currentUser = DB.getCurrentUser();
+        const isLoggedIn = !!currentUser;
+
+        // Hide main app if not logged in
+        const appLayout = $('app');
+        const loginScreen = $('login-screen');
+        if (appLayout) appLayout.style.display = isLoggedIn ? 'flex' : 'none';
+        if (loginScreen) loginScreen.style.display = isLoggedIn ? 'none' : 'flex';
+
         // Check if sync was configured from URL
         if (window.__sync_configured) {
             showToast('เชื่อมต่อฐานข้อมูลคลาวด์ร้านแอร์เรียบร้อยแล้ว!', 'success');
@@ -880,23 +1108,31 @@ const App = (() => {
         updateProgress(50, 'กำลังเตรียมเมนูการใช้งาน...');
         setupGlobalEvents();
 
+        if (isLoggedIn) {
+            applyRolePermissions();
+        }
+
         // Update Storage labels initially (also sets demo banner display)
         updateStorageUsage();
 
         // 3. Initialize Feature Modules
         updateProgress(75, 'กำลังโหลดข้อมูลบริการ...');
         try {
-            if (typeof DashboardModule !== 'undefined') DashboardModule.init();
-            if (typeof CustomersModule !== 'undefined') CustomersModule.init();
-            if (typeof ServicesModule !== 'undefined') ServicesModule.init();
-            if (typeof AppointmentsModule !== 'undefined') AppointmentsModule.init();
+            if (isLoggedIn) {
+                if (typeof DashboardModule !== 'undefined') DashboardModule.init();
+                if (typeof CustomersModule !== 'undefined') CustomersModule.init();
+                if (typeof ServicesModule !== 'undefined') ServicesModule.init();
+                if (typeof AppointmentsModule !== 'undefined') AppointmentsModule.init();
+            }
         } catch (e) {
             console.error('[App] Failed to initialize modules', e);
         }
 
         // 4. Initial navigation
         updateProgress(90, 'กำลังเปิดเซสชัน...');
-        navigateTo('dashboard');
+        if (isLoggedIn) {
+            navigateTo('dashboard');
+        }
 
         // 5. Icons Render
         if (window.lucide) {

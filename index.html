@@ -12,9 +12,9 @@
   <title>Spairdee — ระบบจัดการร้านแอร์</title>
 
   <!-- Favicon / Tab Icon -->
-  <link rel="icon" href="assets/icons/logo.png?v=2.4.11" type="image/png">
-  <link rel="shortcut icon" href="assets/icons/logo.png?v=2.4.11" type="image/png">
-  <link rel="apple-touch-icon" href="assets/icons/logo.png?v=2.4.11">
+  <link rel="icon" href="assets/icons/logo.png?v=2.5.0" type="image/png">
+  <link rel="shortcut icon" href="assets/icons/logo.png?v=2.5.0" type="image/png">
+  <link rel="apple-touch-icon" href="assets/icons/logo.png?v=2.5.0">
 
   <!-- PWA Manifest -->
   <link rel="manifest" href="manifest.json">
@@ -39,7 +39,7 @@
 <div id="app-splash-screen" class="splash-screen">
   <div class="splash-content">
     <div class="splash-logo">
-      <img src="assets/icons/logo.png?v=2.4.11" alt="Spairdee Logo">
+      <img src="assets/icons/logo.png?v=2.5.0" alt="Spairdee Logo">
     </div>
     <h2 class="splash-title">Spairdee</h2>
     <p class="splash-subtitle">เอส พี แอร์ คอน แอนด์ เซอร์วิส</p>
@@ -64,7 +64,7 @@
     <!-- Logo -->
     <div class="sidebar-header">
       <div class="sidebar-logo" style="background: none; padding: 0; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center;">
-        <img src="assets/icons/logo.png?v=2.4.11" alt="Logo" style="width: 100%; height: 100%; object-fit: contain;">
+        <img src="assets/icons/logo.png?v=2.5.0" alt="Logo" style="width: 100%; height: 100%; object-fit: contain;">
       </div>
       <div class="sidebar-brand">
         <h1>Spairdee</h1>
@@ -112,7 +112,7 @@
       <button class="btn btn-primary btn-sm w-full mb-sm" id="btn-install-pwa" style="display: none; justify-content: center; width: 100%; margin-bottom: 8px;">
         <i data-lucide="download" width="16" height="16"></i> ติดตั้งแอป Spairdee
       </button>
-      <div class="text-xs text-muted text-center" id="sidebar-version">Spairdee v2.4.11</div>
+      <div class="text-xs text-muted text-center" id="sidebar-version">Spairdee v2.5.0</div>
     </div>
 
   </aside>
@@ -125,7 +125,7 @@
       <div class="top-header-left">
         <!-- Clickable Logo Button (Shortcut to Home/Dashboard) -->
         <div class="top-logo-btn" id="top-logo-btn" title="กลับหน้าหลัก">
-          <img src="assets/icons/logo.png?v=2.4.11" alt="Spairdee Logo" class="top-logo-img">
+          <img src="assets/icons/logo.png?v=2.5.0" alt="Spairdee Logo" class="top-logo-img">
           <div class="top-logo-brand">
             <span class="top-logo-name">Spairdee</span>
             <span class="top-logo-sub">เอส พี แอร์ คอน</span>
@@ -415,13 +415,29 @@
       <section class="page-section" id="page-settings" data-page="settings">
 
         <div style="max-width:640px;">
+          <!-- Current Session Account Card -->
+          <div class="card static mb-lg" id="settings-user-session-card" style="border-left: 4px solid var(--accent-cyan); display: flex; align-items: center; justify-content: space-between; padding: var(--space-md) var(--space-lg); margin-bottom: 24px;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <div style="width: 44px; height: 44px; border-radius: 50%; background: rgba(6, 182, 212, 0.1); border: 1px dashed rgba(6, 182, 212, 0.3); display: flex; align-items: center; justify-content: center;">
+                <i data-lucide="user" style="color: var(--accent-cyan); width: 22px; height: 22px;"></i>
+              </div>
+              <div style="text-align: left;">
+                <h4 class="text-base font-semibold" id="settings-session-name">กำลังดึงข้อมูล...</h4>
+                <p class="text-xs text-muted" style="margin-top: 2px;">สิทธิ์เข้าใช้งาน: <span id="settings-session-role" class="badge" style="font-size: 10px; padding: 2px 6px;">-</span></p>
+              </div>
+            </div>
+            <button class="btn btn-danger btn-sm" id="btn-logout" style="display: inline-flex; align-items: center; gap: 6px;">
+              <i data-lucide="log-out" style="width: 16px; height: 16px;"></i> ออกจากระบบ
+            </button>
+          </div>
+
           <!-- Data Management -->
-          <h3 class="mb-lg flex items-center gap-sm">
+          <h3 class="mb-lg flex items-center gap-sm" id="settings-data-mgmt-heading">
             <i data-lucide="database" style="width:22px;height:22px;color:var(--accent-cyan)"></i>
             จัดการข้อมูล
           </h3>
 
-          <div class="card static mb-lg">
+          <div class="card static mb-lg" id="settings-data-mgmt-card">
             <div class="flex items-center justify-between mb-lg" style="padding-bottom:var(--space-md);border-bottom:1px solid var(--border-color);">
               <div>
                 <h4 class="text-base font-semibold">สำรองข้อมูล (Export)</h4>
@@ -531,6 +547,42 @@
             </div>
           </div>
 
+          <!-- User Management (Admin Only) -->
+          <div id="settings-user-mgmt-section" style="display: none; margin-bottom: var(--space-lg);">
+            <h3 class="mb-lg flex items-center gap-sm">
+              <i data-lucide="users" style="width:22px;height:22px;color:var(--accent-cyan)"></i>
+              จัดการสมาชิกช่างแอร์ (Admin Only)
+            </h3>
+            
+            <div class="card static">
+              <div class="flex items-center justify-between mb-lg" style="margin-bottom: var(--space-md); padding-bottom:var(--space-sm); border-bottom:1px solid var(--border-color);">
+                <div>
+                  <h4 class="text-base font-semibold">บัญชีผู้ใช้ช่างแอร์และทีมงาน</h4>
+                  <p class="text-xs text-muted">กำหนดสิทธิ์ล็อกอินและรหัสผ่านสำหรับการใช้งานแอป</p>
+                </div>
+                <button class="btn btn-primary btn-sm" id="btn-add-user" style="display:inline-flex; align-items:center; gap:6px;">
+                  <i data-lucide="user-plus" style="width:16px; height:16px;"></i> เพิ่มผู้ใช้งาน
+                </button>
+              </div>
+              
+              <div style="overflow-x: auto; width: 100%;">
+                <table class="table" style="width:100%; border-collapse: collapse;">
+                  <thead>
+                    <tr style="border-bottom: 2px solid var(--border-color);">
+                      <th style="text-align: left; padding: var(--space-sm);">ชื่อช่าง/ผู้ใช้</th>
+                      <th style="text-align: left; padding: var(--space-sm);">Username</th>
+                      <th style="text-align: left; padding: var(--space-sm);">สิทธิ์</th>
+                      <th style="text-align: right; padding: var(--space-sm); width: 110px;">จัดการ</th>
+                    </tr>
+                  </thead>
+                  <tbody id="user-mgmt-list">
+                    <!-- Dynamic rendering -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
           <!-- App Installation -->
           <div id="settings-pwa-install-section" style="display:none; margin-bottom: 24px;">
             <h3 class="mb-lg flex items-center gap-sm">
@@ -566,7 +618,7 @@
             <div class="detail-grid">
               <div class="detail-item">
                 <div class="detail-label">เวอร์ชัน</div>
-                <div class="detail-value">2.4.11</div>
+                <div class="detail-value">2.5.0</div>
               </div>
               <div class="detail-item">
                 <div class="detail-label">เทคโนโลยี</div>
@@ -617,6 +669,52 @@
 <!-- ================================================================
      MODALS
      ================================================================ -->
+
+<!-- ── Modal: User Form ──────────────────────────────── -->
+<div class="modal-overlay" id="user-modal">
+  <div class="modal" style="max-width: 420px;">
+    <div class="modal-header">
+      <div>
+        <h3 id="user-modal-title">เพิ่มผู้ใช้งานใหม่</h3>
+        <p class="modal-subtitle">กำหนดสิทธิ์ล็อกอินและข้อมูลสำหรับช่างแอร์/แอดมิน</p>
+      </div>
+      <button class="modal-close" data-modal-close="user-modal"><i data-lucide="x" width="18" height="18"></i></button>
+    </div>
+    <form id="user-form">
+      <div class="modal-body" style="display: flex; flex-direction: column; gap: var(--space-md); padding: var(--space-md) var(--space-lg);">
+        <input type="hidden" id="user-form-id">
+        
+        <div class="form-group">
+          <label class="form-label" for="user-form-name">ชื่อจริงช่าง / พนักงาน</label>
+          <input type="text" class="form-input" id="user-form-name" placeholder="เช่น ช่างสมชาย" required style="margin-top: 6px;">
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label" for="user-form-username">ชื่อผู้ใช้ (Username)</label>
+          <input type="text" class="form-input" id="user-form-username" placeholder="เช่น somchaya" required style="margin-top: 6px;">
+          <p class="text-xs text-muted" style="margin-top: 4px;">ใช้สำหรับพิมพ์ล็อกอิน (ห้ามเว้นวรรค/อักษรพิเศษ)</p>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label" for="user-form-password">รหัสผ่าน (Password)</label>
+          <input type="text" class="form-input" id="user-form-password" placeholder="เช่น pass1234" required style="margin-top: 6px;">
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label" for="user-form-role">ระดับสิทธิ์</label>
+          <select class="form-input" id="user-form-role" required style="margin-top: 6px; background: #0a0f1a; border-color: var(--border-color); color: #fff; height: 38px;">
+            <option value="technician" selected>ช่างเทคนิค (ซ่อนรายรับ/กราฟ/ตั้งค่าผู้ใช้)</option>
+            <option value="admin">ผู้ดูแลระบบ/เจ้าของร้าน (เข้าถึงได้ทั้งหมด)</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer" style="padding: var(--space-md) var(--space-lg); display: flex; gap: 8px;">
+        <button type="submit" class="btn btn-primary" style="flex: 1;">บันทึกข้อมูล</button>
+        <button type="button" class="btn btn-secondary" data-modal-close="user-modal" style="flex: 1;">ยกเลิก</button>
+      </div>
+    </form>
+  </div>
+</div>
 
 <!-- ── Modal: Customer Form ──────────────────────────────── -->
 <div class="modal-overlay" id="customer-modal">
@@ -1056,6 +1154,46 @@
 <!-- ================================================================
      SCRIPTS
      ================================================================ -->
+<!-- ── Fullscreen Login Screen ── -->
+<div id="login-screen" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #070a13; z-index: 10000; display: flex; align-items: center; justify-content: center; font-family: 'Noto Sans Thai', 'Inter', sans-serif;">
+  <!-- Ambient background glows -->
+  <div style="position: absolute; width: 300px; height: 300px; background: radial-gradient(circle, rgba(6, 182, 212, 0.15) 0%, rgba(6, 182, 212, 0) 70%); top: 20%; left: 30%; filter: blur(50px); pointer-events: none;"></div>
+  <div style="position: absolute; width: 350px; height: 350px; background: radial-gradient(circle, rgba(59, 130, 246, 0.12) 0%, rgba(59, 130, 246, 0) 70%); bottom: 20%; right: 25%; filter: blur(60px); pointer-events: none;"></div>
+
+  <div class="login-card" style="width: 100%; max-width: 400px; padding: 40px 32px; background: rgba(15, 23, 42, 0.65); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 16px; box-shadow: var(--shadow-lg); text-align: center; position: relative; z-index: 1;">
+    <div style="margin-bottom: 28px;">
+      <div style="width: 64px; height: 64px; background: rgba(6, 182, 212, 0.1); border: 1px solid rgba(6, 182, 212, 0.2); border-radius: 16px; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;">
+        <img src="assets/icons/logo.png?v=2.5.0" alt="Logo" style="width: 40px; height: 40px; object-fit: contain;">
+      </div>
+      <h2 style="font-size: 24px; font-weight: 700; color: #fff; margin-bottom: 6px; letter-spacing: -0.5px;">เข้าสู่ระบบ Spairdee</h2>
+      <p style="color: var(--text-muted); font-size: 14px;">กรุณากรอกชื่อบัญชีและรหัสผ่านเพื่อเข้าใช้งาน</p>
+    </div>
+
+    <form id="login-form" style="display: flex; flex-direction: column; gap: 20px; text-align: left;">
+      <div class="form-group" style="margin: 0;">
+        <label class="form-label" for="login-username" style="margin-bottom: 6px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; font-size: 11px;">ชื่อผู้ใช้งาน (Username)</label>
+        <div style="position: relative; display: flex; align-items: center; width: 100%;">
+          <i data-lucide="user" style="position: absolute; left: 12px; color: var(--text-muted); width: 18px; height: 18px;"></i>
+          <input type="text" id="login-username" class="form-input" placeholder="กรอกชื่อผู้ใช้..." style="padding-left: 40px; height: 44px; margin: 0; background: rgba(10, 15, 26, 0.6); width: 100%;" required autocomplete="username">
+        </div>
+      </div>
+
+      <div class="form-group" style="margin: 0;">
+        <label class="form-label" for="login-password" style="margin-bottom: 6px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; font-size: 11px;">รหัสผ่าน (Password)</label>
+        <div style="position: relative; display: flex; align-items: center; width: 100%;">
+          <i data-lucide="lock" style="position: absolute; left: 12px; color: var(--text-muted); width: 18px; height: 18px;"></i>
+          <input type="password" id="login-password" class="form-input" placeholder="กรอกรหัสผ่าน..." style="padding-left: 40px; height: 44px; margin: 0; background: rgba(10, 15, 26, 0.6); width: 100%;" required autocomplete="current-password">
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn-primary" id="btn-login-submit" style="width: 100%; height: 44px; margin-top: 10px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; font-size: 15px; font-weight: 600;">
+        <span>เข้าสู่ระบบ</span>
+        <div id="login-spinner" class="spinner" style="width: 18px; height: 18px; border-width: 2px; border-color: rgba(255,255,255,0.3) rgba(255,255,255,0.3) #fff rgba(255,255,255,0.3); display: none;"></div>
+      </button>
+    </form>
+  </div>
+</div>
+
 <script src="js/db.js"></script>
 <script src="js/app.js"></script>
 <script src="js/dashboard.js"></script>

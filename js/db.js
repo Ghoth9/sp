@@ -12,6 +12,7 @@ const DB = (() => {
     customers: 'acsp_customers',
     services: 'acsp_services',
     appointments: 'acsp_appointments',
+    users: 'acsp_users',
   };
 
   const INITIALIZED_KEY = 'acsp_initialized';
@@ -121,6 +122,7 @@ const DB = (() => {
       customers: 'CUS',
       services: 'SRV',
       appointments: 'APT',
+      users: 'USR',
     };
     const id = _nextId(prefixMap[collection], key);
     const record = { id, ...data, createdAt: data.createdAt || new Date().toISOString() };
@@ -715,12 +717,12 @@ const DB = (() => {
     console.log('[DB] Demo data seeded ✓');
   }
 
-  const DEFAULT_CLOUD_URL = '';
+  const DEFAULT_CLOUD_URL = 'https://script.google.com/macros/s/AKfycbxurKONxQEqeF6NyLb_OuiQkCbToT6-gyWkIIwhdGmj7DJcEeHlxNheJ-F2YZdHdlla/exec';
   
   let _cloudUrl = localStorage.getItem('acsp_cloud_url') || DEFAULT_CLOUD_URL;
   let _cloudEnabled = localStorage.getItem('acsp_cloud_enabled') !== null
     ? localStorage.getItem('acsp_cloud_enabled') === 'true'
-    : false; // ปิดใช้งาน Cloud Mode เป็นค่าเริ่มต้นเพื่อป้องกันข้อมูลรั่วไหลสู่คนนอก
+    : true; // เปิดใช้งาน Cloud Mode เป็นค่าเริ่มต้นเพื่อความสะดวกและการเข้าสู่ระบบ
 
   function isCloudEnabled() {
     return _cloudEnabled;
@@ -856,6 +858,9 @@ const DB = (() => {
           const cleaned = data.appointments.map(a => _cleanRecordDates('appointments', a));
           _saveAll(COLLECTIONS.appointments, cleaned);
         }
+        if (data.users) {
+          _saveAll(COLLECTIONS.users, data.users);
+        }
         
         console.log("[Cloud] Pulled all data from Google Sheets successfully.");
         return data;
@@ -904,6 +909,50 @@ const DB = (() => {
     });
   }
 
+  // ── Authentication & Sessions ──────────────────────────────
+  function getCurrentUser() {
+    try {
+      const raw = localStorage.getItem('acsp_current_user');
+      return raw ? JSON.parse(raw) : null;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  function login(username, password) {
+    if (!_cloudUrl) return Promise.reject("ยังไม่ได้ตั้งค่าเซิร์ฟเวอร์ฐานข้อมูล");
+    
+    return fetch(_cloudUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'text/plain;charset=utf-8' // GAS accepts POST content-type as plain-text to avoid CORS preflight
+      },
+      body: JSON.stringify({
+        action: 'login',
+        username: username,
+        password: password
+      })
+    })
+    .then(res => {
+      if (!res.ok) throw new Error("การเชื่อมต่อระบบหลังบ้านล้มเหลว");
+      return res.json();
+    })
+    .then(resData => {
+      if (resData && resData.success) {
+        localStorage.setItem('acsp_current_user', JSON.stringify(resData.user));
+        return resData;
+      } else {
+        throw new Error(resData ? resData.message : "ชื่อผู้ใช้หรือรหัสผ่านผิดพลาด");
+      }
+    });
+  }
+
+  function logout() {
+    localStorage.removeItem('acsp_current_user');
+    clearAllData();
+    location.reload();
+  }
+
   // ── Initialise ────────────────────────────────────────────
 
   function init() {
@@ -934,8 +983,8 @@ const DB = (() => {
     }
     console.log('[DB] Ready');
     
-    // Auto sync queue and pull fresh data if online and cloud enabled
-    if (_cloudEnabled && _cloudUrl) {
+    // Auto sync queue and pull fresh data if online, cloud enabled, and logged in
+    if (_cloudEnabled && _cloudUrl && getCurrentUser()) {
       triggerSyncQueue()
         .then(() => pullFromCloud())
         .then(() => {
@@ -968,6 +1017,11 @@ const DB = (() => {
     exportData,
     importData,
     clearAllData,
+    
+    // Exposed Auth API
+    getCurrentUser,
+    login,
+    logout,
     
     // Exposed Cloud API
     isCloudEnabled,

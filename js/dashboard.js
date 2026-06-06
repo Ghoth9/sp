@@ -465,8 +465,28 @@ const DashboardModule = (() => {
         const stats = computeStats();
 
         renderStatCards(stats);
-        renderUnpaidSummary(stats);
-        drawRevenueChart(stats.services);
+
+        const user = typeof DB !== 'undefined' ? DB.getCurrentUser() : null;
+        const isAdmin = user && user.role === 'admin';
+
+        if (isAdmin) {
+            renderUnpaidSummary(stats);
+            drawRevenueChart(stats.services);
+            const revChartCard = $('chart-revenue-card');
+            if (revChartCard) revChartCard.style.display = 'block';
+        } else {
+            const unpaidContainer = $('dashboard-unpaid-summary');
+            if (unpaidContainer) unpaidContainer.innerHTML = '';
+            const revChartCard = $('chart-revenue-card');
+            if (revChartCard) revChartCard.style.display = 'none';
+        }
+
+        // Hide revenue card in stats grid if not admin
+        if (!isAdmin) {
+            const revCard = $('stat-card-revenue');
+            if (revCard) revCard.style.display = 'none';
+        }
+
         drawServiceTypeChart(stats.services);
         renderRecentServices(stats.services);
         renderUpcomingAppointments(stats.appointments);

@@ -15,7 +15,8 @@ function doGet(e) {
     const payload = {
       customers: readSheetAsJson('ACSP_Customers'),
       services: readSheetAsJson('ACSP_Services'),
-      appointments: readSheetAsJson('ACSP_Appointments')
+      appointments: readSheetAsJson('ACSP_Appointments'),
+      users: readSheetAsJson('ACSP_Users')
     };
     
     return jsonResponse(payload);
@@ -38,7 +39,30 @@ function doPost(e) {
     }
     
     const action = request.action;
-    const collection = request.collection; // 'customers', 'services', 'appointments', 'inventory'
+
+    // --- ตรวจสอบการเข้าสู่ระบบ (Login Validation) ---
+    if (action === 'login') {
+      const username = String(request.username || '').trim().toLowerCase();
+      const password = String(request.password || '').trim();
+      const users = readSheetAsJson('ACSP_Users');
+      
+      const user = users.find(u => String(u.username || '').trim().toLowerCase() === username && String(u.password || '').trim() === password);
+      if (user) {
+        return jsonResponse({
+          success: true,
+          user: {
+            id: user.id,
+            username: user.username,
+            role: user.role || 'technician',
+            name: user.name || user.username
+          }
+        });
+      } else {
+        return jsonResponse({ success: false, message: 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง' });
+      }
+    }
+
+    const collection = request.collection; // 'customers', 'services', 'appointments', 'inventory', 'users'
     const sheetName = getSheetName(collection);
     
     if (action === 'create') {
@@ -93,6 +117,7 @@ function doPost(e) {
       if (data.customers) overwriteSheet('ACSP_Customers', data.customers);
       if (data.services) overwriteSheet('ACSP_Services', data.services);
       if (data.appointments) overwriteSheet('ACSP_Appointments', data.appointments);
+      if (data.users) overwriteSheet('ACSP_Users', data.users);
       
       return jsonResponse({ success: true, message: "ซิงก์ข้อมูลทั้งหมดขึ้นคลาวด์เรียบร้อย!" });
     }
@@ -240,7 +265,8 @@ function getSheetName(collection) {
   const maps = {
     'customers': 'ACSP_Customers',
     'services': 'ACSP_Services',
-    'appointments': 'ACSP_Appointments'
+    'appointments': 'ACSP_Appointments',
+    'users': 'ACSP_Users'
   };
   return maps[collection];
 }
