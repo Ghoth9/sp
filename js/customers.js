@@ -121,7 +121,7 @@ const CustomersModule = (() => {
                 <table class="data-table" id="customers-data-table">
                     <thead>
                         <tr>
-                            <th class="hide-mobile">รหัส</th>
+                            <th class="hide-mobile">ลำดับ</th>
                             <th>ชื่อ</th>
                             <th>โทรศัพท์</th>
                             <th class="hide-mobile">LINE ID</th>
@@ -134,12 +134,12 @@ const CustomersModule = (() => {
                     <tbody>
         `;
 
-        customers.forEach(c => {
+        customers.forEach((c, index) => {
             const spent = totalSpent(c.id);
             const svcCount = serviceCount(c.id);
             html += `
                 <tr id="customer-row-${c.id}">
-                    <td class="text-muted hide-mobile">${c.id}</td>
+                    <td class="text-muted hide-mobile">${index + 1}</td>
                     <td>
                         <button class="link-btn btn-view-customer" data-id="${c.id}">${c.name || '-'}</button>
                     </td>

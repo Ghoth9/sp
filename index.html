@@ -112,7 +112,7 @@
       <button class="btn btn-primary btn-sm w-full mb-sm" id="btn-install-pwa" style="display: none; justify-content: center; width: 100%; margin-bottom: 8px;">
         <i data-lucide="download" width="16" height="16"></i> ติดตั้งแอป Spairdee
       </button>
-      <div class="text-xs text-muted text-center" id="sidebar-version">Spairdee v2.5.3</div>
+      <div class="text-xs text-muted text-center" id="sidebar-version">Spairdee v2.5.4</div>
     </div>
 
   </aside>
@@ -414,246 +414,258 @@
            ============================================================ -->
       <section class="page-section" id="page-settings" data-page="settings">
 
-        <div style="max-width:640px;">
-          <!-- Current Session Account Card -->
-          <div class="card static mb-lg" id="settings-user-session-card" style="border-left: 4px solid var(--accent-cyan); display: flex; align-items: center; justify-content: space-between; padding: var(--space-md) var(--space-lg); margin-bottom: 24px;">
-            <div style="display: flex; align-items: center; gap: 12px;">
-              <div style="width: 44px; height: 44px; border-radius: 50%; background: rgba(6, 182, 212, 0.1); border: 1px dashed rgba(6, 182, 212, 0.3); display: flex; align-items: center; justify-content: center;">
-                <i data-lucide="user" style="color: var(--accent-cyan); width: 22px; height: 22px;"></i>
-              </div>
-              <div style="text-align: left;">
-                <h4 class="text-base font-semibold" id="settings-session-name">กำลังดึงข้อมูล...</h4>
-                <p class="text-xs text-muted" style="margin-top: 2px;">สิทธิ์เข้าใช้งาน: <span id="settings-session-role" class="badge" style="font-size: 10px; padding: 2px 6px;">-</span></p>
-              </div>
-            </div>
-            <button class="btn btn-danger btn-sm" id="btn-logout" style="display: inline-flex; align-items: center; gap: 6px;">
-              <i data-lucide="log-out" style="width: 16px; height: 16px;"></i> ออกจากระบบ
-            </button>
-          </div>
-
-          <!-- Data Management -->
-          <h3 class="mb-lg flex items-center gap-sm" id="settings-data-mgmt-heading">
-            <i data-lucide="database" style="width:22px;height:22px;color:var(--accent-cyan)"></i>
-            จัดการข้อมูล
-          </h3>
-
-          <div class="card static mb-lg" id="settings-data-mgmt-card">
-            <div class="flex items-center justify-between mb-lg" style="padding-bottom:var(--space-md);border-bottom:1px solid var(--border-color);">
-              <div>
-                <h4 class="text-base font-semibold">สำรองข้อมูล (Export)</h4>
-                <p class="text-sm text-muted">ดาวน์โหลดข้อมูลทั้งหมดเป็นไฟล์ JSON</p>
-              </div>
-              <button class="btn btn-secondary" id="btn-export-data">
-                <i data-lucide="download"></i> Export
-              </button>
-            </div>
-
-            <div class="flex items-center justify-between mb-lg" style="padding-bottom:var(--space-md);border-bottom:1px solid var(--border-color);">
-              <div>
-                <h4 class="text-base font-semibold">นำเข้าข้อมูล (Import)</h4>
-                <p class="text-sm text-muted">นำเข้าข้อมูลจากไฟล์ JSON ที่สำรองไว้</p>
-              </div>
-              <div>
-                <input type="file" id="import-file-input" accept=".json" class="sr-only">
-                <button class="btn btn-secondary" id="btn-import-data">
-                  <i data-lucide="upload"></i> Import
-                </button>
-              </div>
-            </div>
-
-            <div class="flex items-center justify-between">
-              <div>
-                <h4 class="text-base font-semibold text-danger">ล้างข้อมูลทั้งหมด</h4>
-                <p class="text-sm text-muted">ลบข้อมูลทั้งหมดและรีเซ็ตระบบ (ไม่สามารถกู้คืนได้)</p>
-              </div>
-              <button class="btn btn-danger" id="btn-clear-data">
-                <i data-lucide="trash-2"></i> ล้างข้อมูล
-              </button>
-            </div>
-          </div>
-
-          <!-- Cloud Sync Management -->
-          <h3 class="mb-lg flex items-center gap-sm">
-            <i data-lucide="cloud" style="width:22px;height:22px;color:var(--accent-cyan)"></i>
-            ระบบเชื่อมต่อคลาวด์ (Cloud Sync)
-          </h3>
-
-          <div class="card static mb-lg">
-            <div class="form-group mb-lg" style="padding-bottom:var(--space-md);border-bottom:1px solid var(--border-color);">
-              <div class="flex items-center justify-between">
-                <div>
-                  <h4 class="text-base font-semibold">เปิดใช้งานโหมดคลาวด์ (Cloud Mode)</h4>
-                  <p class="text-sm text-muted">อ่านและเขียนข้อมูลไปที่ Google Sheets ในคลาวด์แทนเครื่องท้องถิ่น</p>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 450px), 1fr)); gap: var(--space-lg); align-items: start;">
+          
+          <!-- Column 1: Account, Users & Installation -->
+          <div style="display: flex; flex-direction: column; gap: var(--space-lg); min-width: 0;">
+            <!-- Current Session Account Card -->
+            <div class="card static" id="settings-user-session-card" style="border-left: 4px solid var(--accent-cyan); display: flex; align-items: center; justify-content: space-between; padding: var(--space-md) var(--space-lg);">
+              <div style="display: flex; align-items: center; gap: 12px;">
+                <div style="width: 44px; height: 44px; border-radius: 50%; background: rgba(6, 182, 212, 0.1); border: 1px dashed rgba(6, 182, 212, 0.3); display: flex; align-items: center; justify-content: center;">
+                  <i data-lucide="user" style="color: var(--accent-cyan); width: 22px; height: 22px;"></i>
                 </div>
-                <div class="form-switch-wrapper">
-                  <input type="checkbox" id="settings-cloud-enabled" class="sr-only">
-                  <label for="settings-cloud-enabled" class="form-switch-label" style="display:inline-block;width:50px;height:26px;background:#cbd5e1;border-radius:13px;position:relative;cursor:pointer;transition:0.3s;">
-                    <span class="form-switch-dot" style="display:block;width:20px;height:20px;background:white;border-radius:50%;position:absolute;top:3px;left:3px;transition:0.3s;"></span>
-                  </label>
+                <div style="text-align: left;">
+                  <h4 class="text-base font-semibold" id="settings-session-name">กำลังดึงข้อมูล...</h4>
+                  <p class="text-xs text-muted" style="margin-top: 2px;">สิทธิ์เข้าใช้งาน: <span id="settings-session-role" class="badge" style="font-size: 10px; padding: 2px 6px;">-</span></p>
                 </div>
               </div>
-            </div>
-
-            <div class="form-group mb-lg" id="settings-advanced-cloud-url" style="display: none; padding-top: var(--space-md); border-top: 1px dashed var(--border-color);">
-              <label class="form-label" style="font-weight:600;">Google Apps Script Web App URL</label>
-              <div style="display: flex; gap: 8px; margin-top: 8px;">
-                <input type="url" class="form-input" id="settings-cloud-url" placeholder="https://script.google.com/macros/s/.../exec" style="margin-top:0; flex:1;">
-                <button class="btn btn-secondary" id="btn-settings-scan-qr" title="สแกน QR Code เพื่อเชื่อมต่อ" style="padding: 0 12px; display: inline-flex; align-items: center; justify-content: center; height: 38px;">
-                  <i data-lucide="camera" style="width:20px; height:20px;"></i>
-                </button>
-              </div>
-              <p class="text-xs text-muted" style="margin-top:6px;">URL ลิงก์ระบบหลังบ้านสำหรับเชื่อมสเปรดชีตและส่ง LINE อัตโนมัติ</p>
-            </div>
-
-            <div style="margin-top: -8px; margin-bottom: 20px;">
-              <a href="#" id="link-toggle-advanced-settings" style="font-size: 12px; color: var(--text-muted); display: inline-flex; align-items: center; gap: 4px; text-decoration: underline;">
-                <i data-lucide="chevron-down" style="width: 12px; height: 12px;"></i> ตั้งค่าขั้นสูง (แก้ไขลิงก์ระบบ)
-              </a>
-            </div>
-
-            <div class="flex items-center justify-between mt-lg">
-              <div>
-                <h4 class="text-sm font-semibold">อัปโหลดข้อมูลจากเครื่องขึ้นสเปรดชีต</h4>
-                <p class="text-xs text-muted">กดเมื่อต้องการซิงก์ข้อมูลจากเครื่องขึ้นคลาวด์ครั้งแรก</p>
-              </div>
-              <button class="btn btn-secondary btn-sm" id="btn-cloud-upload-all" disabled>
-                <i data-lucide="cloud-lightning"></i> ซิงก์ขึ้นชีตทันที
+              <button class="btn btn-danger btn-sm" id="btn-logout" style="display: inline-flex; align-items: center; gap: 6px;">
+                <i data-lucide="log-out" style="width: 16px; height: 16px;"></i> ออกจากระบบ
               </button>
             </div>
 
-            <div class="flex items-center justify-between mt-md" style="margin-top:16px;padding-top:16px;border-top:1px dashed var(--border-color);">
-              <div>
-                <h4 class="text-sm font-semibold">ทดสอบส่งคิวงานเข้า LINE ทันที</h4>
-                <p class="text-xs text-muted">ส่งรายการสรุปคิวงานของวันนี้เข้ากลุ่มช่างผ่านระบบหลังบ้าน</p>
-              </div>
-              <button class="btn btn-secondary btn-sm" id="btn-cloud-trigger-line" disabled style="border-color:#24c653;color:#24c653;">
-                <i data-lucide="send"></i> รันคำสั่งส่ง LINE
-              </button>
-            </div>
-
-            <!-- Share Cloud URL with Team -->
-            <div class="mt-md" id="share-cloud-section" style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border-color);display:none;">
-              <h4 class="text-sm font-semibold mb-sm">แชร์สิทธิ์เข้าใช้งานให้ทีมงาน</h4>
-              <p class="text-xs text-muted mb-md">เพื่อให้ช่างคนอื่นเปิดใช้และซิงก์ข้อมูลนี้ร่วมกันได้ โดยไม่ต้องกรอก URL ยาวๆ</p>
+            <!-- User Management (Admin Only) -->
+            <div id="settings-user-mgmt-section" style="display: none;">
+              <h3 class="mb-lg flex items-center gap-sm">
+                <i data-lucide="users" style="width:22px;height:22px;color:var(--accent-cyan)"></i>
+                จัดการสมาชิกช่างแอร์ (Admin Only)
+              </h3>
               
-              <div style="display:flex;gap:8px;margin-top:12px;">
-                <button class="btn btn-secondary btn-sm w-full" id="btn-copy-share-link" style="flex:1; justify-content:center;">
-                  <i data-lucide="copy"></i> คัดลอกลิงก์แชร์สิทธิ์
-                </button>
-                <button class="btn btn-secondary btn-sm" id="btn-show-share-qr" title="แสดง QR Code" style="display:flex;align-items:center;justify-content:center;width:36px;height:36px;padding:0;">
-                  <i data-lucide="qr-code"></i>
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <!-- User Management (Admin Only) -->
-          <div id="settings-user-mgmt-section" style="display: none; margin-bottom: var(--space-lg);">
-            <h3 class="mb-lg flex items-center gap-sm">
-              <i data-lucide="users" style="width:22px;height:22px;color:var(--accent-cyan)"></i>
-              จัดการสมาชิกช่างแอร์ (Admin Only)
-            </h3>
-            
-            <div class="card static">
-              <div class="flex items-center justify-between mb-lg" style="margin-bottom: var(--space-md); padding-bottom:var(--space-sm); border-bottom:1px solid var(--border-color);">
-                <div>
-                  <h4 class="text-base font-semibold">บัญชีผู้ใช้ช่างแอร์และทีมงาน</h4>
-                  <p class="text-xs text-muted">กำหนดสิทธิ์ล็อกอินและรหัสผ่านสำหรับการใช้งานแอป</p>
+              <div class="card static">
+                <div class="flex items-center justify-between mb-lg" style="margin-bottom: var(--space-md); padding-bottom:var(--space-sm); border-bottom:1px solid var(--border-color);">
+                  <div>
+                    <h4 class="text-base font-semibold">บัญชีผู้ใช้ช่างแอร์และทีมงาน</h4>
+                    <p class="text-xs text-muted">กำหนดสิทธิ์ล็อกอินและรหัสผ่านสำหรับการใช้งานแอป</p>
+                  </div>
+                  <button class="btn btn-primary btn-sm" id="btn-add-user" style="display:inline-flex; align-items:center; gap:6px;">
+                    <i data-lucide="user-plus" style="width:16px; height:16px;"></i> เพิ่มผู้ใช้งาน
+                  </button>
                 </div>
-                <button class="btn btn-primary btn-sm" id="btn-add-user" style="display:inline-flex; align-items:center; gap:6px;">
-                  <i data-lucide="user-plus" style="width:16px; height:16px;"></i> เพิ่มผู้ใช้งาน
-                </button>
-              </div>
-              
-              <div style="overflow-x: auto; width: 100%;">
-                <table class="table" style="width:100%; border-collapse: collapse;">
-                  <thead>
-                    <tr style="border-bottom: 2px solid var(--border-color);">
-                      <th style="text-align: left; padding: var(--space-sm);">ชื่อช่าง/ผู้ใช้</th>
-                      <th style="text-align: left; padding: var(--space-sm);">Username</th>
-                      <th style="text-align: left; padding: var(--space-sm);">สิทธิ์</th>
-                      <th style="text-align: right; padding: var(--space-sm); width: 110px;">จัดการ</th>
-                    </tr>
-                  </thead>
-                  <tbody id="user-mgmt-list">
-                    <!-- Dynamic rendering -->
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-
-          <!-- App Installation -->
-          <div id="settings-pwa-install-section" style="display:none; margin-bottom: 24px;">
-            <h3 class="mb-lg flex items-center gap-sm">
-              <i data-lucide="download" style="width:22px;height:22px;color:var(--accent-cyan)"></i>
-              ติดตั้งแอปพลิเคชัน
-            </h3>
-            <div class="card static">
-              <div class="flex items-center justify-between" id="settings-install-button-row">
-                <div>
-                  <h4 class="text-base font-semibold">ติดตั้งแอปพลิเคชันลงบนอุปกรณ์</h4>
-                  <p class="text-sm text-muted">เข้าใช้งานง่าย ทำงานรวดเร็ว และใช้งานแบบออฟไลน์ได้</p>
+                
+                <div style="overflow-x: auto; width: 100%;">
+                  <table class="data-table" style="width:100%; border-collapse: collapse;">
+                    <thead>
+                      <tr style="border-bottom: 2px solid var(--border-color);">
+                        <th style="text-align: left; padding: var(--space-sm);">ชื่อช่าง/ผู้ใช้</th>
+                        <th style="text-align: left; padding: var(--space-sm);">Username</th>
+                        <th style="text-align: left; padding: var(--space-sm);">สิทธิ์</th>
+                        <th style="text-align: right; padding: var(--space-sm); width: 110px;">จัดการ</th>
+                      </tr>
+                    </thead>
+                    <tbody id="user-mgmt-list">
+                      <!-- Dynamic rendering -->
+                    </tbody>
+                  </table>
                 </div>
-                <button class="btn btn-primary" id="btn-settings-install-pwa">
-                  <i data-lucide="download"></i> ติดตั้งแอป
-                </button>
               </div>
-              <div id="ios-install-guide" style="display:none; margin-top:12px; padding-top:12px; border-top:1px dashed var(--border-color); font-size:13px; color:var(--text-secondary); line-height:1.6;">
-                📱 <strong>สำหรับ iPhone / iPad:</strong><br>
-                1. กดปุ่ม <strong>แชร์ (Share)</strong> <i data-lucide="share" style="width:14px;height:14px;display:inline-block;vertical-align:middle;"></i> ที่แถบเครื่องมือล่างของ Safari<br>
-                2. เลือก <strong>เพิ่มไปยังหน้าจอโฮม (Add to Home Screen)</strong><br>
-                3. กด <strong>เพิ่ม (Add)</strong> เพื่อติดตั้งเป็นแอปพลิเคชัน
+            </div>
+
+            <!-- App Installation -->
+            <div id="settings-pwa-install-section" style="display:none;">
+              <h3 class="mb-lg flex items-center gap-sm">
+                <i data-lucide="download" style="width:22px;height:22px;color:var(--accent-cyan)"></i>
+                ติดตั้งแอปพลิเคชัน
+              </h3>
+              <div class="card static">
+                <div class="flex items-center justify-between" id="settings-install-button-row">
+                  <div>
+                    <h4 class="text-base font-semibold">ติดตั้งแอปพลิเคชันลงบนอุปกรณ์</h4>
+                    <p class="text-sm text-muted">เข้าใช้งานง่าย ทำงานรวดเร็ว และใช้งานแบบออฟไลน์ได้</p>
+                  </div>
+                  <button class="btn btn-primary" id="btn-settings-install-pwa">
+                    <i data-lucide="download"></i> ติดตั้งแอป
+                  </button>
+                </div>
+                <div id="ios-install-guide" style="display:none; margin-top:12px; padding-top:12px; border-top:1px dashed var(--border-color); font-size:13px; color:var(--text-secondary); line-height:1.6;">
+                  📱 <strong>สำหรับ iPhone / iPad:</strong><br>
+                  1. กดปุ่ม <strong>แชร์ (Share)</strong> <i data-lucide="share" style="width:14px;height:14px;display:inline-block;vertical-align:middle;"></i> ที่แถบเครื่องมือล่างของ Safari<br>
+                  2. เลือก <strong>เพิ่มไปยังหน้าจอโฮม (Add to Home Screen)</strong><br>
+                  3. กด <strong>เพิ่ม (Add)</strong> เพื่อติดตั้งเป็นแอปพลิเคชัน
+                </div>
               </div>
             </div>
           </div>
 
-          <!-- App Info -->
-          <h3 class="mb-lg flex items-center gap-sm">
-            <i data-lucide="info" style="width:22px;height:22px;color:var(--accent-cyan)"></i>
-            เกี่ยวกับแอป
-          </h3>
+          <!-- Column 2: Data, Cloud & Info -->
+          <div style="display: flex; flex-direction: column; gap: var(--space-lg); min-width: 0;">
+            <!-- Cloud Sync Management -->
+            <div>
+              <h3 class="mb-lg flex items-center gap-sm">
+                <i data-lucide="cloud" style="width:22px;height:22px;color:var(--accent-cyan)"></i>
+                ระบบเชื่อมต่อคลาวด์ (Cloud Sync)
+              </h3>
+              <div class="card static">
+                <div class="form-group mb-lg" style="padding-bottom:var(--space-md);border-bottom:1px solid var(--border-color);">
+                  <div class="flex items-center justify-between">
+                    <div>
+                      <h4 class="text-base font-semibold">เปิดใช้งานโหมดคลาวด์ (Cloud Mode)</h4>
+                      <p class="text-sm text-muted">อ่านและเขียนข้อมูลไปที่ Google Sheets ในคลาวด์แทนเครื่องท้องถิ่น</p>
+                    </div>
+                    <div class="form-switch-wrapper">
+                      <input type="checkbox" id="settings-cloud-enabled" class="sr-only">
+                      <label for="settings-cloud-enabled" class="form-switch-label" style="display:inline-block;width:50px;height:26px;background:#cbd5e1;border-radius:13px;position:relative;cursor:pointer;transition:0.3s;">
+                        <span class="form-switch-dot" style="display:block;width:20px;height:20px;background:white;border-radius:50%;position:absolute;top:3px;left:3px;transition:0.3s;"></span>
+                      </label>
+                    </div>
+                  </div>
+                </div>
 
-          <div class="card static">
-            <div class="detail-grid">
-              <div class="detail-item">
-                <div class="detail-label">เวอร์ชัน</div>
-                <div class="detail-value">2.5.2</div>
-              </div>
-              <div class="detail-item">
-                <div class="detail-label">เทคโนโลยี</div>
-                <div class="detail-value">HTML5, CSS3, JavaScript (ES6+)</div>
-              </div>
-              <div class="detail-item">
-                <div class="detail-label">ข้อมูลจัดเก็บ</div>
-                <div class="detail-value" id="settings-db-type">localStorage (เบราว์เซอร์)</div>
+                <div class="form-group mb-lg" id="settings-advanced-cloud-url" style="display: none; padding-top: var(--space-md); border-top: 1px dashed var(--border-color);">
+                  <label class="form-label" style="font-weight:600;">Google Apps Script Web App URL</label>
+                  <div style="display: flex; gap: 8px; margin-top: 8px;">
+                    <input type="url" class="form-input" id="settings-cloud-url" placeholder="https://script.google.com/macros/s/.../exec" style="margin-top:0; flex:1;">
+                    <button class="btn btn-secondary" id="btn-settings-scan-qr" title="สแกน QR Code เพื่อเชื่อมต่อ" style="padding: 0 12px; display: inline-flex; align-items: center; justify-content: center; height: 38px;">
+                      <i data-lucide="camera" style="width:20px; height:20px;"></i>
+                    </button>
+                  </div>
+                  <p class="text-xs text-muted" style="margin-top:6px;">URL ลิงก์ระบบหลังบ้านสำหรับเชื่อมสเปรดชีตและส่ง LINE อัตโนมัติ</p>
+                </div>
+
+                <div style="margin-top: -8px; margin-bottom: 20px;">
+                  <a href="#" id="link-toggle-advanced-settings" style="font-size: 12px; color: var(--text-muted); display: inline-flex; align-items: center; gap: 4px; text-decoration: underline;">
+                    <i data-lucide="chevron-down" style="width: 12px; height: 12px;"></i> ตั้งค่าขั้นสูง (แก้ไขลิงก์ระบบ)
+                  </a>
+                </div>
+
+                <div class="flex items-center justify-between mt-lg">
+                  <div>
+                    <h4 class="text-sm font-semibold">อัปโหลดข้อมูลจากเครื่องขึ้นสเปรดชีต</h4>
+                    <p class="text-xs text-muted">กดเมื่อต้องการซิงก์ข้อมูลจากเครื่องขึ้นคลาวด์ครั้งแรก</p>
+                  </div>
+                  <button class="btn btn-secondary btn-sm" id="btn-cloud-upload-all" disabled>
+                    <i data-lucide="cloud-lightning"></i> ซิงก์ขึ้นชีตทันที
+                  </button>
+                </div>
+
+                <div class="flex items-center justify-between mt-md" style="margin-top:16px;padding-top:16px;border-top:1px dashed var(--border-color);">
+                  <div>
+                    <h4 class="text-sm font-semibold">ทดสอบส่งคิวงานเข้า LINE ทันที</h4>
+                    <p class="text-xs text-muted">ส่งรายการสรุปคิวงานของวันนี้เข้ากลุ่มช่างผ่านระบบหลังบ้าน</p>
+                  </div>
+                  <button class="btn btn-secondary btn-sm" id="btn-cloud-trigger-line" disabled style="border-color:#24c653;color:#24c653;">
+                    <i data-lucide="send"></i> รันคำสั่งส่ง LINE
+                  </button>
+                </div>
+
+                <!-- Share Cloud URL with Team -->
+                <div class="mt-md" id="share-cloud-section" style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border-color);display:none;">
+                  <h4 class="text-sm font-semibold mb-sm">แชร์สิทธิ์เข้าใช้งานให้ทีมงาน</h4>
+                  <p class="text-xs text-muted mb-md">เพื่อให้ช่างคนอื่นเปิดใช้และซิงก์ข้อมูลนี้ร่วมกันได้ โดยไม่ต้องกรอก URL ยาวๆ</p>
+                  
+                  <div style="display:flex;gap:8px;margin-top:12px;">
+                    <button class="btn btn-secondary btn-sm w-full" id="btn-copy-share-link" style="flex:1; justify-content:center;">
+                      <i data-lucide="copy"></i> คัดลอกลิงก์แชร์สิทธิ์
+                    </button>
+                    <button class="btn btn-secondary btn-sm" id="btn-show-share-qr" title="แสดง QR Code" style="display:flex;align-items:center;justify-content:center;width:36px;height:36px;padding:0;">
+                      <i data-lucide="qr-code"></i>
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
 
-            <div class="divider"></div>
+            <!-- Data Management -->
+            <div>
+              <h3 class="mb-lg flex items-center gap-sm" id="settings-data-mgmt-heading">
+                <i data-lucide="database" style="width:22px;height:22px;color:var(--accent-cyan)"></i>
+                จัดการข้อมูล
+              </h3>
+              <div class="card static" id="settings-data-mgmt-card">
+                <div class="flex items-center justify-between mb-lg" style="padding-bottom:var(--space-md);border-bottom:1px solid var(--border-color);">
+                  <div>
+                    <h4 class="text-base font-semibold">สำรองข้อมูล (Export)</h4>
+                    <p class="text-sm text-muted">ดาวน์โหลดข้อมูลทั้งหมดเป็นไฟล์ JSON</p>
+                  </div>
+                  <button class="btn btn-secondary" id="btn-export-data">
+                    <i data-lucide="download"></i> Export
+                  </button>
+                </div>
 
-            <div class="flex items-center justify-between">
-              <div>
-                <div class="text-sm text-muted">พื้นที่จัดเก็บที่ใช้</div>
-                <div class="text-base font-semibold" id="storage-usage">กำลังคำนวณ...</div>
+                <div class="flex items-center justify-between mb-lg" style="padding-bottom:var(--space-md);border-bottom:1px solid var(--border-color);">
+                  <div>
+                    <h4 class="text-base font-semibold">นำเข้าข้อมูล (Import)</h4>
+                    <p class="text-sm text-muted">นำเข้าข้อมูลจากไฟล์ JSON ที่สำรองไว้</p>
+                  </div>
+                  <div>
+                    <input type="file" id="import-file-input" accept=".json" class="sr-only">
+                    <button class="btn btn-secondary" id="btn-import-data">
+                      <i data-lucide="upload"></i> Import
+                    </button>
+                  </div>
+                </div>
+
+                <div class="flex items-center justify-between">
+                  <div>
+                    <h4 class="text-base font-semibold text-danger">ล้างข้อมูลทั้งหมด</h4>
+                    <p class="text-sm text-muted">ลบข้อมูลทั้งหมดและรีเซ็ตระบบ (ไม่สามารถกู้คืนได้)</p>
+                  </div>
+                  <button class="btn btn-danger" id="btn-clear-data">
+                    <i data-lucide="trash-2"></i> ล้างข้อมูล
+                  </button>
+                </div>
               </div>
-              <button class="btn btn-ghost btn-sm" id="btn-reload-demo">
-                <i data-lucide="refresh-cw"></i> โหลดข้อมูลตัวอย่าง
-              </button>
             </div>
 
-            <div class="divider"></div>
+            <!-- App Info -->
+            <div>
+              <h3 class="mb-lg flex items-center gap-sm">
+                <i data-lucide="info" style="width:22px;height:22px;color:var(--accent-cyan)"></i>
+                เกี่ยวกับแอป
+              </h3>
+              <div class="card static">
+                <div class="detail-grid">
+                  <div class="detail-item">
+                    <div class="detail-label">เวอร์ชัน</div>
+                    <div class="detail-value">2.5.4</div>
+                  </div>
+                  <div class="detail-item">
+                    <div class="detail-label">เทคโนโลยี</div>
+                    <div class="detail-value">HTML5, CSS3, JavaScript (ES6+)</div>
+                  </div>
+                  <div class="detail-item">
+                    <div class="detail-label">ข้อมูลจัดเก็บ</div>
+                    <div class="detail-value" id="settings-db-type">localStorage (เบราว์เซอร์)</div>
+                  </div>
+                </div>
 
-            <div class="flex items-center justify-between">
-              <div>
-                <div class="text-sm text-muted">พบปัญหาแอปไม่อัปเดต?</div>
-                <p class="text-xs text-muted" style="margin-top: 2px;">ล้างไฟล์แคช PWA เพื่อดึงข้อมูลระบบเวอร์ชันล่าสุด</p>
+                <div class="divider"></div>
+
+                <div class="flex items-center justify-between">
+                  <div>
+                    <div class="text-sm text-muted">พื้นที่จัดเก็บที่ใช้</div>
+                    <div class="text-base font-semibold" id="storage-usage">กำลังคำนวณ...</div>
+                  </div>
+                  <button class="btn btn-ghost btn-sm" id="btn-reload-demo">
+                    <i data-lucide="refresh-cw"></i> โหลดข้อมูลตัวอย่าง
+                  </button>
+                </div>
+
+                <div class="divider"></div>
+
+                <div class="flex items-center justify-between">
+                  <div>
+                    <div class="text-sm text-muted">พบปัญหาแอปไม่อัปเดต?</div>
+                    <p class="text-xs text-muted" style="margin-top: 2px;">ล้างไฟล์แคช PWA เพื่อดึงข้อมูลระบบเวอร์ชันล่าสุด</p>
+                  </div>
+                  <button class="btn btn-danger btn-sm" id="btn-force-clear-cache">
+                    <i data-lucide="refresh-cw"></i> ล้างแคช & อัปเดตแอป
+                  </button>
+                </div>
               </div>
-              <button class="btn btn-danger btn-sm" id="btn-force-clear-cache">
-                <i data-lucide="refresh-cw"></i> ล้างแคช & อัปเดตแอป
-              </button>
             </div>
+
           </div>
+
         </div>
       </section>
 
@@ -702,7 +714,7 @@
         
         <div class="form-group">
           <label class="form-label" for="user-form-role">ระดับสิทธิ์</label>
-          <select class="form-input" id="user-form-role" required style="margin-top: 6px; background: #0a0f1a; border-color: var(--border-color); color: #fff; height: 38px;">
+          <select class="form-select" id="user-form-role" required style="margin-top: 6px;">
             <option value="technician" selected>ช่างเทคนิค (ซ่อนรายรับ/กราฟ/ตั้งค่าผู้ใช้)</option>
             <option value="admin">ผู้ดูแลระบบ/เจ้าของร้าน (เข้าถึงได้ทั้งหมด)</option>
           </select>
