@@ -725,6 +725,36 @@ const App = (() => {
             });
         }
 
+        // Manual QR/Sync URL input handler
+        const btnSubmitManualUrl = $('btn-submit-manual-url');
+        const qrManualUrlInput = $('qr-manual-url-input');
+        if (btnSubmitManualUrl && qrManualUrlInput) {
+            btnSubmitManualUrl.addEventListener('click', () => {
+                const rawVal = qrManualUrlInput.value.trim();
+                if (!rawVal) {
+                    showToast('กรุณากรอกหรือวางลิงก์ซิงก์คลาวด์ก่อนทำรายการ', 'warning');
+                    return;
+                }
+                const syncUrl = resolveQrSyncUrl(rawVal);
+                if (syncUrl) {
+                    stopQrScanner();
+                    closeModal('qr-scanner-modal');
+                    qrManualUrlInput.value = '';
+                    DB.setCloudConfig(true, syncUrl);
+                    showToast('เชื่อมต่อฐานข้อมูลคลาวด์ทีมงานสำเร็จ! กำลังโหลด...', 'success');
+                    setTimeout(() => { location.reload(); }, 1200);
+                } else {
+                    showToast('ลิงก์ที่กรอกไม่ถูกต้อง กรุณาตรวจสอบลิงก์อีกครั้ง', 'error');
+                }
+            });
+
+            qrManualUrlInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    btnSubmitManualUrl.click();
+                }
+            });
+        }
+
         // PWA Install Action
         const installBtn = $('btn-install-pwa');
         const settingsInstallBtn = $('btn-settings-install-pwa');
@@ -1116,7 +1146,11 @@ const App = (() => {
             { facingMode: "environment" },
             {
                 fps: 10,
-                qrbox: { width: 250, height: 250 }
+                qrbox: function(width, height) {
+                    const minEdge = Math.min(width, height);
+                    const qrboxSize = Math.floor(minEdge * 0.7);
+                    return { width: Math.max(100, qrboxSize), height: Math.max(100, qrboxSize) };
+                }
             },
             (decodedText) => {
                 if (qrResolved) return; // guard: ignore subsequent frames
