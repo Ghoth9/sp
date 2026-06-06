@@ -4,7 +4,7 @@
 // Caching strategy: Cache-first for static, Network-first for dynamic
 // ============================================================
 
-const CACHE_NAME = 'spairdee-v56';
+const CACHE_NAME = 'spairdee-v57';
 
 // Static assets to pre-cache on install
 const STATIC_ASSETS = [
