@@ -177,6 +177,16 @@
           <i data-lucide="calendar" style="width:14px; height:14px;"></i>
           <span id="topbar-date"></span>
         </div>
+        
+        <!-- Topbar User Profile Badge -->
+        <div class="topbar-user-badge" id="topbar-user-badge" style="display: none;" title="ข้อมูลผู้ใช้งาน">
+          <div class="user-avatar" id="topbar-user-avatar">?</div>
+          <div class="user-info">
+            <span class="user-name" id="topbar-user-name">User</span>
+            <span class="user-role badge" id="topbar-user-role" style="padding: 2px 4px; font-size: 9px; line-height: 1;">Role</span>
+          </div>
+        </div>
+        
         <button class="btn btn-ghost btn-icon" id="btn-top-install-pwa" style="display: none; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 50%; color: var(--accent-cyan);" title="ติดตั้งแอป">
           <i data-lucide="download" width="20" height="20"></i>
         </button>
@@ -278,33 +288,34 @@
            PAGE: CUSTOMERS
            ============================================================ -->
       <section class="page-section" id="page-customers" data-page="customers">
+        <div class="container-limited">
+          <!-- Toolbar -->
+          <div class="toolbar" id="customers-toolbar">
+            <div class="toolbar-left">
+              <div class="search-bar">
+                <i data-lucide="search" class="search-icon"></i>
+                <input type="text" id="customers-search-input" placeholder="ค้นหาชื่อ, เบอร์โทร, LINE ID...">
+              </div>
+              <div class="tabs" style="margin-bottom: 0; border: none; display: flex; gap: 4px;">
+                <button class="btn btn-secondary btn-icon active" id="customers-view-card" title="การ์ด">
+                  <i data-lucide="layout-grid" style="width: 18px; height: 18px;"></i>
+                </button>
+                <button class="btn btn-secondary btn-icon" id="customers-view-table" title="ตาราง">
+                  <i data-lucide="list" style="width: 18px; height: 18px;"></i>
+                </button>
+              </div>
+            </div>
+            <div class="toolbar-right">
+              <span class="text-sm text-muted" id="customers-count"></span>
+              <button class="btn btn-primary" id="btn-add-customer">
+                <i data-lucide="plus"></i> เพิ่มลูกค้า
+              </button>
+            </div>
+          </div>
 
-        <!-- Toolbar -->
-        <div class="toolbar" id="customers-toolbar">
-          <div class="toolbar-left">
-            <div class="search-bar">
-              <i data-lucide="search" class="search-icon"></i>
-              <input type="text" id="customers-search-input" placeholder="ค้นหาชื่อ, เบอร์โทร, LINE ID...">
-            </div>
-            <div class="tabs" style="margin-bottom: 0; border: none; display: flex; gap: 4px;">
-              <button class="btn btn-secondary btn-icon active" id="customers-view-card" title="การ์ด">
-                <i data-lucide="layout-grid" style="width: 18px; height: 18px;"></i>
-              </button>
-              <button class="btn btn-secondary btn-icon" id="customers-view-table" title="ตาราง">
-                <i data-lucide="list" style="width: 18px; height: 18px;"></i>
-              </button>
-            </div>
-          </div>
-          <div class="toolbar-right">
-            <span class="text-sm text-muted" id="customers-count"></span>
-            <button class="btn btn-primary" id="btn-add-customer">
-              <i data-lucide="plus"></i> เพิ่มลูกค้า
-            </button>
-          </div>
+          <!-- Customer List -->
+          <div id="customers-list-container"></div>
         </div>
-
-        <!-- Customer List -->
-        <div id="customers-list-container"></div>
 
         <!-- Customer Detail Modal -->
         <div class="modal-overlay" id="customer-detail-modal"></div>
@@ -620,7 +631,7 @@
                 <div class="detail-grid">
                   <div class="detail-item">
                     <div class="detail-label">เวอร์ชัน</div>
-                    <div class="detail-value">2.5.7</div>
+                    <div class="detail-value">2.5.8</div>
                   </div>
                   <div class="detail-item">
                     <div class="detail-label">เทคโนโลยี</div>
@@ -709,6 +720,7 @@
           <select class="form-select" id="user-form-role" required style="margin-top: 6px;">
             <option value="technician" selected>ช่างเทคนิค (ซ่อนรายรับ/กราฟ/ตั้งค่าผู้ใช้)</option>
             <option value="admin">ผู้ดูแลระบบ/เจ้าของร้าน (เข้าถึงได้ทั้งหมด)</option>
+            <option value="creator">ผู้สร้าง (เข้าถึงได้ทั้งหมด + ยศพิเศษ)</option>
           </select>
         </div>
       </div>

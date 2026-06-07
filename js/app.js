@@ -972,11 +972,37 @@ const App = (() => {
         const sessionRole = $('settings-session-role');
         if (sessionName) sessionName.textContent = user.name || user.username;
         if (sessionRole) {
-            sessionRole.textContent = user.role === 'admin' ? 'ผู้ดูแลระบบ' : 'ช่างเทคนิค';
-            sessionRole.className = user.role === 'admin' ? 'badge badge-success' : 'badge badge-info';
+            if (user.role === 'creator') {
+                sessionRole.textContent = 'ผู้สร้าง (Creator)';
+                sessionRole.className = 'badge badge-creator';
+            } else {
+                sessionRole.textContent = user.role === 'admin' ? 'ผู้ดูแลระบบ' : 'ช่างเทคนิค';
+                sessionRole.className = user.role === 'admin' ? 'badge badge-success' : 'badge badge-info';
+            }
         }
 
-        const isAdmin = user.role === 'admin';
+        // Topbar Profile Update
+        const topbarBadge = $('topbar-user-badge');
+        if (topbarBadge) {
+            topbarBadge.style.display = 'flex';
+            $('topbar-user-name').textContent = user.name || user.username;
+            const topRole = $('topbar-user-role');
+            const topAvatar = $('topbar-user-avatar');
+            topAvatar.textContent = (user.name || user.username).charAt(0).toUpperCase();
+            
+            if (user.role === 'creator') {
+                topRole.textContent = 'ผู้สร้าง';
+                topRole.className = 'user-role badge badge-creator';
+            } else if (user.role === 'admin') {
+                topRole.textContent = 'แอดมิน';
+                topRole.className = 'user-role badge badge-success';
+            } else {
+                topRole.textContent = 'ช่างเทคนิค';
+                topRole.className = 'user-role badge badge-info';
+            }
+        }
+
+        const isAdmin = user.role === 'admin' || user.role === 'creator';
         
         // Settings page sections
         const userMgmtSection = $('settings-user-mgmt-section');
@@ -1013,8 +1039,8 @@ const App = (() => {
               <td style="padding: var(--space-sm); font-weight: 500; font-size: 13px;">${user.name}</td>
               <td style="padding: var(--space-sm); font-family: monospace; font-size: 13px;">${user.username}</td>
               <td style="padding: var(--space-sm);">
-                <span class="badge ${user.role === 'admin' ? 'badge-success' : 'badge-info'}" style="font-size: 10px; padding: 2px 6px;">
-                  ${user.role === 'admin' ? 'แอดมิน' : 'ช่างเทคนิค'}
+                <span class="badge ${user.role === 'creator' ? 'badge-creator' : (user.role === 'admin' ? 'badge-success' : 'badge-info')}" style="font-size: 10px; padding: 2px 6px;">
+                  ${user.role === 'creator' ? 'ผู้สร้าง' : (user.role === 'admin' ? 'แอดมิน' : 'ช่างเทคนิค')}
                 </span>
               </td>
               <td style="padding: var(--space-sm); text-align: right;">
