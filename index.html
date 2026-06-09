@@ -28,7 +28,7 @@
   <script src="https://unpkg.com/lucide@latest"></script>
 
   <!-- Styles -->
-  <link rel="stylesheet" href="css/style.css?v=2.6.1">
+  <link rel="stylesheet" href="css/style.css?v=2.6.2">
 
   <!-- HTML5 QR Code Scanner Library (PWA Offline Cached) -->
   <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
@@ -112,7 +112,7 @@
       <button class="btn btn-primary btn-sm w-full mb-sm" id="btn-install-pwa" style="display: none; justify-content: center; width: 100%; margin-bottom: 8px;">
         <i data-lucide="download" width="16" height="16"></i> ติดตั้งแอป Spairdee
       </button>
-      <div class="text-xs text-muted text-center" id="sidebar-version">Spairdee v2.6.1</div>
+      <div class="text-xs text-muted text-center" id="sidebar-version">Spairdee v2.6.2</div>
     </div>
 
   </aside>
@@ -499,7 +499,7 @@
 
             <!-- Data, Cloud & Info -->
             <!-- Cloud Sync Management -->
-            <div>
+            <div id="settings-cloud-sync-section">
               <h3 class="mb-lg flex items-center gap-sm">
                 <i data-lucide="cloud" style="width:22px;height:22px;color:var(--accent-cyan)"></i>
                 ระบบเชื่อมต่อคลาวด์ (Cloud Sync)
@@ -565,6 +565,26 @@
               <div class="card static" id="settings-data-mgmt-card">
                 <div class="flex items-center justify-between mb-lg" style="padding-bottom:var(--space-md);border-bottom:1px solid var(--border-color);">
                   <div>
+                    <h4 class="text-base font-semibold">โหมดสาธิต (Demo Mode)</h4>
+                    <p class="text-sm text-muted">สลับเข้าสู่โหมดสาธิตเพื่อนำเสนอผลงาน พร้อมล้างและโหลดข้อมูลตัวอย่าง</p>
+                  </div>
+                  <button class="btn btn-secondary" id="btn-enter-demo-mode">
+                    <i data-lucide="play"></i> สลับเป็นโหมดสาธิต
+                  </button>
+                </div>
+
+                <div class="flex items-center justify-between mb-lg" style="padding-bottom:var(--space-md);border-bottom:1px solid var(--border-color);">
+                  <div>
+                    <h4 class="text-base font-semibold">โหลดข้อมูลตัวอย่าง</h4>
+                    <p class="text-sm text-muted">เขียนทับข้อมูลปัจจุบันด้วยข้อมูลตัวอย่างสำหรับใช้จัดแสดง</p>
+                  </div>
+                  <button class="btn btn-secondary" id="btn-reload-demo">
+                    <i data-lucide="refresh-cw"></i> โหลดข้อมูลตัวอย่าง
+                  </button>
+                </div>
+
+                <div class="flex items-center justify-between mb-lg" style="padding-bottom:var(--space-md);border-bottom:1px solid var(--border-color);">
+                  <div>
                     <h4 class="text-base font-semibold">สำรองข้อมูล (Export)</h4>
                     <p class="text-sm text-muted">ดาวน์โหลดข้อมูลทั้งหมดเป็นไฟล์ JSON</p>
                   </div>
@@ -608,7 +628,7 @@
                 <div class="detail-grid">
                   <div class="detail-item">
                     <div class="detail-label">เวอร์ชัน</div>
-                    <div class="detail-value">2.6.1</div>
+                    <div class="detail-value">2.6.2</div>
                   </div>
                   <div class="detail-item">
                     <div class="detail-label">เทคโนโลยี</div>
@@ -627,9 +647,6 @@
                     <div class="text-sm text-muted">พื้นที่จัดเก็บที่ใช้</div>
                     <div class="text-base font-semibold" id="storage-usage">กำลังคำนวณ...</div>
                   </div>
-                  <button class="btn btn-ghost btn-sm" id="btn-reload-demo">
-                    <i data-lucide="refresh-cw"></i> โหลดข้อมูลตัวอย่าง
-                  </button>
                 </div>
 
                 <div class="divider"></div>
@@ -1235,11 +1252,7 @@
       </button>
     </form>
     
-    <div style="margin: 16px 0 8px; text-align: center; color: rgba(255, 255, 255, 0.4); font-size: 13px;">หรือ</div>
-    <button type="button" class="btn btn-secondary" id="btn-demo-bypass" style="width: 100%; height: 44px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; font-size: 15px; font-weight: 600; border-color: rgba(255, 255, 255, 0.2); background: rgba(255, 255, 255, 0.05); color: #fff;">
-      <i data-lucide="play" style="width: 18px; height: 18px; color: #fff !important;"></i>
-      <span>ทดลองใช้งานแบบเดโม่ (Demo Mode)</span>
-    </button>
+
   </div>
 </div>
 

@@ -322,7 +322,7 @@ const App = (() => {
     function updateStorageUsage() {
         const demoBanner = $('demo-banner');
         if (demoBanner) {
-            demoBanner.style.display = DB.isCloudEnabled() ? 'none' : 'block';
+            demoBanner.style.display = 'none'; // Never show the demo banner
         }
 
         const label = $('storage-usage');
@@ -456,6 +456,27 @@ const App = (() => {
 
         const btnReloadDemo = $('btn-reload-demo');
         if (btnReloadDemo) btnReloadDemo.addEventListener('click', loadDemoData);
+
+        const btnEnterDemoMode = $('btn-enter-demo-mode');
+        if (btnEnterDemoMode) {
+            btnEnterDemoMode.addEventListener('click', () => {
+                if (confirm('🚪 ยืนยันสลับเข้าสู่โหมดสาธิต (Demo Mode)?\n\nระบบจะบันทึกการออกจากบัญชีปัจจุบัน ลบข้อมูลในเครื่อง และโหลดข้อมูลตัวอย่างสำหรับการเข้าชมพอร์ตโฟลิโอ')) {
+                    const demoUser = {
+                        username: 'demo_guest',
+                        name: 'ผู้เยี่ยมชม',
+                        role: 'creator'
+                    };
+                    localStorage.setItem('acsp_current_user', JSON.stringify(demoUser));
+                    DB.setCloudConfig(false);
+                    DB.clearAllData();
+                    DB.init();
+                    showToast('กำลังโหลดข้อมูลเดโม่สำหรับการเข้าชมพอร์ตโฟลิโอ...', 'success');
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1000);
+                }
+            });
+        }
 
         const btnForceClear = $('btn-force-clear-cache');
         if (btnForceClear) {
@@ -881,6 +902,25 @@ const App = (() => {
                 if (btnLoginSubmit) btnLoginSubmit.disabled = true;
                 if (loginSpinner) loginSpinner.style.display = 'inline-block';
 
+                // Local bypass for guest/demo users
+                const lowerUsername = username.toLowerCase();
+                if (lowerUsername === 'guest' || lowerUsername === 'demo') {
+                    const demoUser = {
+                        username: 'demo_guest',
+                        name: 'ผู้เยี่ยมชม',
+                        role: 'creator'
+                    };
+                    localStorage.setItem('acsp_current_user', JSON.stringify(demoUser));
+                    DB.setCloudConfig(false);
+                    DB.clearAllData();
+                    DB.init();
+                    showToast('กำลังโหลดข้อมูลเดโม่สำหรับการเข้าชมพอร์ตโฟลิโอ...', 'success');
+                    setTimeout(() => {
+                        location.reload();
+                    }, 800);
+                    return;
+                }
+
                 DB.login(username, password)
                     .then(res => {
                         showToast('เข้าสู่ระบบสำเร็จ ยินดีต้อนรับ ' + res.user.name, 'success');
@@ -901,25 +941,7 @@ const App = (() => {
             });
         }
 
-        // --- Demo Mode Bypass ---
-        const btnDemoBypass = $('btn-demo-bypass');
-        if (btnDemoBypass) {
-            btnDemoBypass.addEventListener('click', () => {
-                const demoUser = {
-                    username: 'demo_guest',
-                    name: 'ผู้เยี่ยมชม',
-                    role: 'creator'
-                };
-                localStorage.setItem('acsp_current_user', JSON.stringify(demoUser));
-                DB.setCloudConfig(false);
-                DB.clearAllData();
-                DB.init();
-                showToast('กำลังโหลดข้อมูลเดโม่สำหรับการเข้าชมพอร์ตโฟลิโอ...', 'success');
-                setTimeout(() => {
-                    location.reload();
-                }, 1000);
-            });
-        }
+
 
         // --- Logout Button ---
         const btnLogout = $('btn-logout');
@@ -998,7 +1020,10 @@ const App = (() => {
         const sessionRole = $('settings-session-role');
         if (sessionName) sessionName.textContent = user.name || user.username;
         if (sessionRole) {
-            if (user.role === 'creator') {
+            if (user.username === 'demo_guest') {
+                sessionRole.textContent = 'ผู้เยี่ยมชม (Demo)';
+                sessionRole.className = 'badge badge-info';
+            } else if (user.role === 'creator') {
                 sessionRole.textContent = 'ผู้สร้าง (Creator)';
                 sessionRole.className = 'badge badge-creator';
             } else {
@@ -1016,7 +1041,10 @@ const App = (() => {
             const topAvatar = $('topbar-user-avatar');
             topAvatar.textContent = (user.name || user.username).charAt(0).toUpperCase();
             
-            if (user.role === 'creator') {
+            if (user.username === 'demo_guest') {
+                topRole.textContent = 'ผู้เยี่ยมชม';
+                topRole.className = 'user-role badge badge-info';
+            } else if (user.role === 'creator') {
                 topRole.textContent = 'ผู้สร้าง';
                 topRole.className = 'user-role badge badge-creator';
             } else if (user.role === 'admin') {
@@ -1029,21 +1057,27 @@ const App = (() => {
         }
 
         const isAdmin = user.role === 'admin' || user.role === 'creator';
+        const isRealAdmin = isAdmin && user.username !== 'demo_guest';
         
         // Settings page sections
         const userMgmtSection = $('settings-user-mgmt-section');
         if (userMgmtSection) {
-            userMgmtSection.style.display = isAdmin ? 'block' : 'none';
-            if (isAdmin) renderUserList();
+            userMgmtSection.style.display = isRealAdmin ? 'block' : 'none';
+            if (isRealAdmin) renderUserList();
         }
 
         const dataMgmtCard = $('settings-data-mgmt-card');
         const dataMgmtHeading = $('settings-data-mgmt-heading');
-        if (dataMgmtCard) dataMgmtCard.style.display = isAdmin ? 'block' : 'none';
-        if (dataMgmtHeading) dataMgmtHeading.style.display = isAdmin ? 'block' : 'none';
+        if (dataMgmtCard) dataMgmtCard.style.display = isRealAdmin ? 'block' : 'none';
+        if (dataMgmtHeading) dataMgmtHeading.style.display = isRealAdmin ? 'block' : 'none';
+
+        const cloudSyncSection = $('settings-cloud-sync-section');
+        if (cloudSyncSection) {
+            cloudSyncSection.style.display = isRealAdmin ? 'block' : 'none';
+        }
 
         const btnCloudUploadAll = $('btn-cloud-upload-all');
-        if (btnCloudUploadAll) btnCloudUploadAll.style.display = isAdmin ? 'inline-flex' : 'none';
+        if (btnCloudUploadAll) btnCloudUploadAll.style.display = isRealAdmin ? 'inline-flex' : 'none';
     }
 
     function renderUserList() {
@@ -1523,8 +1557,8 @@ const App = (() => {
             if (iconEl) iconEl.setAttribute('data-lucide', 'cloud');
         } else {
             badge.classList.add('disconnected');
-            badge.title = "โหมดสาธิต (ใช้ข้อมูลจำลองในเครื่องนี้)";
-            if (textEl) textEl.textContent = "โหมดสาธิต";
+            badge.title = "บันทึกในเครื่อง (ใช้ข้อมูลออฟไลน์ในเครื่องนี้)";
+            if (textEl) textEl.textContent = "บันทึกในเครื่อง";
             if (iconEl) iconEl.setAttribute('data-lucide', 'cloud-off');
         }
 
