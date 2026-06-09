@@ -200,12 +200,12 @@
     <div class="demo-banner" id="demo-banner" style="display: none;">
       <div class="demo-banner-content" style="display: flex; align-items: center; width: 100%; flex-wrap: wrap; gap: 8px;">
         <div style="display: flex; align-items: center; gap: 8px; flex: 1; min-width: 200px;">
-          <i data-lucide="info" style="color: #06b6d4; flex-shrink: 0;"></i>
-          <span style="color: #e2e8f0;"><strong>โหมดทดลองใช้</strong>: ข้อมูลทดลองจะบันทึกในเครื่องนี้เท่านั้น</span>
+          <i data-lucide="info" style="color: #1e40af; flex-shrink: 0;"></i>
+          <span style="color: #1e40af;"><strong>โหมดทดลองใช้ (Demo Mode)</strong>: ข้อมูลการทดลองบันทึกอยู่ในบราวเซอร์เครื่องนี้เท่านั้น</span>
         </div>
         <div class="demo-banner-actions" style="display: flex; gap: 8px; margin-left: auto;">
-          <button class="btn btn-secondary btn-sm" id="btn-banner-scan-qr" style="background: rgba(6, 182, 212, 0.15); border-color: rgba(6, 182, 212, 0.3); color: #06b6d4; display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; font-size: 12px; font-weight: 500;">
-            <i data-lucide="camera" style="width: 14px; height: 14px;"></i> เชื่อมต่อร้าน (สแกน QR)
+          <button class="btn btn-secondary btn-sm" id="btn-banner-scan-qr" style="background: #ffffff; border-color: #cbd5e1; color: #1e40af; display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; font-size: 12px; font-weight: 500;">
+            <i data-lucide="camera" style="width: 14px; height: 14px; color: #1e40af !important;"></i> เชื่อมต่อร้าน (สแกน QR)
           </button>
         </div>
       </div>
@@ -1257,6 +1257,12 @@
         <div id="login-spinner" class="spinner" style="width: 18px; height: 18px; border-width: 2px; border-color: rgba(255,255,255,0.3) rgba(255,255,255,0.3) #fff rgba(255,255,255,0.3); display: none;"></div>
       </button>
     </form>
+    
+    <div style="margin: 16px 0 8px; text-align: center; color: rgba(255, 255, 255, 0.4); font-size: 13px;">หรือ</div>
+    <button type="button" class="btn btn-secondary" id="btn-demo-bypass" style="width: 100%; height: 44px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; font-size: 15px; font-weight: 600; border-color: rgba(255, 255, 255, 0.2); background: rgba(255, 255, 255, 0.05); color: #fff;">
+      <i data-lucide="play" style="width: 18px; height: 18px; color: #fff !important;"></i>
+      <span>ทดลองใช้งานแบบเดโม่ (Demo Mode)</span>
+    </button>
   </div>
 </div>
 

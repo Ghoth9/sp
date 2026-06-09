@@ -895,6 +895,26 @@ const App = (() => {
             });
         }
 
+        // --- Demo Mode Bypass ---
+        const btnDemoBypass = $('btn-demo-bypass');
+        if (btnDemoBypass) {
+            btnDemoBypass.addEventListener('click', () => {
+                const demoUser = {
+                    username: 'demo_guest',
+                    name: 'ผู้เยี่ยมชม (Portfolio Guest)',
+                    role: 'creator'
+                };
+                localStorage.setItem('acsp_current_user', JSON.stringify(demoUser));
+                DB.setCloudConfig(false);
+                DB.clearAllData();
+                DB.init();
+                showToast('กำลังโหลดข้อมูลเดโม่สำหรับการเข้าชมพอร์ตโฟลิโอ...', 'success');
+                setTimeout(() => {
+                    location.reload();
+                }, 1000);
+            });
+        }
+
         // --- Logout Button ---
         const btnLogout = $('btn-logout');
         if (btnLogout) {
