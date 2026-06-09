@@ -3682,7 +3682,7 @@ h6 { font-size: var(--text-base); }
   width: 28px;
   height: 28px;
   border-radius: 50%;
-  background: var(--accent-gradient);
+  background-color: var(--accent-cyan);
   color: white;
   display: flex;
   align-items: center;

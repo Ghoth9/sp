@@ -467,7 +467,7 @@ const DashboardModule = (() => {
         renderStatCards(stats);
 
         const user = typeof DB !== 'undefined' ? DB.getCurrentUser() : null;
-        const isAdmin = user && user.role === 'admin';
+        const isAdmin = user && (user.role === 'admin' || user.role === 'creator');
 
         if (isAdmin) {
             renderUnpaidSummary(stats);

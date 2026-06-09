@@ -199,9 +199,15 @@ const App = (() => {
 
     function removeToast(toast) {
         toast.classList.add('removing');
-        toast.addEventListener('animationend', () => {
-            toast.remove();
-        });
+        let removed = false;
+        const doRemove = () => {
+            if (!removed) {
+                removed = true;
+                toast.remove();
+            }
+        };
+        toast.addEventListener('animationend', doRemove);
+        setTimeout(doRemove, 500); // Safety fallback to guarantee removal
     }
 
     // ── Format Helpers ────────────────────────────────────────
@@ -1313,19 +1319,28 @@ const App = (() => {
         toast.className = 'toast toast-info';
         toast.style.cursor = 'pointer';
         toast.style.padding = '12px 16px';
-        toast.style.background = 'var(--accent-gradient)';
-        toast.style.color = '#fff';
+        toast.style.background = 'var(--accent-light)'; // Light slate blue background for update toast
+        toast.style.color = 'var(--accent-cyan)'; // Primary blue text
         toast.style.boxShadow = 'var(--shadow-lg)';
         toast.style.border = '1px solid var(--accent-cyan)';
 
         toast.innerHTML = `
-            <i class="toast-icon" data-lucide="refresh-cw" style="color:#fff;"></i>
-            <div class="toast-message" style="margin-left: 8px; color:#fff;"><strong>มีระบบเวอร์ชันใหม่!</strong> กดที่นี่เพื่ออัปเดตแอปทันที</div>
+            <i class="toast-icon" data-lucide="refresh-cw" style="color: var(--accent-cyan);"></i>
+            <div class="toast-message" style="margin-left: 8px; color: var(--accent-cyan); font-weight: 500;"><strong>มีระบบเวอร์ชันใหม่!</strong> กดที่นี่เพื่ออัปเดตแอปทันที</div>
+            <button class="toast-close" style="color: var(--accent-cyan);"><i data-lucide="x" width="14" height="14"></i></button>
         `;
         
         toast.addEventListener('click', () => {
             worker.postMessage({ action: 'skipWaiting' });
         });
+
+        const closeBtn = toast.querySelector('.toast-close');
+        if (closeBtn) {
+            closeBtn.addEventListener('click', (e) => {
+                e.stopPropagation(); // Prevent triggering the service worker skipWaiting reload
+                removeToast(toast);
+            });
+        }
 
         container.appendChild(toast);
         if (window.lucide) lucide.createIcons();
