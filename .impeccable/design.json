@@ -1,0 +1,178 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-06-09T20:39:00Z",
+  "title": "Design System: SP AirDee",
+  "extensions": {
+    "colorMeta": {
+      "primary": {
+        "role": "primary",
+        "displayName": "Slate Blue",
+        "canonical": "oklch(0.45 0.15 250.0)",
+        "tonalRamp": [
+          "oklch(0.20 0.08 250.0)",
+          "oklch(0.30 0.11 250.0)",
+          "oklch(0.45 0.15 250.0)",
+          "oklch(0.55 0.13 250.0)",
+          "oklch(0.65 0.11 250.0)",
+          "oklch(0.75 0.08 250.0)",
+          "oklch(0.85 0.05 250.0)",
+          "oklch(0.95 0.02 250.0)"
+        ]
+      },
+      "accent": {
+        "role": "accent",
+        "displayName": "Ice Blue",
+        "canonical": "oklch(0.60 0.14 210.0)",
+        "tonalRamp": [
+          "oklch(0.25 0.07 210.0)",
+          "oklch(0.38 0.10 210.0)",
+          "oklch(0.50 0.12 210.0)",
+          "oklch(0.60 0.14 210.0)",
+          "oklch(0.70 0.11 210.0)",
+          "oklch(0.80 0.08 210.0)",
+          "oklch(0.90 0.05 210.0)",
+          "oklch(0.96 0.02 210.0)"
+        ]
+      },
+      "neutral-bg": {
+        "role": "background",
+        "displayName": "Pure White",
+        "canonical": "oklch(1.000 0.000 0.0)",
+        "tonalRamp": [
+          "oklch(0.00 0.00 0.0)",
+          "oklch(0.15 0.00 0.0)",
+          "oklch(0.30 0.00 0.0)",
+          "oklch(0.50 0.00 0.0)",
+          "oklch(0.70 0.00 0.0)",
+          "oklch(0.85 0.00 0.0)",
+          "oklch(0.95 0.00 0.0)",
+          "oklch(1.00 0.00 0.0)"
+        ]
+      },
+      "neutral-surface": {
+        "role": "surface",
+        "displayName": "Slate White",
+        "canonical": "oklch(0.98 0.005 250.0)",
+        "tonalRamp": [
+          "oklch(0.08 0.002 250.0)",
+          "oklch(0.20 0.003 250.0)",
+          "oklch(0.40 0.004 250.0)",
+          "oklch(0.60 0.005 250.0)",
+          "oklch(0.80 0.005 250.0)",
+          "oklch(0.90 0.005 250.0)",
+          "oklch(0.95 0.005 250.0)",
+          "oklch(0.98 0.005 250.0)"
+        ]
+      }
+    },
+    "shadows": [
+      {
+        "name": "ambient-low",
+        "value": "0 1px 3px rgba(15, 23, 42, 0.08)",
+        "purpose": "Applied to active card states and input elements."
+      },
+      {
+        "name": "overlay-drop",
+        "value": "0 12px 24px -4px rgba(15, 23, 42, 0.12)",
+        "purpose": "Applied to modals, drop downs, and relative float layers."
+      }
+    ],
+    "motion": [
+      {
+        "name": "transition-standard",
+        "value": "150ms cubic-bezier(0.4, 0, 0.2, 1)",
+        "purpose": "Standard interactive feedback."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "sm",
+        "value": "640px"
+      },
+      {
+        "name": "md",
+        "value": "768px"
+      },
+      {
+        "name": "lg",
+        "value": "1024px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Standard action button for primary actions (Submit, Save, Create).",
+      "html": "<button class=\"ds-btn-primary\">บันทึกข้อมูล</button>",
+      "css": ".ds-btn-primary { display: inline-flex; align-items: center; justify-content: center; background-color: #1e40af; color: #ffffff; font-family: system-ui, -apple-system, sans-serif; font-size: 0.875rem; font-weight: 500; padding: 10px 18px; border: none; border-radius: 6px; cursor: pointer; transition: background-color 150ms cubic-bezier(0.4, 0, 0.2, 1), box-shadow 150ms; } .ds-btn-primary:hover { background-color: #1e3a8a; } .ds-btn-primary:focus-visible { outline: 2px solid #0284c7; outline-offset: 2px; }"
+    },
+    {
+      "name": "Secondary Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Dismissive or neutral actions (Cancel, Back, Reset).",
+      "html": "<button class=\"ds-btn-secondary\">ยกเลิก</button>",
+      "css": ".ds-btn-secondary { display: inline-flex; align-items: center; justify-content: center; background-color: #ffffff; color: #0f172a; border: 1px solid #e2e8f0; font-family: system-ui, -apple-system, sans-serif; font-size: 0.875rem; font-weight: 500; padding: 10px 18px; border-radius: 6px; cursor: pointer; transition: background-color 150ms, color 150ms; } .ds-btn-secondary:hover { background-color: #f8fafc; } .ds-btn-secondary:focus-visible { outline: 2px solid #0284c7; outline-offset: 2px; }"
+    },
+    {
+      "name": "Form Input",
+      "kind": "input",
+      "refersTo": "input-field",
+      "description": "Standard input field for forms.",
+      "html": "<div class=\"ds-form-group\"><label class=\"ds-label\">ชื่อลูกค้า</label><input type=\"text\" class=\"ds-input\" placeholder=\"ระบุชื่อลูกค้า\"></div>",
+      "css": ".ds-form-group { display: flex; flex-direction: column; gap: 6px; font-family: system-ui, -apple-system, sans-serif; } .ds-label { font-size: 0.875rem; font-weight: 500; color: #475569; } .ds-input { font-size: 1rem; color: #0f172a; border: 1px solid #cbd5e1; border-radius: 6px; padding: 10px 14px; outline: none; background-color: #ffffff; transition: border-color 150ms, box-shadow 150ms; } .ds-input::placeholder { color: #94a3b8; } .ds-input:focus { border-color: #0284c7; box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.15); }"
+    },
+    {
+      "name": "Status Badge",
+      "kind": "chip",
+      "refersTo": "status-badge",
+      "description": "Represents service status like completed, pending, or overdue.",
+      "html": "<span class=\"ds-badge ds-badge-success\">เสร็จสิ้น</span>",
+      "css": ".ds-badge { display: inline-flex; align-items: center; font-family: system-ui, -apple-system, sans-serif; font-size: 0.75rem; font-weight: 600; padding: 4px 10px; border-radius: 9999px; } .ds-badge-success { background-color: #dcfce7; color: #15803d; } .ds-badge-warning { background-color: #fef9c3; color: #a16207; } .ds-badge-danger { background-color: #fee2e2; color: #b91c1c; }"
+    },
+    {
+      "name": "Card Container",
+      "kind": "card",
+      "refersTo": "card",
+      "description": "Base card component for content wrappers.",
+      "html": "<div class=\"ds-card\"><h3 class=\"ds-card-title\">รายละเอียดงาน</h3><p class=\"ds-card-body\">งานล้างแอร์ปกติ 2 เครื่อง วันที่ 10 มิถุนายน 2570</p></div>",
+      "css": ".ds-card { background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 20px; font-family: system-ui, -apple-system, sans-serif; } .ds-card-title { font-size: 1.25rem; font-weight: 600; color: #0f172a; margin: 0 0 8px 0; } .ds-card-body { font-size: 1rem; color: #475569; margin: 0; line-height: 1.5; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Cool Breeze Ledger",
+    "overview": "A crisp, high-contrast visual design system designed specifically for administrative and on-site operational efficiency in air conditioning services. The primary focus of this design system is functional utility: clean screens, clear type sizing, and strict contrast to ensure the app is highly usable on desktop in the shop and on mobile under direct sunlight on site.",
+    "keyCharacteristics": [
+      "High-Contrast Slate and Pure White: Direct legibility with deep slate ink on pure white.",
+      "Precise Hierarchy: No fluid type scaling; text sizes are stable to ensure consistent layout boundaries.",
+      "Familiar Controls: Native form and modal layouts with clear state indicators (hover, focus, disabled)."
+    ],
+    "rules": [
+      {
+        "name": "The Restrained Surface Rule",
+        "body": "The primary background remains pure white. Tonal nesting is limited to one level deep using Slate White (#f8fafc) for sidebars/panels. Secondary cards are flat with a simple border, never stacked.",
+        "section": "colors"
+      },
+      {
+        "name": "The Border-First Rule",
+        "body": "Depth is established first by borders (Cool Gray Border) and background color changes. Shadows are secondary and are applied only to floating overlays (like modals and dropdowns) or as interactive hover feedback.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do maintain a minimum contrast of 4.5:1 (ideally 7:1) for all body text against the background.",
+      "Do check mobile responsive layouts down to 320px viewport width, collapsing tables to card lists.",
+      "Do use native dialogs or explicit backdrop-overlay overlays for modals.",
+      "Do make all primary action buttons consistent across all modules."
+    ],
+    "donts": [
+      "Don't use warm cream/beige backgrounds (#faf7f2 or similar) as the default layout.",
+      "Don't use side-stripe borders (e.g. border-left: 4px solid blue) on cards or alerts.",
+      "Don't use gradient text under any circumstances.",
+      "Don't animate image transformations on hover.",
+      "Don't use arbitrary z-index values. Follow the scale: dropdown (100) -> sticky nav (200) -> modal backdrop (300) -> modal (400) -> toast (500)."
+    ]
+  }
+}
