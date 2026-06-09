@@ -907,7 +907,7 @@ const App = (() => {
             btnDemoBypass.addEventListener('click', () => {
                 const demoUser = {
                     username: 'demo_guest',
-                    name: 'ผู้เยี่ยมชม (Portfolio Guest)',
+                    name: 'ผู้เยี่ยมชม',
                     role: 'creator'
                 };
                 localStorage.setItem('acsp_current_user', JSON.stringify(demoUser));

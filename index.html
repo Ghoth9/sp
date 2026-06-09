@@ -28,7 +28,7 @@
   <script src="https://unpkg.com/lucide@latest"></script>
 
   <!-- Styles -->
-  <link rel="stylesheet" href="css/style.css?v=2.6.1">
+  <link rel="stylesheet" href="css/style.css?v=2.6.2">
 
   <!-- HTML5 QR Code Scanner Library (PWA Offline Cached) -->
   <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
@@ -112,7 +112,7 @@
       <button class="btn btn-primary btn-sm w-full mb-sm" id="btn-install-pwa" style="display: none; justify-content: center; width: 100%; margin-bottom: 8px;">
         <i data-lucide="download" width="16" height="16"></i> ติดตั้งแอป Spairdee
       </button>
-      <div class="text-xs text-muted text-center" id="sidebar-version">Spairdee v2.6.1</div>
+      <div class="text-xs text-muted text-center" id="sidebar-version">Spairdee v2.6.2</div>
     </div>
 
   </aside>
@@ -203,11 +203,6 @@
           <i data-lucide="info" style="color: #1e40af; flex-shrink: 0;"></i>
           <span style="color: #1e40af;"><strong>โหมดทดลองใช้ (Demo Mode)</strong>: ข้อมูลการทดลองบันทึกอยู่ในบราวเซอร์เครื่องนี้เท่านั้น</span>
         </div>
-        <div class="demo-banner-actions" style="display: flex; gap: 8px; margin-left: auto;">
-          <button class="btn btn-secondary btn-sm" id="btn-banner-scan-qr" style="background: #ffffff; border-color: #cbd5e1; color: #1e40af; display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; font-size: 12px; font-weight: 500;">
-            <i data-lucide="camera" style="width: 14px; height: 14px; color: #1e40af !important;"></i> เชื่อมต่อร้าน (สแกน QR)
-          </button>
-        </div>
       </div>
     </div>
 
@@ -223,8 +218,6 @@
       <section class="page-section active" id="page-dashboard" data-page="dashboard">
 
         <!-- Alerts Row -->
-        <div id="dashboard-low-stock"></div>
-        <div id="dashboard-unpaid-summary"></div>
 
         <!-- Stats Row -->
         <div class="stats-grid stagger" id="dashboard-stats-grid">
@@ -529,9 +522,6 @@
                   <label class="form-label" style="font-weight:600;">Google Apps Script Web App URL</label>
                   <div style="display: flex; gap: 8px; margin-top: 8px;">
                     <input type="url" class="form-input" id="settings-cloud-url" placeholder="https://script.google.com/macros/s/.../exec" style="margin-top:0; flex:1;">
-                    <button class="btn btn-secondary" id="btn-settings-scan-qr" title="สแกน QR Code เพื่อเชื่อมต่อ" style="padding: 0 12px; display: inline-flex; align-items: center; justify-content: center; height: 38px;">
-                      <i data-lucide="camera" style="width:20px; height:20px;"></i>
-                    </button>
                   </div>
                   <p class="text-xs text-muted" style="margin-top:6px;">URL ลิงก์ระบบหลังบ้านสำหรับเชื่อมสเปรดชีตและส่ง LINE อัตโนมัติ</p>
                 </div>
@@ -562,20 +552,7 @@
                   </button>
                 </div>
 
-                <!-- Share Cloud URL with Team -->
-                <div class="mt-md" id="share-cloud-section" style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border-color);display:none;">
-                  <h4 class="text-sm font-semibold mb-sm">แชร์สิทธิ์เข้าใช้งานให้ทีมงาน</h4>
-                  <p class="text-xs text-muted mb-md">เพื่อให้ช่างคนอื่นเปิดใช้และซิงก์ข้อมูลนี้ร่วมกันได้ โดยไม่ต้องกรอก URL ยาวๆ</p>
-                  
-                  <div style="display:flex;gap:8px;margin-top:12px;">
-                    <button class="btn btn-secondary btn-sm w-full" id="btn-copy-share-link" style="flex:1; justify-content:center;">
-                      <i data-lucide="copy"></i> คัดลอกลิงก์แชร์สิทธิ์
-                    </button>
-                    <button class="btn btn-secondary btn-sm" id="btn-show-share-qr" title="แสดง QR Code" style="display:flex;align-items:center;justify-content:center;width:36px;height:36px;padding:0;">
-                      <i data-lucide="qr-code"></i>
-                    </button>
-                  </div>
-                </div>
+
               </div>
             </div>
 
@@ -631,7 +608,7 @@
                 <div class="detail-grid">
                   <div class="detail-item">
                     <div class="detail-label">เวอร์ชัน</div>
-                    <div class="detail-value">2.6.1</div>
+                    <div class="detail-value">2.6.2</div>
                   </div>
                   <div class="detail-item">
                     <div class="detail-label">เทคโนโลยี</div>
@@ -1102,70 +1079,7 @@
   </div>
 </div>
 
-<!-- ── Modal: QR Code Scanner ───────────────────────────── -->
-<div class="modal-overlay" id="qr-scanner-modal">
-  <div class="modal" style="max-width: 450px;">
-    <div class="modal-header">
-      <div>
-        <h3>สแกน QR Code ทีมงาน</h3>
-        <p class="modal-subtitle">สแกนจากกล้อง หรือเลือกรูปภาพ QR Code ที่บันทึกไว้ในเครื่อง</p>
-      </div>
-      <button class="modal-close" data-modal-close="qr-scanner-modal"><i data-lucide="x" width="18" height="18"></i></button>
-    </div>
-    <div class="modal-body" style="padding: var(--space-md) 0; display: flex; flex-direction: column; align-items: center;">
-      <div id="qr-reader" style="width: 100%; max-width: 400px; margin: 0 auto; border-radius: var(--radius-md); overflow: hidden; border: 1px solid var(--border-color); background: #000;"></div>
-      <div id="qr-scanner-status" class="text-center text-sm text-muted mt-md" style="margin-top: 12px; font-weight: 500;">กำลังเริ่มต้นกล้องถ่ายรูป...</div>
-      
-      <!-- Hidden file input and custom trigger button -->
-      <input type="file" id="qr-file-input" accept="image/*" style="display: none;">
-      <button class="btn btn-secondary btn-sm" id="btn-upload-qr-file" style="margin-top: 16px; display: inline-flex; align-items: center; gap: 6px; background: rgba(6, 182, 212, 0.08); border-color: rgba(6, 182, 212, 0.2); color: var(--accent-cyan);">
-        <i data-lucide="image" style="width: 16px; height: 16px;"></i> เลือกรูปภาพ QR Code จากเครื่อง
-      </button>
 
-      <!-- Divider -->
-      <div style="width: 100%; border-top: 1px dashed var(--border-color); margin: var(--space-md) 0;"></div>
-      
-      <!-- Manual Input Section -->
-      <div style="width: 100%; padding: 0 var(--space-md); display: flex; flex-direction: column; gap: 8px;">
-        <label for="qr-manual-url-input" class="text-xs text-muted" style="font-weight: 500; text-align: left; width: 100%;">หรือ วางลิงก์เชื่อมต่อด้วยตนเอง:</label>
-        <div style="display: flex; gap: 8px; width: 100%;">
-          <input type="text" id="qr-manual-url-input" class="form-input" placeholder="วางลิงก์ https://spairdeenew.netlify.app/?sync_url=..." style="flex: 1; font-size: var(--text-sm); margin: 0; height: 38px;">
-          <button class="btn btn-primary" id="btn-submit-manual-url" style="white-space: nowrap; height: 38px; padding: 0 16px;">เชื่อมต่อ</button>
-        </div>
-      </div>
-    </div>
-    <div class="modal-footer" style="justify-content: center;">
-      <button class="btn btn-secondary" data-modal-close="qr-scanner-modal" style="width: 100%;">ยกเลิก</button>
-    </div>
-  </div>
-</div>
-
-<!-- ── Modal: Share QR Code ───────────────────────────── -->
-<div class="modal-overlay" id="share-qr-modal">
-  <div class="modal" style="max-width: 400px; text-align: center;">
-    <div class="modal-header">
-      <div>
-        <h3>สแกนเพื่อตั้งค่าซิงก์คลาวด์</h3>
-        <p class="modal-subtitle">ใช้มือถือของช่างสแกนรูปด้านล่างเพื่อเชื่อมต่อข้อมูลอัตโนมัติ</p>
-      </div>
-      <button class="modal-close" data-modal-close="share-qr-modal"><i data-lucide="x" width="18" height="18"></i></button>
-    </div>
-    <div class="modal-body" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: var(--space-lg) 0;">
-      <div id="share-qr-container" style="background: white; padding: 16px; border-radius: var(--radius-md); border: 1px solid var(--border-color); box-shadow: var(--shadow-md); margin-bottom: var(--space-md); width: 288px; height: 288px; display: flex; align-items: center; justify-content: center;">
-        <!-- QR Code Image rendered dynamically -->
-        <img id="share-qr-img" src="" alt="QR Code" style="width: 256px; height: 256px; display: none;">
-        <div id="share-qr-loading" class="spinner" style="width: 32px; height: 32px;"></div>
-      </div>
-      <p class="text-xs text-muted" style="max-width: 320px; margin-top: 8px;">ลิงก์แชร์นี้มีความปลอดภัย ข้อมูลจริงจะถูกซิงก์เฉพาะบนเครื่องที่เชื่อมต่อเท่านั้น</p>
-    </div>
-    <div class="modal-footer" style="display: flex; gap: 8px; justify-content: center; width: 100%;">
-      <button class="btn btn-primary" id="btn-download-share-qr" style="flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 6px;">
-        <i data-lucide="download" width="16" height="16"></i> ดาวน์โหลดรูป
-      </button>
-      <button class="btn btn-secondary" data-modal-close="share-qr-modal" style="flex: 1;">ปิด</button>
-    </div>
-  </div>
-</div>
 
 <!-- ── Bottom Navigation (Mobile Only) ───────────────────── -->
 <nav class="bottom-nav" id="bottom-nav">

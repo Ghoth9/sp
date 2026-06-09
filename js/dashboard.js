@@ -92,7 +92,10 @@ const DashboardModule = (() => {
         const container = $('dashboard-stats-grid');
         if (!container) return;
 
-        container.innerHTML = `
+        const user = typeof DB !== 'undefined' ? DB.getCurrentUser() : null;
+        const isAdmin = user && (user.role === 'admin' || user.role === 'creator');
+
+        let html = `
             <div class="stat-card" id="stat-card-customers">
                 <div class="stat-icon cyan"><i data-lucide="users"></i></div>
                 <div class="stat-info">
@@ -114,6 +117,21 @@ const DashboardModule = (() => {
                     <span class="stat-label">รายได้เดือนนี้</span>
                 </div>
             </div>
+        `;
+
+        if (isAdmin) {
+            html += `
+                <div class="stat-card" id="stat-card-unpaid">
+                    <div class="stat-icon danger"><i data-lucide="circle-alert"></i></div>
+                    <div class="stat-info">
+                        <span class="stat-value" id="stat-unpaid-total" style="color: var(--danger);">฿0</span>
+                        <span class="stat-label">ยอดค้างชำระ</span>
+                    </div>
+                </div>
+            `;
+        }
+
+        html += `
             <div class="stat-card" id="stat-card-appointments">
                 <div class="stat-icon warning"><i data-lucide="calendar-check"></i></div>
                 <div class="stat-info">
@@ -123,6 +141,8 @@ const DashboardModule = (() => {
             </div>
         `;
 
+        container.innerHTML = html;
+
         // Re-init lucide icons
         if (window.lucide) lucide.createIcons();
 
@@ -130,6 +150,9 @@ const DashboardModule = (() => {
         animateCounter($('stat-total-customers'), stats.totalCustomers);
         animateCounter($('stat-services-month'), stats.servicesThisMonth);
         animateCounter($('stat-revenue-month'), stats.revenueThisMonth, 1000, '฿');
+        if (isAdmin) {
+            animateCounter($('stat-unpaid-total'), stats.unpaidTotal, 1000, '฿');
+        }
         animateCounter($('stat-today-appointments'), stats.todayAppointments);
     }
 
@@ -469,14 +492,14 @@ const DashboardModule = (() => {
         const user = typeof DB !== 'undefined' ? DB.getCurrentUser() : null;
         const isAdmin = user && (user.role === 'admin' || user.role === 'creator');
 
+        const unpaidContainer = $('dashboard-unpaid-summary');
+        if (unpaidContainer) unpaidContainer.innerHTML = '';
+
         if (isAdmin) {
-            renderUnpaidSummary(stats);
             drawRevenueChart(stats.services);
             const revChartCard = $('chart-revenue-card');
             if (revChartCard) revChartCard.style.display = 'block';
         } else {
-            const unpaidContainer = $('dashboard-unpaid-summary');
-            if (unpaidContainer) unpaidContainer.innerHTML = '';
             const revChartCard = $('chart-revenue-card');
             if (revChartCard) revChartCard.style.display = 'none';
         }
