@@ -112,7 +112,6 @@ html {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   scroll-behavior: smooth;
-  overscroll-behavior-y: none;
 }
 
 body {
@@ -123,7 +122,6 @@ body {
   line-height: 1.6;
   min-height: 100vh;
   overflow-x: hidden;
-  overscroll-behavior-y: none;
 }
 
 /* Animated background gradient removed for clean crisp theme */
@@ -2271,9 +2269,7 @@ h6 { font-size: var(--text-base); }
     padding-bottom: env(safe-area-inset-bottom, 0px);
     will-change: transform;
     transform: translate3d(0, 0, 0);
-    background: rgba(255, 255, 255, 0.90); /* Light glassmorphic background */
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
+    background: var(--bg-card); /* Solid background to prevent lag/shaking */
     border-top: 1px solid var(--border-color);
     justify-content: space-around;
     align-items: center;

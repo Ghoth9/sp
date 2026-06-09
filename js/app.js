@@ -74,6 +74,11 @@ const App = (() => {
         // Refresh corresponding module if initialized
         refreshModule(pageId);
 
+        // Reset scroll lock and close active modals on page navigation (failsafe)
+        document.body.style.overflow = '';
+        const activeModals = document.querySelectorAll('.modal-overlay.active');
+        activeModals.forEach(m => m.classList.remove('active'));
+
         // Auto-close sidebar on mobile
         const sidebar = $('sidebar');
         const overlay = $('sidebar-overlay');
