@@ -112,6 +112,7 @@ html {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   scroll-behavior: smooth;
+  overscroll-behavior-y: none;
 }
 
 body {
@@ -122,6 +123,7 @@ body {
   line-height: 1.6;
   min-height: 100vh;
   overflow-x: hidden;
+  overscroll-behavior-y: none;
 }
 
 /* Animated background gradient removed for clean crisp theme */
@@ -322,7 +324,7 @@ h6 { font-size: var(--text-base); }
   transform: translateY(-50%);
   width: 3px;
   height: 60%;
-  background: var(--accent-gradient);
+  background: var(--accent-cyan);
   border-radius: var(--radius-full);
 }
 
@@ -1247,7 +1249,7 @@ h6 { font-size: var(--text-base); }
 }
 
 .calendar-day.today .day-number {
-  background: var(--accent-gradient);
+  background: var(--accent-cyan);
   color: var(--text-inverse);
   width: 26px;
   height: 26px;
@@ -1352,7 +1354,7 @@ h6 { font-size: var(--text-base); }
   width: 100%;
   max-width: 48px;
   border-radius: var(--radius-sm) var(--radius-sm) 0 0;
-  background: var(--accent-gradient);
+  background: var(--accent-cyan);
   transition: height var(--transition-slow), filter var(--transition-fast);
   min-height: 4px;
   position: relative;
@@ -1650,7 +1652,7 @@ h6 { font-size: var(--text-base); }
   font-weight: 700;
   font-size: var(--text-sm);
   flex-shrink: 0;
-  background: var(--accent-gradient);
+  background: var(--accent-cyan);
   color: var(--text-inverse);
 }
 
@@ -1690,7 +1692,7 @@ h6 { font-size: var(--text-base); }
 }
 
 .pagination button.active {
-  background: var(--accent-gradient);
+  background: var(--accent-cyan);
   color: var(--text-inverse);
   border-color: transparent;
 }
@@ -2334,7 +2336,7 @@ h6 { font-size: var(--text-base); }
     transform: translateX(-50%);
     width: 32px;
     height: 3px;
-    background: var(--accent-gradient);
+    background: var(--accent-cyan);
     border-radius: 0 0 3px 3px;
     animation: fadeIn 0.25s ease;
   }
@@ -2368,7 +2370,7 @@ h6 { font-size: var(--text-base); }
   .home-btn-inner {
     width: 52px;
     height: 52px;
-    background: var(--accent-gradient);
+    background: var(--accent-cyan);
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -2388,7 +2390,7 @@ h6 { font-size: var(--text-base); }
   }
 
   .bottom-nav-home.active .home-btn-inner {
-    background: var(--accent-gradient-r);
+    background: var(--accent-teal);
     box-shadow: 0 6px 20px rgba(var(--accent-cyan-rgb), 0.55), 0 0 15px rgba(var(--accent-cyan-rgb), 0.3);
     transform: translateY(-20px) scale(1.1);
   }
