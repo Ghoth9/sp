@@ -92,10 +92,7 @@ const DashboardModule = (() => {
         const container = $('dashboard-stats-grid');
         if (!container) return;
 
-        const user = typeof DB !== 'undefined' ? DB.getCurrentUser() : null;
-        const isAdmin = user && (user.role === 'admin' || user.role === 'creator');
-
-        let html = `
+        container.innerHTML = `
             <div class="stat-card" id="stat-card-customers">
                 <div class="stat-icon cyan"><i data-lucide="users"></i></div>
                 <div class="stat-info">
@@ -115,23 +112,13 @@ const DashboardModule = (() => {
                 <div class="stat-info">
                     <span class="stat-value" id="stat-revenue-month">0</span>
                     <span class="stat-label">รายได้เดือนนี้</span>
+                    ${stats.unpaidTotal > 0 ? `
+                        <span class="stat-subtext" id="stat-unpaid-total" style="font-size: 11px; color: var(--danger); margin-top: 4px; display: block; font-weight: 600;">
+                            ค้างชำระ: ${App.formatCurrency(stats.unpaidTotal)}
+                        </span>
+                    ` : ''}
                 </div>
             </div>
-        `;
-
-        if (isAdmin) {
-            html += `
-                <div class="stat-card" id="stat-card-unpaid">
-                    <div class="stat-icon danger"><i data-lucide="circle-alert"></i></div>
-                    <div class="stat-info">
-                        <span class="stat-value" id="stat-unpaid-total" style="color: var(--danger);">฿0</span>
-                        <span class="stat-label">ยอดค้างชำระ</span>
-                    </div>
-                </div>
-            `;
-        }
-
-        html += `
             <div class="stat-card" id="stat-card-appointments">
                 <div class="stat-icon warning"><i data-lucide="calendar-check"></i></div>
                 <div class="stat-info">
@@ -141,8 +128,6 @@ const DashboardModule = (() => {
             </div>
         `;
 
-        container.innerHTML = html;
-
         // Re-init lucide icons
         if (window.lucide) lucide.createIcons();
 
@@ -150,9 +135,6 @@ const DashboardModule = (() => {
         animateCounter($('stat-total-customers'), stats.totalCustomers);
         animateCounter($('stat-services-month'), stats.servicesThisMonth);
         animateCounter($('stat-revenue-month'), stats.revenueThisMonth, 1000, '฿');
-        if (isAdmin) {
-            animateCounter($('stat-unpaid-total'), stats.unpaidTotal, 1000, '฿');
-        }
         animateCounter($('stat-today-appointments'), stats.todayAppointments);
     }
 
@@ -465,22 +447,9 @@ const DashboardModule = (() => {
     /* ── unpaid summary ─────────────────────────────────────── */
     function renderUnpaidSummary(stats) {
         const container = $('dashboard-unpaid-summary');
-        if (!container) return;
-
-        const services = stats.services.filter(s => s.paymentStatus === 'unpaid' || s.paymentStatus === 'partial');
-        if (services.length === 0) {
+        if (container) {
             container.innerHTML = '';
-            return;
         }
-
-        const total = services.reduce((sum, s) => sum + ((Number(s.price) || 0) - (Number(s.paidAmount) || 0)), 0);
-        container.innerHTML = `
-            <div class="alert-banner alert-danger" id="dashboard-unpaid-alert">
-                <i data-lucide="circle-alert"></i>
-                <span>ยอดค้างชำระ ${services.length} รายการ รวม <strong>${App.formatCurrency(total)}</strong></span>
-            </div>
-        `;
-        if (window.lucide) lucide.createIcons();
     }
 
     /* ── main render ────────────────────────────────────────── */
@@ -492,14 +461,14 @@ const DashboardModule = (() => {
         const user = typeof DB !== 'undefined' ? DB.getCurrentUser() : null;
         const isAdmin = user && (user.role === 'admin' || user.role === 'creator');
 
-        const unpaidContainer = $('dashboard-unpaid-summary');
-        if (unpaidContainer) unpaidContainer.innerHTML = '';
-
         if (isAdmin) {
+            renderUnpaidSummary(stats);
             drawRevenueChart(stats.services);
             const revChartCard = $('chart-revenue-card');
             if (revChartCard) revChartCard.style.display = 'block';
         } else {
+            const unpaidContainer = $('dashboard-unpaid-summary');
+            if (unpaidContainer) unpaidContainer.innerHTML = '';
             const revChartCard = $('chart-revenue-card');
             if (revChartCard) revChartCard.style.display = 'none';
         }
