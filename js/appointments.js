@@ -201,11 +201,6 @@ const AppointmentsModule = (() => {
                 <div class="empty-state" id="appointments-empty">
                     <i data-lucide="calendar-off" class="empty-icon"></i>
                     <p>${selectedDate ? 'ไม่มีนัดหมายในวันนี้' : 'ไม่มีนัดหมายในเดือนนี้'}</p>
-                    ${selectedDate ? `
-                        <button class="btn btn-primary btn-sm" id="btn-empty-add-appointment" style="margin-top: 12px; display: inline-flex; align-items: center; gap: 4px;">
-                            <i data-lucide="plus" style="width: 14px; height: 14px;"></i> เพิ่มคิวงานสำหรับวันนี้
-                        </button>
-                    ` : ''}
                 </div>
             `;
             if (window.lucide) lucide.createIcons();
@@ -543,7 +538,7 @@ const AppointmentsModule = (() => {
             }
 
             // Add
-            if (target.id === 'btn-add-appointment' || target.id === 'btn-cal-add-appointment' || target.id === 'btn-empty-add-appointment') {
+            if (target.id === 'btn-add-appointment') {
                 clearForm();
                 App.openModal('appointment-modal');
                 return;
