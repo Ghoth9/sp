@@ -2255,7 +2255,7 @@ h6 { font-size: var(--text-base); }
   }
 
   #btn-top-settings {
-    display: flex !important;
+    display: none !important;
   }
 
   /* ── Bottom Navigation Bar (Mobile Only) ─────────────────────── */
@@ -3045,6 +3045,41 @@ h6 { font-size: var(--text-base); }
 
 /* Mobile responsive navigation overrides */
 @media (max-width: 768px) {
+  .top-header {
+    padding: 0 10px !important;
+  }
+
+  .top-header-left {
+    gap: 6px !important;
+    flex-shrink: 0 !important;
+  }
+
+  .top-header-right {
+    gap: 6px !important;
+    flex-shrink: 0 !important;
+  }
+
+  #btn-top-settings {
+    display: none !important; /* Hide settings button at top right since it is in bottom nav */
+  }
+
+  .top-logo-btn {
+    padding: 4px 6px !important;
+    flex-shrink: 0 !important;
+    max-width: 130px !important;
+  }
+
+  .top-logo-img {
+    width: 32px !important;
+    height: 32px !important;
+    flex-shrink: 0 !important;
+    object-fit: contain !important;
+  }
+
+  .top-logo-name {
+    font-size: 14px !important;
+  }
+
   .top-nav {
     display: none !important; /* Hide top header navigation menu on mobile */
   }
@@ -3054,8 +3089,8 @@ h6 { font-size: var(--text-base); }
   }
 
   .topbar-date-badge {
-    padding: 6px 10px; /* Slightly more compact on mobile */
-    font-size: 11px; /* Slightly smaller font to prevent overflow */
+    padding: 5px 8px !important; /* Slightly more compact on mobile */
+    font-size: 11px !important; /* Slightly smaller font to prevent overflow */
   }
 
   .topbar-date-badge span {
@@ -3067,19 +3102,36 @@ h6 { font-size: var(--text-base); }
   }
 
   .topbar-status-badge {
-    padding: 6px 8px; /* Compact on mobile */
+    padding: 5px 6px !important; /* Compact on mobile */
   }
 
   .topbar-status-badge .status-text {
-    display: none; /* Hide text on small screens, keep color dot */
+    display: none !important; /* Hide text on small screens, keep color dot */
   }
 
   .topbar-cloud-badge {
-    padding: 6px 8px; /* Compact on mobile */
+    padding: 5px 6px !important; /* Compact on mobile */
   }
 
   .topbar-cloud-badge .cloud-text {
-    display: none; /* Hide text on small screens, keep icon */
+    display: none !important; /* Hide text on small screens, keep icon */
+  }
+}
+
+/* Extra compact header overrides for very narrow mobile screens */
+@media (max-width: 390px) {
+  .top-header {
+    padding: 0 6px !important;
+    gap: 4px !important;
+  }
+  .top-header-left {
+    gap: 4px !important;
+  }
+  .top-header-right {
+    gap: 4px !important;
+  }
+  .topbar-date-badge {
+    display: none !important; /* Hide date badge entirely on narrow screens to guarantee no overlap */
   }
 }
 
